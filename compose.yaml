@@ -1,1 +1,61 @@
-services: { }
+services: 
+  frontend:
+    container_name: chieftain_frontend
+    volumes:
+      - ./frontend:/app
+    build:
+      context: ./frontend
+      dockerfile: ./Dockerfile
+    ports:
+      - 3000:3000
+    depends_on: [backend] 
+    networks:
+      chieftain_net:
+        ipv4_address: 192.168.25.50
+  backend:
+    container_name: chieftain_backend
+    volumes:
+      - ./backend:/app
+    build:
+      context: ./backend
+      dockerfile: ./Dockerfile
+    depends_on:
+      database:
+        condition: service_healthy
+    ports:
+      - 8080:8080
+    networks:
+      chieftain_net:
+        ipv4_address: 192.168.25.100
+  database:
+    container_name: chieftain_database
+    image: postgres:18.4
+    ports:
+      - 5432:5432
+    env_file: .env
+    volumes:
+      - ./db-data:/docker-entrypoint-initdb.d/:ro
+      - db_data:/var/lib/postgresql/data
+    environment:
+      PGDATA: "/var/lib/postgresql/data"
+      POSTGRES_DB: chieftain
+    networks:
+      chieftain_net:
+        ipv4_address: 192.168.25.150
+    healthcheck:
+      test: pg_isready -d chieftain
+      interval: 60s
+      retries: 5
+      start_period: 20s
+      timeout: 10s
+
+volumes:
+  db_data:
+
+networks:
+  chieftain_net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.25.0/24
+        - gateway: 192.168.25.1
