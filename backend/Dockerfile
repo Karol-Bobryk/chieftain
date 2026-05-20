@@ -1,4 +1,4 @@
-FROM eclipse-temurin:26.0.1_8-jre-noble AS build
+FROM eclipse-temurin:26.0.1_8-jdk-noble AS build
 ENV HOME=/usr/app
 RUN mkdir -p $HOME
 WORKDIR $HOME
