@@ -23,7 +23,7 @@ In case you are not familiar with those:
 
   - Docker is used to create containers (small "virtual machines"), created based on images we configure in Dockerfiles.
     So: image is like a blueprint which we use to create container with running code. Previously mentioned configuration
-    includes things like installing java jdk/jre, node and npm installation or running certain commands inside our container.
+    includes things like installing java jdk/jre, bun installation or running certain commands inside our container.
 
   - Docker compose on the other hand is used to manage multiple images and containers. 
     So: we use docker compose to avoid having to run very long and complicated commands every time we want to rebuild our apps.
@@ -43,7 +43,7 @@ Hopefully now everything is at least a bit clear.
 
 INSTALLATION:
 
-Install node and npm from nodejs website: https://nodejs.org/en/download
+Install bun from this website: https://bun.com/docs/installation
 
 Make sure you have docker or docker desktop installed and that docker has appropriate privileges. 
 I will show you how to set everyting in CLI but most of those things are doable in docker desktop.
@@ -65,7 +65,7 @@ contains sensitive data.
 2. Go to "frontend/" directory and install dependencies:
    
      cd frontend/
-     npm i
+     bun install
      cd ..
 
 3. You should be back in the project root dir and run:
@@ -85,3 +85,9 @@ Each service can be accessed under different ips:
   - Frontend: http://192.168.25.50:3000
   - Backend: http://192.168.25.100:8080
   - Database postgres://192.168.25.150:5432
+
+Due to Windows Networking Magic™ if you're using windows you are forced to use localhost to access docker services:
+
+  - Frontend: http://localhost:3000
+  - Backend: http://localhost:8080
+  - Database postgres://localhost:5432
