@@ -1,0 +1,93 @@
+PROJECT STRUCTURE:
+
+--chieftain
+   |--frontend
+   |--backend
+   |--db-data
+
+chieftain - project root folder, contains everything
+frontend  - contains frontend code, our frontend is written in React and deployed with Vite 
+backend   - contains backend code, written in Java Spring
+db-data   - this is where you can put database files, it wont be necessarily that important, 
+            but it's there just in case
+
+!!!IMPORTANT!!!
+If db-data may not be contained on github repository, if that is the case YOU SHOULD CREATE IT YOURSELF
+On Linux:
+  mkdir db-data 
+
+And whateverthefuck on Windows, you can manage
+
+None of our programs should be executed raw on our machines, thats why we use docker and docker compose.
+In case you are not familiar with those:
+
+  - Docker is used to create containers (small "virtual machines"), created based on images we configure in Dockerfiles.
+    So: image is like a blueprint which we use to create container with running code. Previously mentioned configuration
+    includes things like installing java jdk/jre, bun installation or running certain commands inside our container.
+
+  - Docker compose on the other hand is used to manage multiple images and containers. 
+    So: we use docker compose to avoid having to run very long and complicated commands every time we want to rebuild our apps.
+
+Configurations can be found in:
+For docker:
+
+  "frontend/Dockerfile" for frontend configuration
+  "backend/Dockerfile" for backend configuration
+  for simplicity reasons we Postgresql configuration is hardwired in docker compose
+
+For docker compose
+    
+  "compose.yaml" in project root, it contains informations telling docker composer how to create differend services (frontend, backend, database)
+
+Hopefully now everything is at least a bit clear.
+
+INSTALLATION:
+
+Install bun from this website: https://bun.com/docs/installation
+
+Make sure you have docker or docker desktop installed and that docker has appropriate privileges. 
+I will show you how to set everyting in CLI but most of those things are doable in docker desktop.
+If you use docker desktop, remember that it has to be turned on for docker commands to work.
+
+In project root directory, create an ".env" file and fill it with data in such manner:
+
+POSTGRES_PASSWORD=<value>
+POSTGRES_USER=<value>
+PGUSER=<value>
+
+Those values will be used to generate database config, replace <value> with appropriate values
+Keep in mind both POSTGRES_USER and PGUSER should be the same. You should NEVER share ".env" file anywhere as it
+contains sensitive data.
+
+1. Check if you have db-data, backend and frontend directories in your root directory. 
+   If db-data is missing, create an empty directory named db-data.
+
+2. Go to "frontend/" directory and install dependencies:
+   
+     cd frontend/
+     bun install
+     cd ..
+
+3. You should be back in the project root dir and run:
+
+    docker compose build
+
+   it may take a while so don't panic if looks stuck.
+
+4. Once docker is finished mining bitcoin on your computer run:
+    
+    docker compose up
+
+You should be greeted with a wall of colorful text (hopefully not red) this is output of every service running in docker.
+
+Each service can be accessed under different ips:
+
+  - Frontend: http://192.168.25.50:3000
+  - Backend: http://192.168.25.100:8080
+  - Database postgres://192.168.25.150:5432
+
+Due to Windows Networking Magic™ if you're using windows you are forced to use localhost to access docker services:
+
+  - Frontend: http://localhost:3000
+  - Backend: http://localhost:8080
+  - Database postgres://localhost:5432
