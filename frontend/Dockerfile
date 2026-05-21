@@ -1,13 +1,7 @@
-FROM node:26-alpine3.22
+FROM oven/bun:1.3
 
-WORKDIR /app
-
-COPY package.json .
-COPY package-lock.json .
-
-RUN npm install
 COPY . .
 
-EXPOSE 3000
+RUN bun install
 
-CMD [ "npm", "run", "dev" ]
+ENTRYPOINT bun run dev
