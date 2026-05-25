@@ -13,6 +13,8 @@ services:
       chieftain_net:
         ipv4_address: 192.168.25.50
   backend:
+    env_file:
+      - ./backend/.env
     container_name: chieftain_backend
     volumes:
       - ./backend:/workspace
