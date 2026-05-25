@@ -8,22 +8,24 @@ import java.util.UUID;
 @Entity
 @Table(name = "users")
 public class UserEntity {
+
   @Id
   @GeneratedValue(strategy = GenerationType.UUID)
+  @Column(name = "pk_user_id")
   @Nonnull
-  private UUID pk_user_id;
+  private UUID pkUserId;
 
-  //    @ForeignKey
-  //    @Nonnull
-  //    private UUID fk_organization_id;
+  @ForeignKey
+  @Nonnull
+  private UUID fk_organization_id;
 
   @Column(name = "email_address")
   @Nonnull
-  private String email_address;
+  private String emailAddress;
 
   @Column(name = "secret_hash")
   @Nonnull
-  private String secret_hash;
+  private String secretHash;
 
   @Column(name = "name")
   @Nonnull
@@ -35,7 +37,7 @@ public class UserEntity {
 
   @Column(name = "job_title")
   @Nonnull
-  private String job_title;
+  private String jobTitle;
 
   @Column(name = "blocked")
   @Nonnull
@@ -47,6 +49,6 @@ public class UserEntity {
 
   @Column(name = "joined_at")
   @Nonnull
-  private LocalDateTime joined_at;
+  private LocalDateTime joinedAt;
   // TODO: add roles
 }
