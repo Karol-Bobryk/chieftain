@@ -2,22 +2,30 @@ package com.chieftain.models;
 
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
 @Table(name = "users")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
-  @Column(name = "pk_user_id")
   @Nonnull
+  @Column(name = "pk_user_id")
+  @GeneratedValue(strategy = GenerationType.UUID)
   private UUID pkUserId;
 
-//  @ForeignKey
-//  @Nonnull
-//  private UUID fk_organization_id;
+  @ManyToOne
+  @JoinColumn(name = "fk_organization_id")
+  private OrganizationEntity organization;
 
   @Column(name = "email_address")
   @Nonnull
