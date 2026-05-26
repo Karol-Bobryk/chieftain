@@ -18,7 +18,7 @@ services:
       - .env
     container_name: chieftain_backend
     volumes:
-      - ./backend:/usr/app
+      - ./backend:/app
     build:
       context: ./backend
       dockerfile: ./Dockerfile

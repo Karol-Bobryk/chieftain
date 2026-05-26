@@ -15,9 +15,9 @@ public class UserEntity {
   @Nonnull
   private UUID pkUserId;
 
-  @ForeignKey
-  @Nonnull
-  private UUID fk_organization_id;
+//  @ForeignKey
+//  @Nonnull
+//  private UUID fk_organization_id;
 
   @Column(name = "email_address")
   @Nonnull
