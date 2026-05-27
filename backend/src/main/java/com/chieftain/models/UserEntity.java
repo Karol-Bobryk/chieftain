@@ -1,5 +1,6 @@
 package com.chieftain.models;
 
+import com.chieftain.enums.SystemRole;
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -58,5 +59,9 @@ public class UserEntity {
   @Column(name = "joined_at")
   @Nonnull
   private LocalDateTime joinedAt;
-  // TODO: add roles
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = "role")
+  @Nonnull
+  private SystemRole role;
 }
