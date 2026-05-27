@@ -32,7 +32,7 @@ public class GroupEntity {
     private String name;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
     //TODO: connect with group_members and group privileges
 
