@@ -24,8 +24,8 @@ public class UserEntity {
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID pkUserId;
 
-  @ManyToOne
-  @JoinColumn(name = "fk_organization_id", nullable = false)
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "fk_organization_id")
   private OrganizationEntity organization;
 
   @Column(name = "email_address", nullable = false)

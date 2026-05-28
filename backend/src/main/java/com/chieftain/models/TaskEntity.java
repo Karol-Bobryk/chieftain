@@ -8,6 +8,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -23,16 +25,16 @@ public class TaskEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @Nonnull
     @JoinColumn(name = "fk_creator_user_id")
     private UserEntity creatorUser;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "parent_task_id")
     private TaskEntity parentTask;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @Nonnull
     @JoinColumn(name = "fk_group_id")
     private GroupEntity group;
@@ -44,8 +46,7 @@ public class TaskEntity {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    @Nonnull
-    @Column(name= "done_at")
+    @Column(name = "done_at")
     private LocalDateTime doneAt;
 
     @Column(name = "deadline")
@@ -59,5 +60,8 @@ public class TaskEntity {
     @Column(name = "description")
     private String description;
 
-    // add task assignees ? and connect
+    @ManyToMany
+    @JoinTable(name = "task_assignees", joinColumns = @JoinColumn(name = "fk_task_id"),
+            inverseJoinColumns = @JoinColumn(name = "fk_assignee_user_id"))
+    private List<UserEntity> assignees = new ArrayList<>();
 }
