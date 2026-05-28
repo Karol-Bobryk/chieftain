@@ -18,24 +18,24 @@ import java.util.UUID;
 public class OrganizationEntity {
     @Id
     @Nonnull
-    @Column(name = "pk_organization_id")
+    @Column(name = "pk_organization_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID pkOrganizationId;
 
     @Nonnull
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private String name;
 
     @Nonnull
-    @Column(name = "join_token")
+    @Column(name = "join_token", nullable = false)
     private String joinToken;
 
     @Nonnull
-    @Column(name = "created_at")
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     @Nonnull
-    @Column(name = "blocked")
+    @Column(name = "blocked", nullable = false)
     private Boolean blocked;
 
     @OneToMany(mappedBy = "organization")

@@ -20,23 +20,33 @@ public class GroupEntity {
 
     @Id
     @Nonnull
-    @Column(name = "pk_group_id")
+    @Column(name = "pk_group_id", nullable = false)
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Nonnull
     @ManyToOne
-    @JoinColumn(name = "fk_organization_id")
+    @JoinColumn(name = "fk_organization_id", nullable = false)
     private OrganizationEntity organization;
 
-    @Column(name = "name")
+    @Nonnull
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(name = "created_at")
+    @Nonnull
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    //TODO: connect with group_members and group privileges
-
+    @Nonnull
+    @ManyToMany
+    @JoinTable(
+            name = "group_members",
+            joinColumns = @JoinColumn(name = "fk_group_id"),
+            inverseJoinColumns = @JoinColumn(name = "fk_user_id")
+    )
     private List<UserEntity> members = new ArrayList<>();
 
-
+    @Nonnull
+    @OneToMany(mappedBy = "group")
+    private List<GroupPrivilegeEntity> privileges;
 }

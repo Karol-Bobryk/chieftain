@@ -1,6 +1,6 @@
 package com.chieftain.enums;
 
-public enum GroupUserPremission {
+public enum GroupUserPermission {
     ADD_TASK,
     REMOVE_TASK,
     EDIT_TASK,
