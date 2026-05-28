@@ -23,7 +23,7 @@ public class TaskEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @OneToMany
+    @ManyToOne
     @Nonnull
     @JoinColumn(name = "fk_creator_user_id")
     private UserEntity creatorUser;
@@ -59,4 +59,5 @@ public class TaskEntity {
     @Column(name = "description")
     private String description;
 
+    // add task assignees ? and connect
 }

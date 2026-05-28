@@ -1,6 +1,6 @@
 package com.chieftain.enums;
 
-public enum LogServerity {
+public enum LogSeverity {
     INFO,
     WARNING,
     ERROR,
