@@ -20,7 +20,7 @@ public class UserLogEntity {
     private Long id;
 
     @Nonnull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_user_id", nullable = false)
     private UserEntity user;
 

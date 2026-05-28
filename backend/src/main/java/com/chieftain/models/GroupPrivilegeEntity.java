@@ -18,13 +18,13 @@ public class GroupPrivilegeEntity {
     private GroupPrivilegeId id = new GroupPrivilegeId();
 
     @Nonnull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("groupId")
     @JoinColumn(name = "fk_group_id", nullable = false)
     private GroupEntity group;
 
     @Nonnull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")
     @JoinColumn(name = "fk_user_id", nullable = false)
     private UserEntity user;

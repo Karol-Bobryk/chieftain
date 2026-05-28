@@ -20,7 +20,7 @@ public class OrganizationLogEntity {
     private Long id;
 
     @Nonnull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_organization_id", nullable = false)
     private OrganizationEntity organization;
 

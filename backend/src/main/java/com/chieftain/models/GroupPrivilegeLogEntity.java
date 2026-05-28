@@ -20,12 +20,12 @@ public class GroupPrivilegeLogEntity {
     private Long id;
 
     @Nonnull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_group_id", nullable = false)
     private GroupEntity group;
 
     @Nonnull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_user_id", nullable = false)
     private UserEntity user;
 

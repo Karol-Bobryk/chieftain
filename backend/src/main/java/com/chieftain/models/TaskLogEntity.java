@@ -20,7 +20,7 @@ public class TaskLogEntity {
     private Long id;
 
     @Nonnull
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fk_task_id", nullable = false)
     private TaskEntity task;
 
