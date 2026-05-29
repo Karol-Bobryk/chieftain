@@ -3,9 +3,7 @@ package com.chieftain.models;
 import com.chieftain.enums.TaskStatus;
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -14,7 +12,8 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "tasks")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class TaskEntity {
