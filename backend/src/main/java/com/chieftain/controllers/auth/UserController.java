@@ -34,7 +34,7 @@ public class UserController {
     //       furthermore, we need to check if it is a brand new organization, if it is the user
     //       becomes an owner
 
-      userService.save(userEntity);
+    userService.save(userEntity);
 
     return new ResponseEntity<>(HttpStatus.CREATED);
   }
