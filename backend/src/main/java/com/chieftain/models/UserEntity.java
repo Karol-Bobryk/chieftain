@@ -1,60 +1,62 @@
 package com.chieftain.models;
 
-import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Table(name = "users")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class UserEntity {
 
   @Id
-  @Nonnull
   @Column(name = "pk_user_id")
   @GeneratedValue(strategy = GenerationType.UUID)
   private UUID pkUserId;
 
+  // TODO: as per design agreements, this one shouldn't be null
   @ManyToOne
   @JoinColumn(name = "fk_organization_id")
   private OrganizationEntity organization;
 
-  @Column(name = "email_address")
-  @Nonnull
+  @Column(name = "email_address", nullable = false, unique = true)
   private String emailAddress;
 
   @Column(name = "secret_hash")
-  @Nonnull
   private String secretHash;
 
   @Column(name = "name")
-  @Nonnull
   private String name;
 
   @Column(name = "surname")
-  @Nonnull
   private String surname;
 
   @Column(name = "job_title")
-  @Nonnull
   private String jobTitle;
 
   @Column(name = "blocked")
-  @Nonnull
-  private Boolean blocked;
+  private Boolean blocked = false;
 
   @Column(name = "accepted")
-  @Nonnull
-  private Boolean accepted;
+  private Boolean accepted = false;
 
-  @Column(name = "joined_at")
-  @Nonnull
+  @CreationTimestamp
+  @Column(name = "joined_at", nullable = false, updatable = false)
   private LocalDateTime joinedAt;
+
+  @PrePersist
+  private void prePersist() {
+    if (blocked == null) {
+      blocked = false;
+    }
+    if (accepted == null) {
+      accepted = false;
+    }
+  }
   // TODO: add roles
 }

@@ -9,22 +9,26 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NonNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-@Component
+@Slf4j
 public class JwtAuthFilter extends OncePerRequestFilter {
 
   private final CustomUserDetailsService customUserDetailsService;
 
-  @Autowired
   public JwtAuthFilter(CustomUserDetailsService customUserDetailsService) {
     this.customUserDetailsService = customUserDetailsService;
+  }
+
+  @Override
+  protected boolean shouldNotFilter(HttpServletRequest request) {
+    // TODO: add some constant like excluded paths, change in security config as well
+    return request.getServletPath().startsWith("/auth");
   }
 
   @Override
@@ -59,8 +63,10 @@ public class JwtAuthFilter extends OncePerRequestFilter {
       }
 
     } catch (Exception exception) {
+      // TODO: add better errors
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       response.getWriter().write("Invalid JWT");
+      return;
     }
 
     filterChain.doFilter(request, response);
