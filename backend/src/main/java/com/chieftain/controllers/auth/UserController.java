@@ -8,6 +8,7 @@ import com.chieftain.exceptions.InvalidUserSecretProvidedException;
 import com.chieftain.models.UserEntity;
 import com.chieftain.services.JwtService;
 import com.chieftain.services.UserService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,7 +29,7 @@ public class UserController {
 
   @PostMapping("/create")
   @ResponseBody
-  public ResponseEntity<Void> createUser(@RequestBody CreateUserRequestDTO request) {
+  public ResponseEntity<Void> createUser(@Valid @RequestBody CreateUserRequestDTO request) {
     UserEntity userEntity = new UserEntity();
 
     userEntity.setEmailAddress(request.getEmailAddress());
@@ -48,15 +49,18 @@ public class UserController {
 
   @PostMapping("/login")
   @ResponseBody
-  public ResponseEntity<LoginUserResponseDTO> loginUser(@RequestBody LoginUserRequestDTO request) throws InvalidUserSecretProvidedException {
-      UserEntity userEntity = userService.isPasswordMatchingForEmailAddress(request.getEmailAddress(), request.getPassword());
-      CustomUserDetails customUserDetails = new CustomUserDetails(userEntity);
+  public ResponseEntity<LoginUserResponseDTO> loginUser(
+      @Valid @RequestBody LoginUserRequestDTO request) throws InvalidUserSecretProvidedException {
+    UserEntity userEntity =
+        userService.isPasswordMatchingForEmailAddress(
+            request.getEmailAddress(), request.getPassword());
+    CustomUserDetails customUserDetails = new CustomUserDetails(userEntity);
 
-      String token = JwtService.createJwsToken(customUserDetails);
+    String token = JwtService.createJwsToken(customUserDetails);
 
-      LoginUserResponseDTO loginUserResponseDTO = new LoginUserResponseDTO();
-      loginUserResponseDTO.setAccessToken(token);
+    LoginUserResponseDTO loginUserResponseDTO = new LoginUserResponseDTO();
+    loginUserResponseDTO.setAccessToken(token);
 
-      return new ResponseEntity<>(loginUserResponseDTO, HttpStatus.OK);
+    return new ResponseEntity<>(loginUserResponseDTO, HttpStatus.OK);
   }
 }

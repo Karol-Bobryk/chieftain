@@ -1,6 +1,5 @@
 package com.chieftain.services;
 
-import com.chieftain.adapters.CustomUserDetails;
 import com.chieftain.exceptions.EmailAddressNotFoundException;
 import com.chieftain.exceptions.EmailIsAlreadyTakenException;
 import com.chieftain.exceptions.InvalidUserSecretProvidedException;
@@ -9,8 +8,6 @@ import com.chieftain.models.UserEntity;
 import com.chieftain.repositories.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -40,12 +37,19 @@ public class UserService {
     userRepository.save(userEntity);
   }
 
-  public UserEntity isPasswordMatchingForEmailAddress(String emailAddress, String password) throws InvalidUserSecretProvidedException {
-    UserEntity userEntity = userRepository.findByEmailAddress(emailAddress)
-            .orElseThrow(() -> new EmailAddressNotFoundException("No user is associated with email: " + emailAddress));
+  public UserEntity isPasswordMatchingForEmailAddress(String emailAddress, String password)
+      throws InvalidUserSecretProvidedException {
+    UserEntity userEntity =
+        userRepository
+            .findByEmailAddress(emailAddress)
+            .orElseThrow(
+                () ->
+                    new EmailAddressNotFoundException(
+                        "No user is associated with email: " + emailAddress));
 
-    if(!passwordEncoder.matches(password, userEntity.getSecretHash())) {
-      throw new InvalidUserSecretProvidedException("Failed to authenticate user: "+ emailAddress + " invalid secret");
+    if (!passwordEncoder.matches(password, userEntity.getSecretHash())) {
+      throw new InvalidUserSecretProvidedException(
+          "Failed to authenticate user: " + emailAddress + " invalid secret");
     }
 
     return userEntity;

@@ -25,8 +25,7 @@ public class AuthExceptionHandler {
 
   @ExceptionHandler(InvalidUserSecretProvidedException.class)
   public ResponseEntity<String> handleInvalidSecret() {
-    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body("Invalid user secret provided");
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user secret provided");
   }
 
   @ExceptionHandler(Exception.class)

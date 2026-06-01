@@ -6,12 +6,11 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 import javax.crypto.SecretKey;
+import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class JwtService {
@@ -34,7 +33,7 @@ public class JwtService {
     return tokenExpirationDate != null && !tokenExpirationDate.before(new Date());
   }
 
-  public static String createJwsToken(CustomUserDetails customUserDetails){
+  public static String createJwsToken(CustomUserDetails customUserDetails) {
     byte[] decodedSecret = Decoders.BASE64.decode(System.getenv("JWT_SECRET"));
     SecretKey secretKey = Keys.hmacShaKeyFor(decodedSecret);
 
@@ -46,11 +45,11 @@ public class JwtService {
     exp = cal.getTime();
 
     return Jwts.builder()
-            .subject(customUserDetails.getUserId().toString())
-            .expiration(exp)
-            .claim("email", customUserDetails.getUsername())
-            .signWith(secretKey)
-            .compact();
+        .subject(customUserDetails.getUserId().toString())
+        .expiration(exp)
+        .claim("email", customUserDetails.getUsername())
+        .signWith(secretKey)
+        .compact();
   }
 
   public static Date getExpirationDate(String token) {
