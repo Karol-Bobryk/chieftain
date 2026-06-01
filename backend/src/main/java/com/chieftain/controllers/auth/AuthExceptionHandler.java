@@ -1,6 +1,7 @@
 package com.chieftain.controllers.auth;
 
 import com.chieftain.exceptions.EmailIsAlreadyTakenException;
+import com.chieftain.exceptions.InvalidUserSecretProvidedException;
 import com.chieftain.exceptions.UserSecretNotProvidedException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,12 @@ public class AuthExceptionHandler {
   @ExceptionHandler(UserSecretNotProvidedException.class)
   public ResponseEntity<String> handleSecretNotProvided() {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Secret not provided");
+  }
+
+  @ExceptionHandler(InvalidUserSecretProvidedException.class)
+  public ResponseEntity<String> handleInvalidSecret() {
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body("Invalid user secret provided");
   }
 
   @ExceptionHandler(Exception.class)

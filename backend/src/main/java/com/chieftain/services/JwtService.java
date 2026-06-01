@@ -6,10 +6,14 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.Calendar;
 import java.util.Date;
 import java.util.UUID;
 import javax.crypto.SecretKey;
 
+@Slf4j
 public class JwtService {
   public static UUID getUserId(String token) {
     Jws<Claims> jws = getVerifiedJwsClaims(token);
@@ -18,7 +22,7 @@ public class JwtService {
 
   public static String getEmailAddress(String token) {
     Jws<Claims> jws = getVerifiedJwsClaims(token);
-    return jws.getPayload().get("emailAddress", String.class);
+    return jws.getPayload().get("email", String.class);
   }
 
   public static Boolean isTokenValidForUser(String token, CustomUserDetails customUserDetails) {
@@ -28,6 +32,25 @@ public class JwtService {
     if (userId != customUserDetails.getUserId()) return false;
 
     return tokenExpirationDate != null && !tokenExpirationDate.before(new Date());
+  }
+
+  public static String createJwsToken(CustomUserDetails customUserDetails){
+    byte[] decodedSecret = Decoders.BASE64.decode(System.getenv("JWT_SECRET"));
+    SecretKey secretKey = Keys.hmacShaKeyFor(decodedSecret);
+
+    Date exp = new Date();
+
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(exp);
+    cal.add(Calendar.MINUTE, 1); // TODO: change to a real expiration time constant
+    exp = cal.getTime();
+
+    return Jwts.builder()
+            .subject(customUserDetails.getUserId().toString())
+            .expiration(exp)
+            .claim("email", customUserDetails.getUsername())
+            .signWith(secretKey)
+            .compact();
   }
 
   public static Date getExpirationDate(String token) {
