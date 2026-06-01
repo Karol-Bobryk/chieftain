@@ -63,4 +63,9 @@ public class TaskEntity {
     @JoinTable(name = "task_assignees", joinColumns = @JoinColumn(name = "fk_task_id"),
             inverseJoinColumns = @JoinColumn(name = "fk_assignee_user_id"))
     private List<UserEntity> assignees = new ArrayList<>();
+
+    @Version
+    @Column(name = "version")
+    private Long version;
+
 }
