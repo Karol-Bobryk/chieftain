@@ -68,4 +68,7 @@ public class TaskEntity {
     @Column(name = "version")
     private Long version;
 
+    @OneToMany(mappedBy = "parentTask", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<TaskEntity> subtasks = new ArrayList<>();
+
 }
