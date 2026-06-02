@@ -36,6 +36,8 @@ public class UserController {
     userEntity.setSecretHash(request.getPassword());
     userEntity.setName(request.getName());
     userEntity.setSurname(request.getSurname());
+    userEntity.setJobTitle(request.getJobTitle());
+    userEntity.setRole(request.getRole());
 
     // TODO: we should call OrganizationService to create a request to add a user,
     //       user shall be unable to access protected endpoints until this request is accepted,
@@ -51,6 +53,7 @@ public class UserController {
   @ResponseBody
   public ResponseEntity<LoginUserResponseDTO> loginUser(
       @Valid @RequestBody LoginUserRequestDTO request) throws InvalidUserSecretProvidedException {
+    log.info(request.getPassword());
     UserEntity userEntity =
         userService.isPasswordMatchingForEmailAddress(
             request.getEmailAddress(), request.getPassword());

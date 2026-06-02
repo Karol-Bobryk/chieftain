@@ -1,5 +1,6 @@
 package com.chieftain.controllers.auth.dto;
 
+import com.chieftain.enums.SystemRole;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -32,4 +33,10 @@ public class CreateUserRequestDTO {
   @NotBlank(message = "Organization token cannot be blank")
   @Size(min = 2, max = 255, message = "Organization token must be between 2 and 255 characters")
   private String organizationToken;
+
+  @NotBlank(message = "Job title cannot be blank")
+  @Size(min = 2, max = 255, message = "Job title must be between 2 and 255 characters")
+  private String jobTitle;
+
+  private SystemRole role;
 }
