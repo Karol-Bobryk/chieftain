@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,4 +40,8 @@ public class OrganizationEntity {
 
     @OneToMany(mappedBy = "organization")
     private List<UserEntity> users;
+
+    @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<GroupEntity> groups = new ArrayList<>();
+
 }
