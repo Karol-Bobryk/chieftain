@@ -4,9 +4,12 @@ import com.chieftain.exceptions.EmailAddressNotFoundException;
 import com.chieftain.exceptions.EmailIsAlreadyTakenException;
 import com.chieftain.exceptions.InvalidUserSecretProvidedException;
 import com.chieftain.exceptions.UserSecretNotProvidedException;
+import java.util.Objects;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice(basePackages = "com.chieftain.controllers.auth")
@@ -31,7 +34,19 @@ public class AuthExceptionHandler {
 
   @ExceptionHandler(EmailAddressNotFoundException.class)
   public ResponseEntity<String> handleEmailNotFound() {
-    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("There is no matching user for given email address");
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+        .body("There is no matching user for given email address");
+  }
+
+  @ExceptionHandler(MethodArgumentNotValidException.class)
+  @ResponseStatus()
+  public ResponseEntity<String> handleValidation(MethodArgumentNotValidException ex) {
+
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(
+            "Request field validation failed "
+                + Objects.requireNonNull(ex.getBindingResult().getFieldError())
+                    .getDefaultMessage());
   }
 
   @ExceptionHandler(Exception.class)
