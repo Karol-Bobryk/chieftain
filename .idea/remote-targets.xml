@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="RemoteTargetsManager">
+    <option name="projectDefaultTargetUuid" value="386c0aff-3dfc-41e3-81ea-c717bf5293fd" />
+    <targets>
+      <target name="backend" type="docker-compose" uuid="386c0aff-3dfc-41e3-81ea-c717bf5293fd">
+        <config>
+          <option name="targetPlatform">
+            <TargetPlatform />
+          </option>
+          <option name="configurationFiles">
+            <list>
+              <option value="$PROJECT_DIR$/compose.yaml" />
+            </list>
+          </option>
+          <option name="projectName" value="chieftain" />
+          <option name="serviceName" value="backend" />
+        </config>
+        <ContributedStateBase type="JavaLanguageRuntime">
+          <config />
+        </ContributedStateBase>
+      </target>
+    </targets>
+  </component>
+</project>

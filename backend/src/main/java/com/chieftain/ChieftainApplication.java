@@ -1,4 +1,4 @@
-package com.example.cheiftain;
+package com.chieftain;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -15,9 +15,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 //   \______\_\\__\
 
 @SpringBootApplication
-public class CheiftainApplication {
+public class ChieftainApplication {
 
   public static void main(String[] args) {
-    SpringApplication.run(CheiftainApplication.class, args);
+    SpringApplication.run(ChieftainApplication.class, args);
   }
 }
