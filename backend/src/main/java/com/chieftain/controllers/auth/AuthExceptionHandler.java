@@ -1,5 +1,6 @@
 package com.chieftain.controllers.auth;
 
+import com.chieftain.exceptions.EmailAddressNotFoundException;
 import com.chieftain.exceptions.EmailIsAlreadyTakenException;
 import com.chieftain.exceptions.InvalidUserSecretProvidedException;
 import com.chieftain.exceptions.UserSecretNotProvidedException;
@@ -28,9 +29,14 @@ public class AuthExceptionHandler {
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid user secret provided");
   }
 
+  @ExceptionHandler(EmailAddressNotFoundException.class)
+  public ResponseEntity<String> handleEmailNotFound() {
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("There is no matching user for given email address");
+  }
+
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<String> handleGeneralAuthError() {
+  public ResponseEntity<String> handleGeneralAuthError(Exception ex) {
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .body("Unknown authentication error occurred");
+        .body("Unknown authentication error occurred: " + ex.getMessage());
   }
 }
