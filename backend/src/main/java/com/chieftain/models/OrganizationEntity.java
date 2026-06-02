@@ -41,9 +41,6 @@ public class OrganizationEntity {
   @Column(name = "blocked", nullable = false)
   private Boolean blocked;
 
-  @OneToMany(mappedBy = "organization")
-  private List<UserEntity> users;
-
   @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<GroupEntity> groups = new ArrayList<>();
 }

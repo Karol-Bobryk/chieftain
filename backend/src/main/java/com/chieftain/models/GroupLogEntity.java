@@ -14,13 +14,6 @@ import org.hibernate.annotations.CreationTimestamp;
 @NoArgsConstructor
 @AllArgsConstructor
 public class GroupLogEntity {
-
-  @Id
-  @Nonnull
-  @Column(name = "pk_log_id", updatable = false, nullable = false)
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
-
   @Id
   @Nonnull
   @Column(name = "pk_log_id", updatable = false, nullable = false)
@@ -33,16 +26,6 @@ public class GroupLogEntity {
   private GroupEntity group;
 
   @Nonnull
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "fk_group_id", nullable = false)
-  private GroupEntity group;
-
-  @Nonnull
-  @Enumerated(EnumType.STRING)
-  @Column(name = "severity", nullable = false)
-  private LogSeverity severity;
-
-  @Nonnull
   @Enumerated(EnumType.STRING)
   @Column(name = "severity", nullable = false)
   private LogSeverity severity;
@@ -52,21 +35,9 @@ public class GroupLogEntity {
   @Column(name = "created_at", nullable = false)
   private LocalDateTime createdAt;
 
-  @CreationTimestamp
-  @Nonnull
-  @Column(name = "created_at", nullable = false)
-  private LocalDateTime createdAt;
-
   @Nonnull
   @Column(name = "action", nullable = false)
   private String action;
-
-  @Nonnull
-  @Column(name = "action", nullable = false)
-  private String action;
-
-  @Column(name = "description")
-  private String description;
 
   @Column(name = "description")
   private String description;
