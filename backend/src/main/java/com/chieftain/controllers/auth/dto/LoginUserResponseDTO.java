@@ -1,10 +1,15 @@
 package com.chieftain.controllers.auth.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import jakarta.validation.constraints.NotBlank;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class LoginUserResponseDTO {
-  private String accessToken;
+  @NotBlank(message="Access token cannot be blank")
+  String accessToken;
 }
