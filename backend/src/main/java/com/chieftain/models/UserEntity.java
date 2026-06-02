@@ -3,11 +3,13 @@ package com.chieftain.models;
 import com.chieftain.enums.SystemRole;
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Table(name = "users")
@@ -27,7 +29,7 @@ public class UserEntity {
   @JoinColumn(name = "fk_organization_id")
   private OrganizationEntity organization;
 
-  @Column(name = "email_address", nullable = false)
+  @Column(name = "email_address", nullable = false, unique = true)
   @Nonnull
   private String emailAddress;
 
@@ -49,14 +51,15 @@ public class UserEntity {
 
   @Column(name = "blocked", nullable = false)
   @Nonnull
-  private Boolean blocked;
+  private Boolean blocked = false;
 
   @Column(name = "accepted", nullable = false)
   @Nonnull
-  private Boolean accepted;
+  private Boolean accepted = false;
 
-  @Column(name = "joined_at", nullable = false)
+  @CreationTimestamp
   @Nonnull
+  @Column(name = "joined_at", nullable = false, updatable = false)
   private LocalDateTime joinedAt;
 
   @Enumerated(EnumType.STRING)
