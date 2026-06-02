@@ -1,9 +1,7 @@
 package com.chieftain.repositories;
 
 import com.chieftain.models.TaskEntity;
+import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import java.util.UUID;
-
-public interface TaskRepository extends JpaRepository<TaskEntity, UUID> {
-}
+public interface TaskRepository extends JpaRepository<TaskEntity, UUID> {}
