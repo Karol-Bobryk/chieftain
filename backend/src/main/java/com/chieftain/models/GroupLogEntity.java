@@ -7,6 +7,10 @@ import java.time.LocalDateTime;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
 @Entity
 @Table(name = "group_logs")
 @Getter
@@ -20,7 +24,16 @@ public class GroupLogEntity {
   @Column(name = "pk_log_id", updatable = false, nullable = false)
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
+  @Id
+  @Nonnull
+  @Column(name = "pk_log_id", updatable = false, nullable = false)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
+  @Nonnull
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "fk_group_id", nullable = false)
+  private GroupEntity group;
   @Nonnull
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "fk_group_id", nullable = false)
@@ -30,7 +43,15 @@ public class GroupLogEntity {
   @Enumerated(EnumType.STRING)
   @Column(name = "severity", nullable = false)
   private LogSeverity severity;
+  @Nonnull
+  @Enumerated(EnumType.STRING)
+  @Column(name = "severity", nullable = false)
+  private LogSeverity severity;
 
+  @CreationTimestamp
+  @Nonnull
+  @Column(name = "created_at", nullable = false)
+  private LocalDateTime createdAt;
   @CreationTimestamp
   @Nonnull
   @Column(name = "created_at", nullable = false)
@@ -39,7 +60,12 @@ public class GroupLogEntity {
   @Nonnull
   @Column(name = "action", nullable = false)
   private String action;
+  @Nonnull
+  @Column(name = "action", nullable = false)
+  private String action;
 
+  @Column(name = "description")
+  private String description;
   @Column(name = "description")
   private String description;
 }
