@@ -1,10 +1,9 @@
 package com.chieftain.controllers.auth;
 
 import com.chieftain.controllers.auth.dto.ErrorResponseDTO;
-import com.chieftain.exceptions.EmailAddressNotFoundException;
-import com.chieftain.exceptions.EmailIsAlreadyTakenException;
-import com.chieftain.exceptions.InvalidUserSecretProvidedException;
-import com.chieftain.exceptions.UserSecretNotProvidedException;
+import com.chieftain.exceptions.*;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import java.util.Objects;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,6 +52,43 @@ public class AuthExceptionHandler {
                 "Request field validation failed "
                     + Objects.requireNonNull(ex.getBindingResult().getFieldError())
                         .getDefaultMessage()));
+  }
+
+  @ExceptionHandler(RefreshTokenBlacklistedException.class)
+  public ResponseEntity<ErrorResponseDTO> handleBlacklistedRefreshToken() {
+    HttpStatus status = HttpStatus.FORBIDDEN;
+    return ResponseEntity.status(status)
+        .body(ErrorResponseDTO.of(status, "Use of this refresh token is forbidden"));
+  }
+
+  @ExceptionHandler(RefreshTokenJtiNotFoundException.class)
+  public ResponseEntity<ErrorResponseDTO> handleRefreshTokenNoJti() {
+    HttpStatus status = HttpStatus.FORBIDDEN;
+    return ResponseEntity.status(status)
+        .body(ErrorResponseDTO.of(status, "Refresh token is invalid, couldn't get token JTI"));
+  }
+
+  @ExceptionHandler(RefreshTokenExpNotFoundException.class)
+  public ResponseEntity<ErrorResponseDTO> handleRefreshTokenNoExp() {
+    HttpStatus status = HttpStatus.FORBIDDEN;
+    return ResponseEntity.status(status)
+        .body(
+            ErrorResponseDTO.of(
+                status, "Refresh token is invalid, couldn't get token expiry date"));
+  }
+
+  @ExceptionHandler(ExpiredJwtException.class)
+  public ResponseEntity<ErrorResponseDTO> handleRefreshTokenExpired() {
+    HttpStatus status = HttpStatus.FORBIDDEN;
+    return ResponseEntity.status(status)
+        .body(ErrorResponseDTO.of(status, "Refresh token is expired"));
+  }
+
+  @ExceptionHandler(SignatureException.class)
+  public ResponseEntity<ErrorResponseDTO> handleRefreshTokenInvalid() {
+    HttpStatus status = HttpStatus.FORBIDDEN;
+    return ResponseEntity.status(status)
+        .body(ErrorResponseDTO.of(status, "Refresh token is invalid"));
   }
 
   @ExceptionHandler(Exception.class)

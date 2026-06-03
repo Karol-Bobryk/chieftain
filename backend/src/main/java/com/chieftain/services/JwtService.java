@@ -96,8 +96,6 @@ public class JwtService {
   @Transactional
   public JwtTokens refreshTokens(String refreshToken, CustomUserDetails userDetails)
       throws RefreshTokenExpNotFoundException, RefreshTokenJtiNotFoundException {
-    Jws<Claims> claims = getVerifiedJwsClaims(refreshToken);
-
     if (blacklistedRefreshTokensRepositoryService.isBlacklisted(refreshToken)) {
       throw new RefreshTokenBlacklistedException("Cannot use blacklisted refresh token");
     }
