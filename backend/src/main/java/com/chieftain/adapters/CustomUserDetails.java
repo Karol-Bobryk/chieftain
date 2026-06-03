@@ -38,7 +38,6 @@ public class CustomUserDetails implements UserDetails {
     return userEntity.getPkUserId();
   }
 
-  // TODO: refactor to use user entity blocked etc.
   @Override
   public boolean isAccountNonExpired() {
     return UserDetails.super.isAccountNonExpired();
@@ -46,7 +45,7 @@ public class CustomUserDetails implements UserDetails {
 
   @Override
   public boolean isAccountNonLocked() {
-    return UserDetails.super.isAccountNonLocked();
+    return !userEntity.getBlocked();
   }
 
   @Override
