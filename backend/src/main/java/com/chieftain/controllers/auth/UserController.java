@@ -2,8 +2,10 @@ package com.chieftain.controllers.auth;
 
 import com.chieftain.adapters.CustomUserDetails;
 import com.chieftain.controllers.auth.dto.CreateUserRequestDTO;
+import com.chieftain.controllers.auth.dto.CreateUserWithOrganizationRequestDTO;
 import com.chieftain.controllers.auth.dto.LoginUserRequestDTO;
 import com.chieftain.controllers.auth.dto.LoginUserResponseDTO;
+import com.chieftain.enums.SystemRole;
 import com.chieftain.exceptions.InvalidUserSecretProvidedException;
 import com.chieftain.models.OrganizationEntity;
 import com.chieftain.models.UserEntity;
@@ -28,13 +30,15 @@ public class UserController {
   private final UsersAwaitingAcceptanceService usersAwaitingAcceptanceService;
 
   @Autowired
-  public UserController(UserService userService, OrganizationService organizationService, UsersAwaitingAcceptanceService usersAwaitingAcceptanceService) {
+  public UserController(
+      UserService userService,
+      OrganizationService organizationService,
+      UsersAwaitingAcceptanceService usersAwaitingAcceptanceService) {
     this.userService = userService;
     this.organizationService = organizationService;
     this.usersAwaitingAcceptanceService = usersAwaitingAcceptanceService;
   }
 
-  // TODO: add an endpoint to create user with new organization
   @PostMapping("/create")
   @ResponseBody
   public ResponseEntity<Void> createUser(@Valid @RequestBody CreateUserRequestDTO request) {
@@ -45,17 +49,29 @@ public class UserController {
     userEntity.setName(request.getName());
     userEntity.setSurname(request.getSurname());
     userEntity.setJobTitle(request.getJobTitle());
-    userEntity.setRole(request.getRole());
 
-    OrganizationEntity organization = organizationService.getByToken(request.getOrganizationToken());
+    // His role can be changed only after getting accepted into the org
+    userEntity.setRole(SystemRole.GROUP_USER);
+
+    OrganizationEntity organization =
+        organizationService.getByToken(request.getOrganizationToken());
 
     userEntity.setOrganization(organization);
 
     userEntity.setBlocked(false);
-    usersAwaitingAcceptanceService.save(userEntity, organization);
+    userEntity = userService.save(userEntity);
 
-    userService.save(userEntity);
+    usersAwaitingAcceptanceService.createAndSave(userEntity, organization);
 
+    return new ResponseEntity<>(HttpStatus.CREATED);
+  }
+
+  // Creating user as well as organization, automatically user gets assigned as owner
+  @PostMapping("/create-with-organization")
+  @ResponseBody
+  public ResponseEntity<Void> createUserAndOrganization(
+      @Valid @RequestBody CreateUserWithOrganizationRequestDTO request) {
+    userService.createUserWithOrganization(request);
     return new ResponseEntity<>(HttpStatus.CREATED);
   }
 

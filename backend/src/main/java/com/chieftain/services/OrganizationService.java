@@ -23,4 +23,11 @@ public class OrganizationService {
   public void save(OrganizationEntity organizationEntity) {
     organizationRepository.save(organizationEntity);
   }
+
+  public OrganizationEntity createByName(String organizationName) {
+    OrganizationEntity organization = new OrganizationEntity();
+    organization.setName(organizationName);
+    organization.setBlocked(false);
+    return organizationRepository.save(organization);
+  }
 }

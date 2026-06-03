@@ -9,18 +9,17 @@ import org.springframework.stereotype.Service;
 @Service
 public class UsersAwaitingAcceptanceService {
 
-    private final UsersAwaitingAcceptanceRepository usersAwaitingAcceptanceRepository;
+  private final UsersAwaitingAcceptanceRepository usersAwaitingAcceptanceRepository;
 
-    public UsersAwaitingAcceptanceService(UsersAwaitingAcceptanceRepository usersAwaitingAcceptanceRepository) {
-        this.usersAwaitingAcceptanceRepository = usersAwaitingAcceptanceRepository;
-    }
+  public UsersAwaitingAcceptanceService(
+      UsersAwaitingAcceptanceRepository usersAwaitingAcceptanceRepository) {
+    this.usersAwaitingAcceptanceRepository = usersAwaitingAcceptanceRepository;
+  }
 
-    public void save(UserEntity user, OrganizationEntity organization)
-    {
-        UsersAwaitingAcceptanceEntity usersAwaitingAcceptance = new UsersAwaitingAcceptanceEntity();
-        usersAwaitingAcceptance.setUser(user);
-        usersAwaitingAcceptance.setOrganization(organization);
-        usersAwaitingAcceptanceRepository.save(usersAwaitingAcceptance);
-    }
-
+  public void createAndSave(UserEntity user, OrganizationEntity organization) {
+    UsersAwaitingAcceptanceEntity usersAwaitingAcceptance = new UsersAwaitingAcceptanceEntity();
+    usersAwaitingAcceptance.setUser(user);
+    usersAwaitingAcceptance.setOrganization(organization);
+    usersAwaitingAcceptanceRepository.save(usersAwaitingAcceptance);
+  }
 }

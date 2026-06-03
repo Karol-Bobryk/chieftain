@@ -1,15 +1,10 @@
 package com.chieftain.models;
 
-import com.chieftain.enums.GroupUserPermission;
-import jakarta.annotation.Nonnull;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import lombok.*;
-
 import java.io.Serializable;
 import java.util.UUID;
+import lombok.*;
 
 @Embeddable
 @Getter
@@ -17,12 +12,10 @@ import java.util.UUID;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-public class UsersAwaitingAcceptanceId implements Serializable{
-        @Nonnull
-        @Column(name = "fk_group_id", nullable = false)
-        private UUID groupId;
+public class UsersAwaitingAcceptanceId implements Serializable {
+  @Column(name = "fk_organization_id")
+  private UUID organizationId;
 
-        @Nonnull
-        @Column(name = "fk_user_id", nullable = false)
-        private UUID userId;
+  @Column(name = "fk_user_id")
+  private UUID userId;
 }

@@ -8,26 +8,24 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "UsersAwaitingAcceptance")
+@Table(name = "users_awaiting_acceptance")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class UsersAwaitingAcceptanceEntity {
 
-    @Nonnull
-    @EmbeddedId
-    private UsersAwaitingAcceptanceId id = new UsersAwaitingAcceptanceId();
+  @Nonnull @EmbeddedId private UsersAwaitingAcceptanceId id = new UsersAwaitingAcceptanceId();
 
-    @Nonnull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("organizationId")
-    @JoinColumn(name = "fk_organization_id", nullable = false)
-    private OrganizationEntity organization;
+  @Nonnull
+  @ManyToOne(fetch = FetchType.LAZY)
+  @MapsId("organizationId")
+  @JoinColumn(name = "fk_organization_id", nullable = false)
+  private OrganizationEntity organization;
 
-    @Nonnull
-    @OneToOne(fetch = FetchType.LAZY)
-    @MapsId("userId")
-    @JoinColumn(name = "fk_user_id", nullable = false)
-    private UserEntity user;
+  @Nonnull
+  @OneToOne(fetch = FetchType.LAZY)
+  @MapsId("userId")
+  @JoinColumn(name = "fk_user_id", nullable = false)
+  private UserEntity user;
 }
