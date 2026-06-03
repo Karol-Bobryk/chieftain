@@ -40,11 +40,7 @@ public class JwtService {
 
   public static Boolean isTokenValidForUser(String token, CustomUserDetails customUserDetails) {
     UUID userId = getUserId(token);
-    Date tokenExpirationDate = getExpirationDate(token);
-
-    if (userId != customUserDetails.getUserId()) return false;
-
-    return tokenExpirationDate != null && !tokenExpirationDate.before(new Date());
+    return userId.equals(customUserDetails.getUserId());
   }
 
   public static String createJwsAccessToken(CustomUserDetails customUserDetails) {
@@ -86,11 +82,6 @@ public class JwtService {
         .id(UUID.randomUUID().toString())
         .signWith(secretKey)
         .compact();
-  }
-
-  public static Date getExpirationDate(String token) {
-    Jws<Claims> jws = getVerifiedJwsClaims(token);
-    return jws.getPayload().getExpiration();
   }
 
   @Transactional

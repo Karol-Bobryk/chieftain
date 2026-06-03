@@ -3,6 +3,8 @@ package com.chieftain.controllers.auth;
 import com.chieftain.adapters.CustomUserDetails;
 import com.chieftain.controllers.auth.dto.RefreshAccessTokenRequestDTO;
 import com.chieftain.controllers.auth.dto.RefreshAccessTokenResponseDTO;
+import com.chieftain.controllers.auth.dto.ValidateAccessTokenRequestDTO;
+import com.chieftain.exceptions.InvalidUserSecretProvidedException;
 import com.chieftain.models.UserEntity;
 import com.chieftain.repositories.dto.JwtTokens;
 import com.chieftain.services.JwtService;
@@ -41,4 +43,20 @@ public class TokenController {
         new RefreshAccessTokenResponseDTO(newTokens.getAccessToken(), newTokens.getRefreshToken()),
         HttpStatus.OK);
   }
+
+  @PostMapping("/validate")
+  public ResponseEntity<Void> validateToken(
+          @Valid @RequestBody ValidateAccessTokenRequestDTO request) throws InvalidUserSecretProvidedException {
+
+    UUID userId = JwtService.getUserId(request.getAccessToken());
+    UserEntity userEntity = userService.getUserById(userId);
+    CustomUserDetails userDetails = new CustomUserDetails(userEntity);
+
+    if(!JwtService.isTokenValidForUser(request.getAccessToken(), userDetails)) {
+      throw new InvalidUserSecretProvidedException("Provided auth token is not valid");
+    }
+
+    return new ResponseEntity<>(HttpStatus.OK);
+  }
+
 }
