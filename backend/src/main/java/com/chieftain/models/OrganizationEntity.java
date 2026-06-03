@@ -29,7 +29,7 @@ public class OrganizationEntity {
   private String name;
 
   @Nonnull
-  @Column(name = "join_token", nullable = false)
+  @Column(name = "join_token", nullable = false, unique = true)
   private String joinToken;
 
   @CreationTimestamp
