@@ -52,10 +52,6 @@ public class UserEntity {
   @Nonnull
   private Boolean blocked = false;
 
-  @Column(name = "accepted", nullable = false)
-  @Nonnull
-  private Boolean accepted = false;
-
   @CreationTimestamp
   @Nonnull
   @Column(name = "joined_at", nullable = false, updatable = false)

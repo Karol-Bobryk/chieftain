@@ -1,11 +1,15 @@
 package com.chieftain.services;
 
+import com.chieftain.controllers.auth.dto.CreateUserWithOrganizationRequestDTO;
+import com.chieftain.enums.SystemRole;
 import com.chieftain.exceptions.EmailAddressNotFoundException;
 import com.chieftain.exceptions.EmailIsAlreadyTakenException;
 import com.chieftain.exceptions.InvalidUserSecretProvidedException;
 import com.chieftain.exceptions.UserSecretNotProvidedException;
+import com.chieftain.models.OrganizationEntity;
 import com.chieftain.models.UserEntity;
 import com.chieftain.repositories.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -13,13 +17,18 @@ import org.springframework.stereotype.Service;
 public class UserService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
+  private final OrganizationService organizationService;
 
-  public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+  public UserService(
+      UserRepository userRepository,
+      PasswordEncoder passwordEncoder,
+      OrganizationService organizationService) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
+    this.organizationService = organizationService;
   }
 
-  public void save(UserEntity userEntity)
+  public UserEntity save(UserEntity userEntity)
       throws UserSecretNotProvidedException, EmailIsAlreadyTakenException {
 
     if (userRepository.existsByEmailAddress(userEntity.getEmailAddress())) {
@@ -34,7 +43,7 @@ public class UserService {
     }
 
     userEntity.setSecretHash(hashedSecret);
-    userRepository.save(userEntity);
+    return userRepository.save(userEntity);
   }
 
   public UserEntity isPasswordMatchingForEmailAddress(String emailAddress, String password)
@@ -53,5 +62,23 @@ public class UserService {
     }
 
     return userEntity;
+  }
+
+  @Transactional
+  public void createUserWithOrganization(CreateUserWithOrganizationRequestDTO request) {
+    OrganizationEntity organization =
+        organizationService.createByName(request.getOrganizationName());
+
+    UserEntity userEntity = new UserEntity();
+    userEntity.setEmailAddress(request.getEmailAddress());
+    userEntity.setSecretHash(request.getPassword());
+    userEntity.setName(request.getName());
+    userEntity.setSurname(request.getSurname());
+    userEntity.setJobTitle(request.getJobTitle());
+    userEntity.setRole(SystemRole.OWNER);
+    userEntity.setBlocked(false);
+    userEntity.setOrganization(organization);
+
+    save(userEntity);
   }
 }
