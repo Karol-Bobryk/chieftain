@@ -53,9 +53,10 @@ public class TaskEntity {
   private LocalDateTime deadline;
 
   @Nonnull
-  @Enumerated(EnumType.STRING)
-  @Column(name = "status", nullable = false)
-  private TaskStatus status;
+  @ManyToOne(fetch = FetchType.EAGER)
+  @JoinColumn(name = "fk_status_id", nullable = false)
+  private TaskStatusEntity status;
+
 
   @Column(name = "description")
   private String description;

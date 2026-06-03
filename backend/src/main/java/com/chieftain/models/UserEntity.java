@@ -57,8 +57,9 @@ public class UserEntity {
   @Column(name = "joined_at", nullable = false, updatable = false)
   private LocalDateTime joinedAt;
 
-  @Enumerated(EnumType.STRING)
-  @Column(name = "role", nullable = false)
   @Nonnull
-  private SystemRole role;
+  @ManyToOne
+  @JoinColumn(name = "fk_role_id", nullable = false)
+  private RoleEntity role;
+
 }
