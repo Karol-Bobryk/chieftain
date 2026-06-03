@@ -46,17 +46,17 @@ public class TokenController {
 
   @PostMapping("/validate")
   public ResponseEntity<Void> validateToken(
-          @Valid @RequestBody ValidateAccessTokenRequestDTO request) throws InvalidUserSecretProvidedException {
+      @Valid @RequestBody ValidateAccessTokenRequestDTO request)
+      throws InvalidUserSecretProvidedException {
 
     UUID userId = JwtService.getUserId(request.getAccessToken());
     UserEntity userEntity = userService.getUserById(userId);
     CustomUserDetails userDetails = new CustomUserDetails(userEntity);
 
-    if(!JwtService.isTokenValidForUser(request.getAccessToken(), userDetails)) {
+    if (!JwtService.isTokenValidForUser(request.getAccessToken(), userDetails)) {
       throw new InvalidUserSecretProvidedException("Provided auth token is not valid");
     }
 
     return new ResponseEntity<>(HttpStatus.OK);
   }
-
 }
