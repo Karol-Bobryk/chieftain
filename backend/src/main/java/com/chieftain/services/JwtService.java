@@ -41,7 +41,7 @@ public class JwtService {
 
     Calendar cal = Calendar.getInstance();
     cal.setTime(exp);
-    cal.add(Calendar.MINUTE, 1); // TODO: change to a real expiration time constant
+    cal.add(Calendar.SECOND, Integer.parseInt(System.getenv("JWT_EXPIRATION_DURATION_SECONDS")));
     exp = cal.getTime();
 
     return Jwts.builder()
