@@ -37,6 +37,4 @@ public class CreateUserRequestDTO {
   @NotBlank(message = "Job title cannot be blank")
   @Size(min = 2, max = 255, message = "Job title must be between 2 and 255 characters")
   String jobTitle;
-
-  SystemRole role;
 }
