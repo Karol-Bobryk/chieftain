@@ -16,27 +16,27 @@ public class CreateUserRequestDTO {
 
   @NotBlank(message = "Name cannot be blank")
   @Size(min = 2, max = 255, message = "Name must be between 2 and 255 characters")
-  private String name;
+  String name;
 
   @NotBlank(message = "Surname cannot be blank")
   @Size(min = 2, max = 255, message = "Surname must be between 2 and 255 characters")
-  private String surname;
+  String surname;
 
   @NotBlank(message = "Email address cannot be blank")
   @Email(message = "Email address is invalid")
-  private String emailAddress;
+  String emailAddress;
 
   @NotBlank(message = "Password cannot be blank")
   @Size(min = 2, max = 255, message = "Password must be between 2 and 255 characters")
-  private String password;
+  String password;
 
   @NotBlank(message = "Organization token cannot be blank")
   @Size(min = 2, max = 255, message = "Organization token must be between 2 and 255 characters")
-  private String organizationToken;
+  String organizationToken;
 
   @NotBlank(message = "Job title cannot be blank")
   @Size(min = 2, max = 255, message = "Job title must be between 2 and 255 characters")
-  private String jobTitle;
+  String jobTitle;
 
-  private SystemRole role;
+  SystemRole role;
 }
