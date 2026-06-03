@@ -2,8 +2,10 @@ package com.chieftain.models;
 
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
 import lombok.*;
@@ -29,7 +31,7 @@ public class OrganizationEntity {
   private String name;
 
   @Nonnull
-  @Column(name = "join_token", nullable = false)
+  @Column(name = "join_token", nullable = false, unique = true)
   private String joinToken;
 
   @CreationTimestamp
@@ -43,4 +45,12 @@ public class OrganizationEntity {
 
   @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<GroupEntity> groups = new ArrayList<>();
+
+  @PrePersist
+  public void generateToken() {
+    joinToken =
+        Base64.getUrlEncoder()
+            .withoutPadding()
+            .encodeToString(UUID.randomUUID().toString().getBytes(StandardCharsets.UTF_8));
+  }
 }

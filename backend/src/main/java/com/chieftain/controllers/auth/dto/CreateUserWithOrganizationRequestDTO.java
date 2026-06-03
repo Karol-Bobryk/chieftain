@@ -11,29 +11,29 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class CreateUserRequestDTO {
+public class CreateUserWithOrganizationRequestDTO {
 
   @NotBlank(message = "Name cannot be blank")
   @Size(min = 2, max = 255, message = "Name must be between 2 and 255 characters")
-  String name;
+  private String name;
 
   @NotBlank(message = "Surname cannot be blank")
   @Size(min = 2, max = 255, message = "Surname must be between 2 and 255 characters")
-  String surname;
+  private String surname;
 
   @NotBlank(message = "Email address cannot be blank")
   @Email(message = "Email address is invalid")
-  String emailAddress;
+  private String emailAddress;
 
   @NotBlank(message = "Password cannot be blank")
   @Size(min = 2, max = 255, message = "Password must be between 2 and 255 characters")
-  String password;
-
-  @NotBlank(message = "Organization token cannot be blank")
-  @Size(min = 2, max = 255, message = "Organization token must be between 2 and 255 characters")
-  String organizationToken;
+  private String password;
 
   @NotBlank(message = "Job title cannot be blank")
   @Size(min = 2, max = 255, message = "Job title must be between 2 and 255 characters")
-  String jobTitle;
+  private String jobTitle;
+
+  @NotBlank(message = "Organization name cannot be blank")
+  @Size(min = 2, max = 255, message = "Organization name must be between 2 and 255 characters")
+  String organizationName;
 }
