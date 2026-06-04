@@ -1,6 +1,6 @@
 package com.chieftain.models;
 
-import com.chieftain.enums.TaskStatus;
+
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -53,7 +53,7 @@ public class TaskEntity {
   private LocalDateTime deadline;
 
   @Nonnull
-  @ManyToOne(fetch = FetchType.EAGER)
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "fk_status_id", nullable = false)
   private TaskStatusEntity status;
 

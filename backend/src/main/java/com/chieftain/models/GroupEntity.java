@@ -47,7 +47,7 @@ public class GroupEntity {
 
   @Nonnull
   @OneToMany(mappedBy = "group")
-  private List<GroupPrivilegeEntity> privileges;
+  private List<GroupPrivilegeEntity> privileges = new ArrayList<>();
 
   @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<TaskEntity> tasks = new ArrayList<>();

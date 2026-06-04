@@ -1,6 +1,6 @@
 package com.chieftain.models;
 
-import com.chieftain.enums.GroupUserPermission;
+
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
 

@@ -30,7 +30,7 @@ public class GroupPrivilegeEntity {
   private UserEntity user;
 
   @Nonnull
-  @ManyToMany(fetch = FetchType.EAGER)
+  @ManyToMany(fetch = FetchType.LAZY)
   @JoinTable(
           name = "group_privilege_permissions",
           joinColumns = {
