@@ -22,4 +22,12 @@ public class UsersAwaitingAcceptanceService {
     usersAwaitingAcceptance.setOrganization(organization);
     usersAwaitingAcceptanceRepository.save(usersAwaitingAcceptance);
   }
+
+  public void removeFromQueue(UserEntity user) {
+    UsersAwaitingAcceptanceEntity awaitingRecord = usersAwaitingAcceptanceRepository
+            .findByUser(user)
+            .orElseThrow(() -> new IllegalStateException("User is not in the awaiting queue."));
+
+    usersAwaitingAcceptanceRepository.delete(awaitingRecord);
+  }
 }
