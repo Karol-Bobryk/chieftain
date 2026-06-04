@@ -85,4 +85,15 @@ public class UserService {
         .findByPkUserId(userId)
         .orElseThrow(() -> new UserIdNotFoundException("No user with Id: " + userId));
   }
+
+  @Transactional
+  public void acceptUser(UUID userId, String roleName){
+    UserEntity user = getUserById(userId);
+    if (user.getAccepted()){
+      throw new IllegalStateException("User " + userId + "is already accepted.");
+    }
+    user.setAccepted(true);
+    user.setRole(SystemRole.valueOf(roleName.toUpperCase()));
+    userRepository.save(user);
+  }
 }
