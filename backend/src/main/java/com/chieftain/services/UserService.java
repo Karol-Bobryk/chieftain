@@ -6,6 +6,7 @@ import com.chieftain.exceptions.*;
 import com.chieftain.models.OrganizationEntity;
 import com.chieftain.models.UserEntity;
 import com.chieftain.repositories.UserRepository;
+import com.chieftain.repositories.UsersAwaitingAcceptanceRepository;
 import jakarta.transaction.Transactional;
 import java.util.UUID;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,14 +17,17 @@ public class UserService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final OrganizationService organizationService;
+  private final UsersAwaitingAcceptanceService awaitingService;
 
   public UserService(
       UserRepository userRepository,
       PasswordEncoder passwordEncoder,
-      OrganizationService organizationService) {
+      OrganizationService organizationService,
+      UsersAwaitingAcceptanceService awaitingService) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
     this.organizationService = organizationService;
+    this.awaitingService = awaitingService;
   }
 
   public UserEntity save(UserEntity userEntity)
@@ -89,11 +93,8 @@ public class UserService {
   @Transactional
   public void acceptUser(UUID userId, String roleName){
     UserEntity user = getUserById(userId);
-    if (user.getAccepted()){
-      throw new IllegalStateException("User " + userId + "is already accepted.");
-    }
-    user.setAccepted(true);
     user.setRole(SystemRole.valueOf(roleName.toUpperCase()));
+    awaitingService.removeFromQueue(user);
     userRepository.save(user);
   }
 }
