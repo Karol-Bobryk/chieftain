@@ -16,6 +16,13 @@ CREATE TABLE task_status_dictionary
     status_name       VARCHAR(255) NOT NULL UNIQUE
 );
 
+CREATE TABLE log_severity_dictionary
+(
+    pk_log_severity_id SERIAL PRIMARY KEY,
+    log_severity_name  VARCHAR(255) NOT NULL UNIQUE
+);
+
+
 CREATE TABLE organizations
 (
     pk_organization_id UUID PRIMARY KEY,
@@ -102,7 +109,7 @@ CREATE TABLE user_logs
 (
     pk_log_id   BIGSERIAL PRIMARY KEY,
     fk_user_id  UUID         NOT NULL REFERENCES users (pk_user_id) ON DELETE CASCADE,
-    severity    VARCHAR(255)  NOT NULL,
+    fk_log_severity_id  INTEGER  NOT NULL REFERENCES log_severity_dictionary(pk_log_severity_id),
     action      VARCHAR(255) NOT NULL,
     description VARCHAR(255),
     created_at  TIMESTAMP(6) NOT NULL DEFAULT NOW()
@@ -112,17 +119,17 @@ CREATE TABLE organization_logs
 (
     pk_log_id          BIGSERIAL PRIMARY KEY,
     fk_organization_id UUID         NOT NULL REFERENCES organizations (pk_organization_id) ON DELETE CASCADE,
-    severity    VARCHAR(32)  NOT NULL,
-    created_at  TIMESTAMP(6) NOT NULL DEFAULT NOW(),
-    action      VARCHAR(256) NOT NULL,
-    description VARCHAR(255)
+    fk_log_severity_id  INTEGER  NOT NULL REFERENCES log_severity_dictionary(pk_log_severity_id),
+    created_at         TIMESTAMP(6) NOT NULL DEFAULT NOW(),
+    action             VARCHAR(256) NOT NULL,
+    description        VARCHAR(255)
 );
 
 CREATE TABLE group_logs
 (
     pk_log_id   BIGSERIAL PRIMARY KEY,
     fk_group_id UUID         NOT NULL REFERENCES groups (pk_group_id) ON DELETE CASCADE,
-    severity    VARCHAR(32)  NOT NULL,
+    fk_log_severity_id  INTEGER  NOT NULL REFERENCES log_severity_dictionary(pk_log_severity_id),
     created_at  TIMESTAMP(6) NOT NULL DEFAULT NOW(),
     action      VARCHAR(256) NOT NULL,
     description VARCHAR(255)
@@ -133,7 +140,7 @@ CREATE TABLE group_privilege_logs
     pk_log_id   BIGSERIAL PRIMARY KEY,
     fk_group_id UUID         NOT NULL REFERENCES groups (pk_group_id) ON DELETE CASCADE,
     fk_user_id  UUID         NOT NULL REFERENCES users (pk_user_id) ON DELETE CASCADE,
-    severity    VARCHAR(32)  NOT NULL,
+    fk_log_severity_id  INTEGER  NOT NULL REFERENCES log_severity_dictionary(pk_log_severity_id),
     created_at  TIMESTAMP(6) NOT NULL DEFAULT NOW(),
     action      VARCHAR(256) NOT NULL,
     description VARCHAR(255)
@@ -143,7 +150,7 @@ CREATE TABLE task_logs
 (
     pk_log_id   BIGSERIAL PRIMARY KEY,
     fk_task_id  UUID         NOT NULL REFERENCES tasks (pk_task_id) ON DELETE CASCADE,
-    severity    VARCHAR(32)  NOT NULL,
+    fk_log_severity_id  INTEGER  NOT NULL REFERENCES log_severity_dictionary(pk_log_severity_id),
     created_at  TIMESTAMP(6) NOT NULL DEFAULT NOW(),
     action      VARCHAR(256) NOT NULL,
     description VARCHAR(255)

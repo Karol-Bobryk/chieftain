@@ -17,3 +17,9 @@ VALUES ('CREATED'),
        ('IN_PROGRESS'),
        ('FINISHED'),
        ('CANCELLED');
+
+INSERT INTO log_severity_dictionary(log_severity_name)
+VALUES('INFO'),
+      ('WARNING'),
+      ('ERROR'),
+      ('CRITICAL_ERROR');
