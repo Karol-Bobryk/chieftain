@@ -18,6 +18,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
   // TODO: ADD ROLES ENUM
+  private final String[] publicPaths = {
+    "/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html"
+  };
+
   private final CustomUserDetailsService customUserDetailsService;
 
   @Autowired
@@ -34,7 +38,7 @@ public class SecurityConfig {
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(
             authorize ->
-                authorize.requestMatchers("/auth/**").permitAll().anyRequest().authenticated())
+                authorize.requestMatchers(publicPaths).permitAll().anyRequest().authenticated())
         .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
 
     return httpSecurity.build();
