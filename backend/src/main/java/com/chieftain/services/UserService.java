@@ -18,15 +18,19 @@ public class UserService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final OrganizationService organizationService;
+  private final UsersAwaitingAcceptanceService awaitingService;
   private final RoleRepository roleRepository;
 
   public UserService(
-          UserRepository userRepository,
-          PasswordEncoder passwordEncoder,
-          OrganizationService organizationService, RoleRepository roleRepository) {
+      UserRepository userRepository,
+      PasswordEncoder passwordEncoder,
+      OrganizationService organizationService,
+      UsersAwaitingAcceptanceService awaitingService,
+      RoleRepository roleRepository) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
     this.organizationService = organizationService;
+    this.awaitingService = awaitingService;
     this.roleRepository = roleRepository;
   }
 
@@ -70,7 +74,9 @@ public class UserService {
   public void createUserWithOrganization(CreateUserWithOrganizationRequestDTO request) {
     OrganizationEntity organization =
         organizationService.createByName(request.getOrganizationName());
-    RoleEntity userRole = roleRepository.findByRoleName(SystemRole.OWNER)
+    RoleEntity userRole =
+        roleRepository
+            .findByRoleName(SystemRole.OWNER)
             .orElseThrow(() -> new RuntimeException("Role not found in dictionary"));
 
     UserEntity userEntity = new UserEntity();
@@ -90,5 +96,28 @@ public class UserService {
     return userRepository
         .findByPkUserId(userId)
         .orElseThrow(() -> new UserIdNotFoundException("No user with Id: " + userId));
+  }
+
+  @Transactional
+  public void acceptUser(UUID userId, String roleName)
+      throws RoleNotFoundException {
+    UserEntity user = getUserById(userId);
+
+    SystemRole requestedRole;
+    try {
+      requestedRole = SystemRole.valueOf(roleName.toUpperCase());
+    } catch (IllegalArgumentException e) {
+      throw new RoleNotFoundException("Role '" + roleName + "' does not exist");
+    }
+    RoleEntity roleEntity =
+        roleRepository
+            .findByRoleName(requestedRole)
+            .orElseThrow(
+                () ->
+                    new RoleNotFoundException(
+                        "This role (" + requestedRole + ") is not in database dictionary"));
+    awaitingService.removeFromQueue(user);
+    user.setRole(roleEntity);
+    userRepository.save(user);
   }
 }

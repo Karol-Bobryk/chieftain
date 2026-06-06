@@ -1,6 +1,5 @@
 package com.chieftain.models;
 
-
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -58,8 +57,7 @@ public class UserEntity {
   private LocalDateTime joinedAt;
 
   @Nonnull
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "fk_role_id", nullable = false)
   private RoleEntity role;
-
 }
