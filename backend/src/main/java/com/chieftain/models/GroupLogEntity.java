@@ -1,6 +1,6 @@
 package com.chieftain.models;
 
-import com.chieftain.enums.LogSeverity;
+
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -26,9 +26,9 @@ public class GroupLogEntity {
   private GroupEntity group;
 
   @Nonnull
-  @Enumerated(EnumType.STRING)
-  @Column(name = "severity", nullable = false)
-  private LogSeverity severity;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "fk_log_severity_id", nullable = false)
+  private LogSeverityEntity severity;
 
   @CreationTimestamp
   @Nonnull
@@ -42,3 +42,4 @@ public class GroupLogEntity {
   @Column(name = "description")
   private String description;
 }
+

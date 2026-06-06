@@ -1,6 +1,6 @@
 package com.chieftain.models;
 
-import com.chieftain.enums.SystemRole;
+
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -57,8 +57,9 @@ public class UserEntity {
   @Column(name = "joined_at", nullable = false, updatable = false)
   private LocalDateTime joinedAt;
 
-  @Enumerated(EnumType.STRING)
-  @Column(name = "role", nullable = false)
   @Nonnull
-  private SystemRole role;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "fk_role_id", nullable = false)
+  private RoleEntity role;
+
 }
