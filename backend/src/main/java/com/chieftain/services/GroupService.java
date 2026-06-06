@@ -100,10 +100,14 @@ public class GroupService {
   public void removeMember(UUID groupId, UUID userId){
     GroupEntity group = groupRepository.findById(groupId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-    group.getMembers().removeIf(id->id.getPkUserId().equals(userId));;
+
+    boolean wasRemoved = group.getMembers().removeIf(id->id.getPkUserId().equals(userId));
+    if(!wasRemoved){
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
     groupPrivilegeRepository.deleteByUserPkUserIdAndGroupId(userId, groupId);
     groupRepository.save(group);
-
   }
 
 }

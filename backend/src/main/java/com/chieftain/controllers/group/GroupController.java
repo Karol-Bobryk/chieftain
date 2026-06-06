@@ -104,7 +104,7 @@ public class GroupController {
           @PathVariable UUID userId,
           @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-    GroupEntity group = groupRepository.getReferenceById(groupId);
+    groupService.getByIdAndOrganization(groupId, userDetails.getOrganization());
     groupService.removeMember(groupId,userId);
 
     return ResponseEntity.noContent().build();
