@@ -8,7 +8,9 @@ import com.chieftain.controllers.auth.dto.LoginUserResponseDTO;
 import com.chieftain.enums.SystemRole;
 import com.chieftain.exceptions.InvalidUserSecretProvidedException;
 import com.chieftain.models.OrganizationEntity;
+import com.chieftain.models.RoleEntity;
 import com.chieftain.models.UserEntity;
+import com.chieftain.repositories.RoleRepository;
 import com.chieftain.services.JwtService;
 import com.chieftain.services.OrganizationService;
 import com.chieftain.services.UserService;
@@ -26,15 +28,17 @@ public class UserController {
   private final UserService userService;
   private final OrganizationService organizationService;
   private final UsersAwaitingAcceptanceService usersAwaitingAcceptanceService;
+  private final RoleRepository roleRepository;
 
   @Autowired
   public UserController(
-      UserService userService,
-      OrganizationService organizationService,
-      UsersAwaitingAcceptanceService usersAwaitingAcceptanceService) {
+          UserService userService,
+          OrganizationService organizationService,
+          UsersAwaitingAcceptanceService usersAwaitingAcceptanceService, RoleRepository roleRepository) {
     this.userService = userService;
     this.organizationService = organizationService;
     this.usersAwaitingAcceptanceService = usersAwaitingAcceptanceService;
+    this.roleRepository = roleRepository;
   }
 
   @PostMapping("/create")
@@ -48,8 +52,10 @@ public class UserController {
     userEntity.setSurname(request.getSurname());
     userEntity.setJobTitle(request.getJobTitle());
 
+    RoleEntity userRole = roleRepository.findByRoleName(SystemRole.GROUP_USER)
+            .orElseThrow(() -> new RuntimeException("Role not found in dictionary"));
     // His role can be changed only after getting accepted into the org
-    userEntity.setRole(SystemRole.GROUP_USER);
+    userEntity.setRole(userRole);
 
     OrganizationEntity organization =
         organizationService.getByToken(request.getOrganizationToken());

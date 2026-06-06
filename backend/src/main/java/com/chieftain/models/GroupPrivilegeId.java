@@ -1,11 +1,9 @@
 package com.chieftain.models;
 
-import com.chieftain.enums.GroupUserPermission;
+
 import jakarta.annotation.Nonnull;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
+import jakarta.persistence.*;
+
 import java.io.Serializable;
 import java.util.UUID;
 import lombok.*;
@@ -26,8 +24,4 @@ public class GroupPrivilegeId implements Serializable {
   @Column(name = "fk_user_id", nullable = false)
   private UUID userId;
 
-  @Nonnull
-  @Enumerated(EnumType.STRING)
-  @Column(name = "permission", nullable = false)
-  private GroupUserPermission permission;
 }
