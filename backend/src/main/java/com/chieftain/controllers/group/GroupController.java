@@ -1,6 +1,7 @@
 package com.chieftain.controllers.group;
 
 import com.chieftain.adapters.CustomUserDetails;
+import com.chieftain.controllers.group.dto.AddGroupMemberRequestDTO;
 import com.chieftain.controllers.group.dto.GroupCreateRequestDTO;
 import com.chieftain.controllers.group.dto.GroupCreateResponseDTO;
 import com.chieftain.enums.GroupUserPermission;
@@ -12,6 +13,8 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -66,4 +69,21 @@ public class GroupController {
     GroupCreateResponseDTO response = new GroupCreateResponseDTO(groupEntity.getId());
     return new ResponseEntity<>(response, HttpStatus.CREATED);
   }
+
+
+  @PutMapping("/{groupId}/members")
+  public ResponseEntity<Void> addGroupMembers(
+          @PathVariable UUID groupId,
+          @RequestBody AddGroupMemberRequestDTO request,
+          @AuthenticationPrincipal CustomUserDetails userDetails){
+
+     GroupEntity group = groupService.getByIdAndOrganization(groupId, userDetails.getOrganization());
+
+    List<UserEntity> newMembers = userService.getUsersByIds(request.getMemberIds());
+    groupService.addGroupMembers(group, newMembers, request.getPermissions());
+
+    return ResponseEntity.noContent().build();
+
+  }
+
 }

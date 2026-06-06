@@ -1,10 +1,7 @@
 package com.chieftain.services;
 
 import com.chieftain.enums.GroupUserPermission;
-import com.chieftain.models.GroupEntity;
-import com.chieftain.models.GroupPrivilegeEntity;
-import com.chieftain.models.GroupUserPermissionEntity;
-import com.chieftain.models.UserEntity;
+import com.chieftain.models.*;
 import com.chieftain.repositories.GroupPrivilegeRepository;
 import com.chieftain.repositories.GroupRepository;
 import com.chieftain.repositories.GroupUserPermissionRepository;
@@ -12,7 +9,11 @@ import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
+
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class GroupService {
@@ -75,4 +76,25 @@ public class GroupService {
       Collection<GroupUserPermission> permissions) {
     return groupUserPermissionRepository.findAllByPermissionNameIn(permissions);
   }
+
+  public void addGroupMembers(GroupEntity group, List<UserEntity> newMembers, List<GroupUserPermission> permissions){
+
+      List<UserEntity> membersToAdd = newMembers.stream().
+              filter(checkMember -> !group.getMembers().contains(checkMember)).toList();
+
+      group.getMembers().addAll(membersToAdd);
+      groupRepository.save(group);
+
+      addPrivilegesForMultipleUsers(group, membersToAdd, permissions);
+  }
+
+  public GroupEntity getByIdAndOrganization(UUID groupId, OrganizationEntity organization){
+    GroupEntity group = groupRepository.findById(groupId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    if(!group.getOrganization().getPkOrganizationId().equals(organization.getPkOrganizationId())){
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+    return group;
+  }
+
 }
