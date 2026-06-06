@@ -57,7 +57,7 @@ public class UserEntity {
   private LocalDateTime joinedAt;
 
   @Nonnull
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "fk_role_id", nullable = false)
   private RoleEntity role;
 }

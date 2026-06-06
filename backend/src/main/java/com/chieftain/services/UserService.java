@@ -19,16 +19,19 @@ public class UserService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
   private final OrganizationService organizationService;
+  private final UsersAwaitingAcceptanceService awaitingService;
   private final RoleRepository roleRepository;
 
   public UserService(
       UserRepository userRepository,
       PasswordEncoder passwordEncoder,
       OrganizationService organizationService,
+      UsersAwaitingAcceptanceService awaitingService,
       RoleRepository roleRepository) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
     this.organizationService = organizationService;
+    this.awaitingService = awaitingService;
     this.roleRepository = roleRepository;
   }
 
@@ -98,5 +101,28 @@ public class UserService {
 
   public List<UserEntity> getUsersByIds(List<UUID> userId) {
     return userRepository.findAllByPkUserIdIn(userId);
+  }
+
+  @Transactional
+  public void acceptUser(UUID userId, String roleName)
+      throws RoleNotFoundException {
+    UserEntity user = getUserById(userId);
+
+    SystemRole requestedRole;
+    try {
+      requestedRole = SystemRole.valueOf(roleName.toUpperCase());
+    } catch (IllegalArgumentException e) {
+      throw new RoleNotFoundException("Role '" + roleName + "' does not exist");
+    }
+    RoleEntity roleEntity =
+        roleRepository
+            .findByRoleName(requestedRole)
+            .orElseThrow(
+                () ->
+                    new RoleNotFoundException(
+                        "This role (" + requestedRole + ") is not in database dictionary"));
+    awaitingService.removeFromQueue(user);
+    user.setRole(roleEntity);
+    userRepository.save(user);
   }
 }
