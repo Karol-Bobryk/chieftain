@@ -76,7 +76,7 @@ public class GroupController {
   @Transactional
   public ResponseEntity<Void> addGroupMembers(
           @PathVariable UUID groupId,
-          @RequestBody AddGroupMemberRequestDTO request,
+          @Valid @RequestBody AddGroupMemberRequestDTO request,
           @AuthenticationPrincipal CustomUserDetails userDetails){
 
      GroupEntity group = groupService.getByIdAndOrganization(groupId, userDetails.getOrganization());
