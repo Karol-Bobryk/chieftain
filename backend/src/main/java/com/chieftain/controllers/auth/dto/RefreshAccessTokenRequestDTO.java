@@ -9,10 +9,7 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class LoginUserResponseDTO {
-  @NotBlank(message = "Access token cannot be blank")
-  String accessToken;
-
+public class RefreshAccessTokenRequestDTO {
   @NotBlank(message = "Refresh token cannot be blank")
   String refreshToken;
 }

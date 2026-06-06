@@ -2,16 +2,14 @@ package com.chieftain.services;
 
 import com.chieftain.controllers.auth.dto.CreateUserWithOrganizationRequestDTO;
 import com.chieftain.enums.SystemRole;
-import com.chieftain.exceptions.EmailAddressNotFoundException;
-import com.chieftain.exceptions.EmailIsAlreadyTakenException;
-import com.chieftain.exceptions.InvalidUserSecretProvidedException;
-import com.chieftain.exceptions.UserSecretNotProvidedException;
+import com.chieftain.exceptions.*;
 import com.chieftain.models.OrganizationEntity;
 import com.chieftain.models.RoleEntity;
 import com.chieftain.models.UserEntity;
 import com.chieftain.repositories.RoleRepository;
 import com.chieftain.repositories.UserRepository;
 import jakarta.transaction.Transactional;
+import java.util.UUID;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -86,5 +84,11 @@ public class UserService {
     userEntity.setOrganization(organization);
 
     save(userEntity);
+  }
+
+  public UserEntity getUserById(UUID userId) {
+    return userRepository
+        .findByPkUserId(userId)
+        .orElseThrow(() -> new UserIdNotFoundException("No user with Id: " + userId));
   }
 }

@@ -16,13 +16,11 @@ import com.chieftain.services.OrganizationService;
 import com.chieftain.services.UserService;
 import com.chieftain.services.UsersAwaitingAcceptanceService;
 import jakarta.validation.Valid;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-@Slf4j
 @RestController
 @RequestMapping("/auth/user")
 public class UserController {
@@ -85,16 +83,17 @@ public class UserController {
   @ResponseBody
   public ResponseEntity<LoginUserResponseDTO> loginUser(
       @Valid @RequestBody LoginUserRequestDTO request) throws InvalidUserSecretProvidedException {
-    log.info(request.getPassword());
     UserEntity userEntity =
         userService.isPasswordMatchingForEmailAddress(
             request.getEmailAddress(), request.getPassword());
     CustomUserDetails customUserDetails = new CustomUserDetails(userEntity);
 
-    String token = JwtService.createJwsToken(customUserDetails);
+    String accessToken = JwtService.createJwsAccessToken(customUserDetails);
+    String refreshToken = JwtService.createJwsRefreshToken(customUserDetails);
 
     LoginUserResponseDTO loginUserResponseDTO = new LoginUserResponseDTO();
-    loginUserResponseDTO.setAccessToken(token);
+    loginUserResponseDTO.setAccessToken(accessToken);
+    loginUserResponseDTO.setRefreshToken(refreshToken);
 
     return new ResponseEntity<>(loginUserResponseDTO, HttpStatus.OK);
   }
