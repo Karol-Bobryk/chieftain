@@ -3,9 +3,9 @@ package com.chieftain.controllers.group;
 import com.chieftain.adapters.CustomUserDetails;
 import com.chieftain.controllers.group.dto.GroupCreateRequestDTO;
 import com.chieftain.controllers.group.dto.GroupCreateResponseDTO;
+import com.chieftain.enums.GroupUserPermission;
 import com.chieftain.models.GroupEntity;
 import com.chieftain.models.UserEntity;
-import com.chieftain.services.CustomUserDetailsService;
 import com.chieftain.services.GroupService;
 import com.chieftain.services.UserService;
 import jakarta.transaction.Transactional;
@@ -25,10 +25,7 @@ public class GroupController {
   private final GroupService groupService;
   private final UserService userService;
 
-  public GroupController(
-      GroupService groupService,
-      UserService userService,
-      CustomUserDetailsService customUserDetailsService) {
+  public GroupController(GroupService groupService, UserService userService) {
     this.groupService = groupService;
     this.userService = userService;
   }
@@ -38,13 +35,16 @@ public class GroupController {
   public ResponseEntity<GroupCreateResponseDTO> createGroup(
       @Valid @RequestBody GroupCreateRequestDTO request,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
+
     List<UserEntity> members = new ArrayList<>();
 
     if (request.getMembers() != null) {
       members.addAll(userService.getUsersByIds(request.getMembers()));
     }
 
-    members.add(userService.getUserById(userDetails.getUserId()));
+    UserEntity groupOwner = userService.getUserById(userDetails.getUserId());
+
+    members.add(groupOwner);
 
     GroupEntity groupEntity = new GroupEntity();
     groupEntity.setName(request.getName());
@@ -53,8 +53,17 @@ public class GroupController {
 
     groupEntity = groupService.save(groupEntity);
 
+    // Adding all capabilities for the group owner
+    groupService.addPrivilegesForUser(
+        groupEntity, groupOwner, List.of(GroupUserPermission.values()));
+
+    // Adding all capabilities for the rest of the group
+    groupService.addPrivilegesForMultipleUsers(
+        groupEntity,
+        members.stream().filter(e -> !e.equals(groupOwner)).toList(),
+        request.getRoles());
+
     GroupCreateResponseDTO response = new GroupCreateResponseDTO(groupEntity.getId());
-    // TODO: add privs
     return new ResponseEntity<>(response, HttpStatus.CREATED);
   }
 }
