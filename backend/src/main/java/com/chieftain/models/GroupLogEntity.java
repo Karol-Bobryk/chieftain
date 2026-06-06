@@ -1,6 +1,5 @@
 package com.chieftain.models;
 
-
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -42,4 +41,3 @@ public class GroupLogEntity {
   @Column(name = "description")
   private String description;
 }
-

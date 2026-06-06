@@ -1,5 +1,6 @@
 package com.chieftain.adapters;
 
+import com.chieftain.models.OrganizationEntity;
 import com.chieftain.models.UserEntity;
 import jakarta.annotation.Nonnull;
 import java.util.Collection;
@@ -22,6 +23,10 @@ public class CustomUserDetails implements UserDetails {
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return List.of(new SimpleGrantedAuthority(userEntity.getRole().getRoleName().name()));
+  }
+
+  public OrganizationEntity getOrganization() {
+    return userEntity.getOrganization();
   }
 
   @Override

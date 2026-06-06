@@ -1,6 +1,5 @@
 package com.chieftain.models;
 
-
 import com.chieftain.enums.SystemRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -16,12 +15,12 @@ import lombok.Setter;
 @AllArgsConstructor
 public class RoleEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "pk_role_id", nullable = false)
-    private Integer roleId;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "pk_role_id", nullable = false)
+  private Integer roleId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role_name", unique = true, nullable = false)
-    private SystemRole roleName;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "role_name", unique = true, nullable = false)
+  private SystemRole roleName;
 }

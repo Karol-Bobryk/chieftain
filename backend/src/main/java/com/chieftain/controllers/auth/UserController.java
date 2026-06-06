@@ -15,6 +15,7 @@ import com.chieftain.services.JwtService;
 import com.chieftain.services.OrganizationService;
 import com.chieftain.services.UserService;
 import com.chieftain.services.UsersAwaitingAcceptanceService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,9 +33,10 @@ public class UserController {
 
   @Autowired
   public UserController(
-          UserService userService,
-          OrganizationService organizationService,
-          UsersAwaitingAcceptanceService usersAwaitingAcceptanceService, RoleRepository roleRepository) {
+      UserService userService,
+      OrganizationService organizationService,
+      UsersAwaitingAcceptanceService usersAwaitingAcceptanceService,
+      RoleRepository roleRepository) {
     this.userService = userService;
     this.organizationService = organizationService;
     this.usersAwaitingAcceptanceService = usersAwaitingAcceptanceService;
@@ -43,6 +45,7 @@ public class UserController {
 
   @PostMapping("/create")
   @ResponseBody
+  @Transactional
   public ResponseEntity<Void> createUser(@Valid @RequestBody CreateUserRequestDTO request) {
     UserEntity userEntity = new UserEntity();
 
@@ -52,7 +55,9 @@ public class UserController {
     userEntity.setSurname(request.getSurname());
     userEntity.setJobTitle(request.getJobTitle());
 
-    RoleEntity userRole = roleRepository.findByRoleName(SystemRole.GROUP_USER)
+    RoleEntity userRole =
+        roleRepository
+            .findByRoleName(SystemRole.GROUP_USER)
             .orElseThrow(() -> new RuntimeException("Role not found in dictionary"));
     // His role can be changed only after getting accepted into the org
     userEntity.setRole(userRole);

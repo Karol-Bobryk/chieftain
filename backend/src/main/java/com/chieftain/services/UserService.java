@@ -9,6 +9,7 @@ import com.chieftain.models.UserEntity;
 import com.chieftain.repositories.RoleRepository;
 import com.chieftain.repositories.UserRepository;
 import jakarta.transaction.Transactional;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -96,6 +97,10 @@ public class UserService {
     return userRepository
         .findByPkUserId(userId)
         .orElseThrow(() -> new UserIdNotFoundException("No user with Id: " + userId));
+  }
+
+  public List<UserEntity> getUsersByIds(List<UUID> userId) {
+    return userRepository.findAllByPkUserIdIn(userId);
   }
 
   @Transactional

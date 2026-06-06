@@ -1,6 +1,5 @@
 package com.chieftain.models;
 
-
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -56,7 +55,6 @@ public class TaskEntity {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "fk_status_id", nullable = false)
   private TaskStatusEntity status;
-
 
   @Column(name = "description")
   private String description;

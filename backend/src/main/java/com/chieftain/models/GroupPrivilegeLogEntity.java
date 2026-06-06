@@ -1,6 +1,5 @@
 package com.chieftain.models;
 
-import com.chieftain.enums.LogSeverity;
 import jakarta.annotation.Nonnull;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;

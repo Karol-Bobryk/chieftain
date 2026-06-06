@@ -15,12 +15,12 @@ import lombok.Setter;
 @AllArgsConstructor
 public class LogSeverityEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "pk_log_severity_id", nullable = false)
-    private Integer logSeverityId;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "pk_log_severity_id", nullable = false)
+  private Integer logSeverityId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "log_severity_name", unique = true, nullable = false)
-    private SystemRole logSeverityName;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "log_severity_name", unique = true, nullable = false)
+  private SystemRole logSeverityName;
 }
