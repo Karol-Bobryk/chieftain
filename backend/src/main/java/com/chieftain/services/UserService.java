@@ -8,9 +8,9 @@ import com.chieftain.models.RoleEntity;
 import com.chieftain.models.UserEntity;
 import com.chieftain.repositories.RoleRepository;
 import com.chieftain.repositories.UserRepository;
-import com.chieftain.repositories.UsersAwaitingAcceptanceRepository;
 import jakarta.transaction.Transactional;
 import java.util.UUID;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -75,7 +75,9 @@ public class UserService {
   public void createUserWithOrganization(CreateUserWithOrganizationRequestDTO request) {
     OrganizationEntity organization =
         organizationService.createByName(request.getOrganizationName());
-    RoleEntity userRole = roleRepository.findByRoleName(SystemRole.OWNER)
+    RoleEntity userRole =
+        roleRepository
+            .findByRoleName(SystemRole.OWNER)
             .orElseThrow(() -> new RuntimeException("Role not found in dictionary"));
 
     UserEntity userEntity = new UserEntity();
@@ -98,11 +100,31 @@ public class UserService {
   }
 
   @Transactional
-  public void acceptUser(UUID userId, String roleName){
+  public void acceptUser(UUID userId, String roleName, UUID loggedUserId)
+      throws RoleNotFoundException {
     UserEntity user = getUserById(userId);
-    SystemRole requestedRole = SystemRole.valueOf(roleName.toUpperCase());
-    RoleEntity roleEntity = roleRepository.findByRoleName(requestedRole)
-            .orElseThrow(() -> new IllegalStateException("This role (" + requestedRole + ") does not exist"));
+    UserEntity loggedUser = getUserById(loggedUserId);
+
+    if (!loggedUser
+        .getOrganization()
+        .getPkOrganizationId()
+        .equals(user.getOrganization().getPkOrganizationId())) {
+      throw new AccessDeniedException("You cannot accept users from other companies");
+    }
+
+    SystemRole requestedRole;
+    try {
+      requestedRole = SystemRole.valueOf(roleName.toUpperCase());
+    } catch (IllegalArgumentException e) {
+      throw new RoleNotFoundException("Role '" + roleName + "' does not exist");
+    }
+    RoleEntity roleEntity =
+        roleRepository
+            .findByRoleName(requestedRole)
+            .orElseThrow(
+                () ->
+                    new RoleNotFoundException(
+                        "This role (" + requestedRole + ") is not in database dictionary"));
     awaitingService.removeFromQueue(user);
     user.setRole(roleEntity);
     userRepository.save(user);
