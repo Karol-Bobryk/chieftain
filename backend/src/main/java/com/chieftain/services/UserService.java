@@ -100,8 +100,11 @@ public class UserService {
   @Transactional
   public void acceptUser(UUID userId, String roleName){
     UserEntity user = getUserById(userId);
-    user.setRole(SystemRole.valueOf(roleName.toUpperCase()));
+    SystemRole requestedRole = SystemRole.valueOf(roleName.toUpperCase());
+    RoleEntity roleEntity = roleRepository.findByRoleName(requestedRole)
+            .orElseThrow(() -> new IllegalStateException("This role (" + requestedRole + ") does not exist"));
     awaitingService.removeFromQueue(user);
+    user.setRole(roleEntity);
     userRepository.save(user);
   }
 }
