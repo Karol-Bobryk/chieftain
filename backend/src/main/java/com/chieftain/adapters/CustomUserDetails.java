@@ -1,5 +1,6 @@
 package com.chieftain.adapters;
 
+import com.chieftain.models.OrganizationEntity;
 import com.chieftain.models.UserEntity;
 import jakarta.annotation.Nonnull;
 import java.util.Collection;
@@ -22,6 +23,8 @@ public class CustomUserDetails implements UserDetails {
   public Collection<? extends GrantedAuthority> getAuthorities() {
     return List.of(); // TODO: APPLY ROLES ENUM HERE
   }
+
+  public OrganizationEntity getOrganization(){return userEntity.getOrganization();}
 
   @Override
   public @Nullable String getPassword() {

@@ -69,11 +69,14 @@ public class JwtService {
 
     Date exp = new Date();
 
+    int duration = Integer.parseInt(System.getenv("JWT_REFRESH_EXPIRATION_DURATION_SECONDS"));
+
     Calendar cal = Calendar.getInstance();
     cal.setTime(exp);
     cal.add(
         Calendar.SECOND,
-        Integer.parseInt(System.getenv("JWT_REFRESH_EXPIRATION_DURATION_SECONDS")));
+        duration
+        );
     exp = cal.getTime();
 
     return Jwts.builder()
