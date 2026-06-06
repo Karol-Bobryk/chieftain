@@ -97,4 +97,13 @@ public class GroupService {
     return group;
   }
 
+  public void removeMember(UUID groupId, UUID userId){
+    GroupEntity group = groupRepository.findById(groupId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    group.getMembers().removeIf(id->id.getPkUserId().equals(userId));;
+    groupPrivilegeRepository.deleteByUserPkUserIdAndGroupId(userId, groupId);
+    groupRepository.save(group);
+
+  }
+
 }

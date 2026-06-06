@@ -7,6 +7,7 @@ import com.chieftain.controllers.group.dto.GroupCreateResponseDTO;
 import com.chieftain.enums.GroupUserPermission;
 import com.chieftain.models.GroupEntity;
 import com.chieftain.models.UserEntity;
+import com.chieftain.repositories.GroupRepository;
 import com.chieftain.services.GroupService;
 import com.chieftain.services.UserService;
 import jakarta.transaction.Transactional;
@@ -28,10 +29,12 @@ import org.springframework.web.server.ResponseStatusException;
 public class GroupController {
   private final GroupService groupService;
   private final UserService userService;
+  private final GroupRepository groupRepository;
 
-  public GroupController(GroupService groupService, UserService userService) {
+  public GroupController(GroupService groupService, UserService userService, GroupRepository groupRepository) {
     this.groupService = groupService;
     this.userService = userService;
+    this.groupRepository = groupRepository;
   }
 
   @PutMapping("/create")
@@ -94,4 +97,17 @@ public class GroupController {
 
   }
 
+  @DeleteMapping("/{groupId}/members/{userId}")
+  @Transactional
+  public ResponseEntity<Void> addGroupMembers(
+          @PathVariable UUID groupId,
+          @PathVariable UUID userId,
+          @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    GroupEntity group = groupRepository.getReferenceById(groupId);
+    groupService.removeMember(groupId,userId);
+
+    return ResponseEntity.noContent().build();
+
+  }
 }
