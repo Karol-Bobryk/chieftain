@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @Slf4j
 @RestController
@@ -72,6 +73,7 @@ public class GroupController {
 
 
   @PutMapping("/{groupId}/members")
+  @Transactional
   public ResponseEntity<Void> addGroupMembers(
           @PathVariable UUID groupId,
           @RequestBody AddGroupMemberRequestDTO request,
@@ -80,6 +82,12 @@ public class GroupController {
      GroupEntity group = groupService.getByIdAndOrganization(groupId, userDetails.getOrganization());
 
     List<UserEntity> newMembers = userService.getUsersByIds(request.getMemberIds());
+      boolean differentOrganizationMembers = newMembers.stream()
+              .anyMatch(d -> !d.getOrganization().getPkOrganizationId()
+                      .equals(group.getOrganization().getPkOrganizationId()));
+      if(differentOrganizationMembers){
+          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot add users from different organization");
+      }
     groupService.addGroupMembers(group, newMembers, request.getPermissions());
 
     return ResponseEntity.noContent().build();
