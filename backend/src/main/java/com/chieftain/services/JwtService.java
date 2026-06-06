@@ -73,10 +73,7 @@ public class JwtService {
 
     Calendar cal = Calendar.getInstance();
     cal.setTime(exp);
-    cal.add(
-        Calendar.SECOND,
-        duration
-        );
+    cal.add(Calendar.SECOND, duration);
     exp = cal.getTime();
 
     return Jwts.builder()

@@ -1,7 +1,6 @@
 package com.chieftain.models;
 
 import com.chieftain.enums.GroupUserPermission;
-import com.chieftain.enums.SystemRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,12 +15,12 @@ import lombok.Setter;
 @AllArgsConstructor
 public class GroupUserPermissionEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "pk_permission_id", nullable = false)
-    private Integer permissionId;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "pk_permission_id", nullable = false)
+  private Integer permissionId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "permission_name", unique = true, nullable = false)
-    private GroupUserPermission permissionName;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "permission_name", unique = true, nullable = false)
+  private GroupUserPermission permissionName;
 }

@@ -9,7 +9,6 @@ import com.chieftain.models.UserEntity;
 import com.chieftain.repositories.RoleRepository;
 import com.chieftain.repositories.UserRepository;
 import jakarta.transaction.Transactional;
-
 import java.util.List;
 import java.util.UUID;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -23,9 +22,10 @@ public class UserService {
   private final RoleRepository roleRepository;
 
   public UserService(
-          UserRepository userRepository,
-          PasswordEncoder passwordEncoder,
-          OrganizationService organizationService, RoleRepository roleRepository) {
+      UserRepository userRepository,
+      PasswordEncoder passwordEncoder,
+      OrganizationService organizationService,
+      RoleRepository roleRepository) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
     this.organizationService = organizationService;
@@ -72,7 +72,9 @@ public class UserService {
   public void createUserWithOrganization(CreateUserWithOrganizationRequestDTO request) {
     OrganizationEntity organization =
         organizationService.createByName(request.getOrganizationName());
-    RoleEntity userRole = roleRepository.findByRoleName(SystemRole.OWNER)
+    RoleEntity userRole =
+        roleRepository
+            .findByRoleName(SystemRole.OWNER)
             .orElseThrow(() -> new RuntimeException("Role not found in dictionary"));
 
     UserEntity userEntity = new UserEntity();

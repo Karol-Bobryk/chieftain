@@ -65,14 +65,7 @@ CREATE TABLE group_privileges
 (
     fk_group_id UUID NOT NULL REFERENCES groups (pk_group_id) ON DELETE CASCADE,
     fk_user_id  UUID NOT NULL REFERENCES users (pk_user_id) ON DELETE CASCADE,
-    PRIMARY KEY (fk_group_id, fk_user_id)
-);
-
-CREATE TABLE group_privilege_permissions
-(
-    fk_group_id      UUID    NOT NULL REFERENCES groups (pk_group_id) ON DELETE CASCADE,
-    fk_user_id       UUID    NOT NULL REFERENCES users (pk_user_id) ON DELETE CASCADE,
-    fk_permission_id INTEGER NOT NULL REFERENCES group_user_permission_dictionary (pk_permission_id),
+    fk_permission_id INTEGER NOT NULL REFERENCES  group_user_permission_dictionary(pk_permission_id),
     PRIMARY KEY (fk_group_id, fk_user_id, fk_permission_id)
 );
 

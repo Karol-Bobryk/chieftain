@@ -1,10 +1,8 @@
 package com.chieftain.controllers.group.dto;
 
+import java.util.UUID;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-
-import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Setter
@@ -12,6 +10,5 @@ import java.util.UUID;
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class GroupCreateResponseDTO {
-    UUID groupId;
+  UUID groupId;
 }
-

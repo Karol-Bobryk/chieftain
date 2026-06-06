@@ -24,7 +24,9 @@ public class CustomUserDetails implements UserDetails {
     return List.of(); // TODO: APPLY ROLES ENUM HERE
   }
 
-  public OrganizationEntity getOrganization(){return userEntity.getOrganization();}
+  public OrganizationEntity getOrganization() {
+    return userEntity.getOrganization();
+  }
 
   @Override
   public @Nullable String getPassword() {
