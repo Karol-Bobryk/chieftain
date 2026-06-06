@@ -10,7 +10,6 @@ import com.chieftain.repositories.RoleRepository;
 import com.chieftain.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import java.util.UUID;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -100,17 +99,9 @@ public class UserService {
   }
 
   @Transactional
-  public void acceptUser(UUID userId, String roleName, UUID loggedUserId)
+  public void acceptUser(UUID userId, String roleName)
       throws RoleNotFoundException {
     UserEntity user = getUserById(userId);
-    UserEntity loggedUser = getUserById(loggedUserId);
-
-    if (!loggedUser
-        .getOrganization()
-        .getPkOrganizationId()
-        .equals(user.getOrganization().getPkOrganizationId())) {
-      throw new AccessDeniedException("You cannot accept users from other companies");
-    }
 
     SystemRole requestedRole;
     try {
