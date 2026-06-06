@@ -4,7 +4,9 @@ import com.chieftain.controllers.auth.dto.CreateUserWithOrganizationRequestDTO;
 import com.chieftain.enums.SystemRole;
 import com.chieftain.exceptions.*;
 import com.chieftain.models.OrganizationEntity;
+import com.chieftain.models.RoleEntity;
 import com.chieftain.models.UserEntity;
+import com.chieftain.repositories.RoleRepository;
 import com.chieftain.repositories.UserRepository;
 import com.chieftain.repositories.UsersAwaitingAcceptanceRepository;
 import jakarta.transaction.Transactional;
@@ -18,16 +20,19 @@ public class UserService {
   private final PasswordEncoder passwordEncoder;
   private final OrganizationService organizationService;
   private final UsersAwaitingAcceptanceService awaitingService;
+  private final RoleRepository roleRepository;
 
   public UserService(
       UserRepository userRepository,
       PasswordEncoder passwordEncoder,
       OrganizationService organizationService,
-      UsersAwaitingAcceptanceService awaitingService) {
+      UsersAwaitingAcceptanceService awaitingService,
+      RoleRepository roleRepository) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
     this.organizationService = organizationService;
     this.awaitingService = awaitingService;
+    this.roleRepository = roleRepository;
   }
 
   public UserEntity save(UserEntity userEntity)
@@ -70,6 +75,8 @@ public class UserService {
   public void createUserWithOrganization(CreateUserWithOrganizationRequestDTO request) {
     OrganizationEntity organization =
         organizationService.createByName(request.getOrganizationName());
+    RoleEntity userRole = roleRepository.findByRoleName(SystemRole.OWNER)
+            .orElseThrow(() -> new RuntimeException("Role not found in dictionary"));
 
     UserEntity userEntity = new UserEntity();
     userEntity.setEmailAddress(request.getEmailAddress());
@@ -77,7 +84,7 @@ public class UserService {
     userEntity.setName(request.getName());
     userEntity.setSurname(request.getSurname());
     userEntity.setJobTitle(request.getJobTitle());
-    userEntity.setRole(SystemRole.OWNER);
+    userEntity.setRole(userRole);
     userEntity.setBlocked(false);
     userEntity.setOrganization(organization);
 
