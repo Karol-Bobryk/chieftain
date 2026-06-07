@@ -6,6 +6,7 @@ import com.chieftain.models.UserLogEntity;
 import com.chieftain.repositories.LogSeverityRepository;
 import com.chieftain.repositories.UserLogRepository;
 import jakarta.transaction.Transactional;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,6 +20,7 @@ public class LogService {
         this.userLogRepository = userLogRepository;
     }
 
+    @Async
     @Transactional
     public void logUserAction(UserEntity user, LogSeverity severityEnum, String action, String description){
 
