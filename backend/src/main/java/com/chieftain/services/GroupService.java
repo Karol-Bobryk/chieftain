@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -88,26 +87,33 @@ public class GroupService {
       addPrivilegesForMultipleUsers(group, membersToAdd, permissions);
   }
 
-  public GroupEntity getByIdAndOrganization(UUID groupId, OrganizationEntity organization){
-    GroupEntity group = groupRepository.findById(groupId)
+  public GroupEntity getByIdAndOrganization(UUID groupId, OrganizationEntity organization) {
+    GroupEntity group =
+        groupRepository
+            .findById(groupId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-    if(!group.getOrganization().getPkOrganizationId().equals(organization.getPkOrganizationId())){
+    if (!group.getOrganization().getPkOrganizationId().equals(organization.getPkOrganizationId())) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
     return group;
   }
 
-  public void removeMember(UUID groupId, UUID userId){
-    GroupEntity group = groupRepository.findById(groupId)
+  public void removeMember(UUID groupId, UUID userId, UUID requesterId) {
+    GroupEntity group =
+        groupRepository
+            .findById(groupId)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 
-    boolean wasRemoved = group.getMembers().removeIf(id->id.getPkUserId().equals(userId));
-    if(!wasRemoved){
+    groupPrivilegeRepository
+        .findPermission(groupId, requesterId, GroupUserPermission.REMOVE_USER_FROM_GROUP)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN));
+
+    boolean wasRemoved = group.getMembers().removeIf(id -> id.getPkUserId().equals(userId));
+    if (!wasRemoved) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
 
     groupPrivilegeRepository.deleteByUserPkUserIdAndGroupId(userId, groupId);
     groupRepository.save(group);
   }
-
 }

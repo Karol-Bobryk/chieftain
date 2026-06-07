@@ -15,7 +15,6 @@ import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -74,15 +73,14 @@ public class GroupController {
     return new ResponseEntity<>(response, HttpStatus.CREATED);
   }
 
-
   @PutMapping("/{groupId}/members")
   @Transactional
   public ResponseEntity<Void> addGroupMembers(
-          @PathVariable UUID groupId,
-          @Valid @RequestBody AddGroupMemberRequestDTO request,
-          @AuthenticationPrincipal CustomUserDetails userDetails){
+      @PathVariable UUID groupId,
+      @Valid @RequestBody AddGroupMemberRequestDTO request,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
 
-     GroupEntity group = groupService.getByIdAndOrganization(groupId, userDetails.getOrganization());
+    GroupEntity group = groupService.getByIdAndOrganization(groupId, userDetails.getOrganization());
 
     List<UserEntity> newMembers = userService.getUsersByIds(request.getMemberIds());
       boolean differentOrganizationMembers = newMembers.stream()
@@ -94,20 +92,17 @@ public class GroupController {
     groupService.addGroupMembers(group, newMembers, request.getPermissions());
 
     return ResponseEntity.noContent().build();
-
   }
 
   @DeleteMapping("/{groupId}/members/{userId}")
   @Transactional
-  public ResponseEntity<Void> addGroupMembers(
-          @PathVariable UUID groupId,
-          @PathVariable UUID userId,
-          @AuthenticationPrincipal CustomUserDetails userDetails) {
+  public ResponseEntity<Void> removeGroupMember(
+      @PathVariable UUID groupId,
+      @PathVariable UUID userId,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
 
     groupService.getByIdAndOrganization(groupId, userDetails.getOrganization());
-    groupService.removeMember(groupId,userId);
-
+    groupService.removeMember(groupId, userId, userDetails.getUserId());
     return ResponseEntity.noContent().build();
-
   }
 }

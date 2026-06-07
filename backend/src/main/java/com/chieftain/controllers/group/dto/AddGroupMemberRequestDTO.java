@@ -1,13 +1,11 @@
 package com.chieftain.controllers.group.dto;
 
 import com.chieftain.enums.GroupUserPermission;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
-import lombok.*;
-import lombok.experimental.FieldDefaults;
-
 import java.util.List;
 import java.util.UUID;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 @Getter
 @Setter
@@ -16,9 +14,9 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class AddGroupMemberRequestDTO {
 
-    @NotEmpty(message = "Member list cannot be blank")
-    List<UUID> memberIds;
+  @NotEmpty(message = "Member list cannot be blank")
+  List<UUID> memberIds;
 
-    @NotEmpty(message = "Permissions list cannot be empty")
-    List<GroupUserPermission> permissions;
+  @NotEmpty(message = "Permissions list cannot be empty")
+  List<GroupUserPermission> permissions;
 }
