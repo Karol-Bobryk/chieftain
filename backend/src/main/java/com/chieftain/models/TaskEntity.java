@@ -40,6 +40,9 @@ public class TaskEntity {
   @Column(name = "name", nullable = false)
   private String name;
 
+  @Column(name = "started_at", nullable = false)
+  private LocalDateTime startedAt;
+
   @CreationTimestamp
   @Nonnull
   @Column(name = "created_at", nullable = false)

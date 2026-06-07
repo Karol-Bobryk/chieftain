@@ -2,9 +2,8 @@ package com.chieftain.controllers.user;
 
 import com.chieftain.controllers.auth.dto.ErrorResponseDTO;
 import com.chieftain.exceptions.RoleNotFoundException;
-import java.util.Objects;
-
 import com.chieftain.exceptions.UserNotFoundInQueueException;
+import java.util.Objects;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -42,12 +41,10 @@ public class UserExceptionHandler {
   public ResponseEntity<ErrorResponseDTO> handleUserNotInQueue(UserNotFoundInQueueException ex) {
     HttpStatus status = HttpStatus.NOT_FOUND;
     return ResponseEntity.status(status)
-            .body(
-                    ErrorResponseDTO.of(
-                            status,
-                            "Request field validation failed "
-                                    + Objects.requireNonNull(ex.getMessage())
-                                    ));
+        .body(
+            ErrorResponseDTO.of(
+                status,
+                "Request field validation failed " + Objects.requireNonNull(ex.getMessage())));
   }
 
   @ExceptionHandler(Exception.class)
