@@ -1,7 +1,10 @@
 FROM oven/bun:1.3
 
-COPY . .
+WORKDIR /app
 
+COPY package.json bun.lock ./
 RUN bun install
+
+COPY . .
 
 ENTRYPOINT bun run dev
