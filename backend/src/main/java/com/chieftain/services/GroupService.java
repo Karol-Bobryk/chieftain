@@ -78,11 +78,11 @@ public class GroupService {
 
   public boolean isUserEligible(
       UserEntity user, GroupEntity group, GroupUserPermission groupPermission) {
-    return groupPrivilegeRepository.existsById(
-        new GroupPrivilegeId(
-            user.getPkUserId(),
-            group.getId(),
-            getPermissionEntity(groupPermission).getPermissionId()));
+    return groupPrivilegeRepository.existsByGroupAndUserAndPermission(
+            group,
+            user,
+            getPermissionEntity(groupPermission)
+    );
   }
 
   public List<GroupPrivilegeEntity> getAllUserGroupPrivileges(GroupPrivilegeId gpId) {
