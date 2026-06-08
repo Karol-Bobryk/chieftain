@@ -57,7 +57,7 @@ public class TaskService {
 
   public TaskEntity assignUser(TaskEntity task, UserEntity user) {
 
-    if(!task.getAssignees().contains(user)){
+    if (!task.getAssignees().contains(user)) {
       task.getAssignees().add(user);
       return save(task);
     }

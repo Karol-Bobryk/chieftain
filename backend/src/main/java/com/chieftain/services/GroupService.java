@@ -79,10 +79,7 @@ public class GroupService {
   public boolean isUserEligible(
       UserEntity user, GroupEntity group, GroupUserPermission groupPermission) {
     return groupPrivilegeRepository.existsByGroupAndUserAndPermission(
-            group,
-            user,
-            getPermissionEntity(groupPermission)
-    );
+        group, user, getPermissionEntity(groupPermission));
   }
 
   public List<GroupPrivilegeEntity> getAllUserGroupPrivileges(GroupPrivilegeId gpId) {
@@ -98,7 +95,7 @@ public class GroupService {
     return groupUserPermissionRepository.findAllByPermissionNameIn(permissions);
   }
 
-  public boolean isUserInGroup(GroupEntity group, UserEntity user){
-     return group.getMembers().contains(user);
+  public boolean isUserInGroup(GroupEntity group, UserEntity user) {
+    return group.getMembers().contains(user);
   }
 }

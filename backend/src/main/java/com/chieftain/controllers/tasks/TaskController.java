@@ -18,8 +18,6 @@ import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.UUID;
-
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -98,20 +96,20 @@ public class TaskController {
   @PutMapping("/api/tasks/{taskId}/assignees/{userId}")
   @Transactional
   public ResponseEntity<Void> assignToTask(
-          @PathVariable UUID taskId,
-          @PathVariable UUID userId,
-          @AuthenticationPrincipal CustomUserDetails userDetails) {
+      @PathVariable UUID taskId,
+      @PathVariable UUID userId,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
     UserEntity issuer = userService.getUserById(userDetails.getUserId());
 
     TaskEntity task = taskService.getTaskById(taskId);
 
     UserEntity user = userService.getUserById(userId);
 
-    if(!groupService.isUserInGroup(task.getGroup(), issuer)){
+    if (!groupService.isUserInGroup(task.getGroup(), issuer)) {
       throw new UserNotEligible("cannot assign user to a task, issuer is not in the group");
     }
 
-    if(!groupService.isUserInGroup(task.getGroup(), user)){
+    if (!groupService.isUserInGroup(task.getGroup(), user)) {
       throw new UserNotEligible("cannot assign user to a task, user is not in the group");
     }
 
