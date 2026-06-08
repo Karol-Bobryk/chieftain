@@ -20,10 +20,7 @@ import java.time.ZoneId;
 import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -94,5 +91,30 @@ public class TaskController {
     task = taskService.save(task);
 
     return ResponseEntity.ok(new CreateTaskResponseDTO(task.getId()));
+  }
+
+  @PutMapping("/api/tasks/{taskId}/assignees/{userId}")
+  @Transactional
+  public ResponseEntity<Void> assignToTask(
+          @PathVariable UUID taskId,
+          @PathVariable UUID userId,
+          @AuthenticationPrincipal CustomUserDetails userDetails) {
+    UserEntity issuer = userService.getUserById(userDetails.getUserId());
+
+    TaskEntity task = taskService.getTaskById(taskId);
+
+    UserEntity user = userService.getUserById(userId);
+
+    if(!groupService.isUserInGroup(task.getGroup(), issuer)){
+      throw new UserNotEligible("cannot assign user to a task, issuer is not in the group");
+    }
+
+    if(!groupService.isUserInGroup(task.getGroup(), user)){
+      throw new UserNotEligible("cannot assign user to a task, user is not in the group");
+    }
+
+    taskService.assignUser(task, user);
+
+    return ResponseEntity.noContent().build();
   }
 }

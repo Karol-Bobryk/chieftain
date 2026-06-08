@@ -97,4 +97,8 @@ public class GroupService {
       Collection<GroupUserPermission> permissions) {
     return groupUserPermissionRepository.findAllByPermissionNameIn(permissions);
   }
+
+  public boolean isUserInGroup(GroupEntity group, UserEntity user){
+     return group.getMembers().contains(user);
+  }
 }
