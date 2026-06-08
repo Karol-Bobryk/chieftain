@@ -4,6 +4,7 @@ import { login } from "@/auth/auth.ts";
 import { useNavigate } from "react-router-dom";
 import SubmitButton from "@/components/SubmitButton";
 import ErrorMessageLabel from "@/components/ErrorMessageLabel";
+import TextInput from "@/components/TextInput";
 const Login = () => {
   const [form, setForm] = useState<LoginForm>({
     emailAddress: "",
@@ -53,31 +54,29 @@ const Login = () => {
         </h1>
 
         <div className="space-y-4">
-          <input
+          <TextInput
             type="email"
             placeholder="Email"
             value={form.emailAddress}
             onChange={handleChange("emailAddress")}
             required
-            className="w-full rounded-lg border border-slate-300 px-4 py-2 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
           />
 
-          <input
+          <TextInput
             type="password"
             placeholder="Password"
             value={form.password}
             onChange={handleChange("password")}
             required
-            className="w-full rounded-lg border border-slate-300 px-4 py-2 outline-none transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+          />
+
+          <ErrorMessageLabel error={error} />
+
+          <SubmitButton
+            displayedText={loading ? "Joining..." : "Join organization"}
+            isEnabled={loading}
           />
         </div>
-
-        <ErrorMessageLabel error={error} />
-
-        <SubmitButton
-          displayedText={loading ? "Joining..." : "Join organization"}
-          isEnabled={loading}
-        />
       </form>
     </div>
   );

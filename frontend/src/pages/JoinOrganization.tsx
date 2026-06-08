@@ -2,7 +2,7 @@ import ErrorMessageLabel from "@/components/ErrorMessageLabel";
 import SubmitButton from "@/components/SubmitButton";
 import { useState } from "react";
 
-export default function JoinOrganization() {
+const JoinOrganization = () => {
   const [form, setForm] = useState({
     name: "",
     surname: "",
@@ -120,4 +120,6 @@ export default function JoinOrganization() {
       </form>
     </div>
   );
-}
+};
+
+export default JoinOrganization;

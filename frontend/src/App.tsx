@@ -14,9 +14,9 @@ export default function App() {
         <Route element={<PublicRoute />}>
           <Route path="/" element={<Login />} />
           <Route path="/join" element={<JoinOrganization />} />
+          <Route path="/create-org" element={<CreateOrganization />} />
         </Route>
         <Route element={<ProtectedRoute />}>
-          <Route path="/create-org" element={<CreateOrganization />} />
           <Route path="/create-group" element={<CreateGroup />} />
           <Route path="/accept-user" element={<AcceptUser />} />
         </Route>
