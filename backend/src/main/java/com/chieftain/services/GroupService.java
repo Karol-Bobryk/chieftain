@@ -76,10 +76,13 @@ public class GroupService {
     return groupUserPermissionRepository.findAllByPermissionNameIn(permissions);
   }
 
-  public void addGroupMembers(GroupEntity group, List<UserEntity> newMembers, List<GroupUserPermission> permissions){
+  public void addGroupMembers(GroupEntity group, UUID requesterId, List<UserEntity> newMembers, List<GroupUserPermission> permissions){
 
       List<UserEntity> membersToAdd = newMembers.stream().
               filter(checkMember -> !group.getMembers().contains(checkMember)).toList();
+    groupPrivilegeRepository
+            .findPermission(group.getId(), requesterId, GroupUserPermission.ADD_USER_TO_GROUP)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "User has insufficient permissions"));
 
       group.getMembers().addAll(membersToAdd);
       groupRepository.save(group);
@@ -106,7 +109,7 @@ public class GroupService {
 
     groupPrivilegeRepository
         .findPermission(groupId, requesterId, GroupUserPermission.REMOVE_USER_FROM_GROUP)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN));
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "User has insufficient permissions"));
 
     boolean wasRemoved = group.getMembers().removeIf(id -> id.getPkUserId().equals(userId));
     if (!wasRemoved) {

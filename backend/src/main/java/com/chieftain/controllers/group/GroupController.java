@@ -89,7 +89,7 @@ public class GroupController {
       if(differentOrganizationMembers){
           throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot add users from different organization");
       }
-    groupService.addGroupMembers(group, newMembers, request.getPermissions());
+    groupService.addGroupMembers(group, userDetails.getUserId(), newMembers, request.getPermissions());
 
     return ResponseEntity.noContent().build();
   }
