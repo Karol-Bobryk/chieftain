@@ -5,6 +5,7 @@ import com.chieftain.exceptions.SubtaskNotEligible;
 import com.chieftain.exceptions.TaskNotFoundException;
 import com.chieftain.models.TaskEntity;
 import com.chieftain.models.TaskStatusEntity;
+import com.chieftain.models.UserEntity;
 import com.chieftain.repositories.TaskRepository;
 import com.chieftain.repositories.TaskStatusRepository;
 import jakarta.annotation.Nonnull;
@@ -52,6 +53,16 @@ public class TaskService {
       throw new SubtaskNotEligible("child task scheduled after parent task is finished");
     }
     return true;
+  }
+
+  public TaskEntity assignUser(TaskEntity task, UserEntity user) {
+
+    if (!task.getAssignees().contains(user)) {
+      task.getAssignees().add(user);
+      return save(task);
+    }
+
+    return task;
   }
 
   public TaskEntity save(@Nonnull TaskEntity task) {
