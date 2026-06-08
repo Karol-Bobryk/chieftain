@@ -103,7 +103,14 @@ public class UserService {
     userEntity.setBlocked(false);
     userEntity.setOrganization(organization);
 
-    save(userEntity);
+    UserEntity savedUser = save(userEntity);
+
+    logService.logUserAction(
+            savedUser,
+            LogSeverity.INFO,
+            "USER_REGISTERED_AS_OWNER",
+            "User registered and created a new organization: " + organization.getName()
+    );
   }
 
   public UserEntity getUserById(UUID userId) {

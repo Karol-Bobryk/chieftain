@@ -4,9 +4,11 @@ import com.chieftain.adapters.CustomUserDetails;
 import com.chieftain.controllers.group.dto.GroupCreateRequestDTO;
 import com.chieftain.controllers.group.dto.GroupCreateResponseDTO;
 import com.chieftain.enums.GroupUserPermission;
+import com.chieftain.enums.LogSeverity;
 import com.chieftain.models.GroupEntity;
 import com.chieftain.models.UserEntity;
 import com.chieftain.services.GroupService;
+import com.chieftain.services.LogService;
 import com.chieftain.services.UserService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -22,10 +24,12 @@ import org.springframework.web.bind.annotation.*;
 public class GroupController {
   private final GroupService groupService;
   private final UserService userService;
+  private final LogService logService;
 
-  public GroupController(GroupService groupService, UserService userService) {
+  public GroupController(GroupService groupService, UserService userService, LogService logService) {
     this.groupService = groupService;
     this.userService = userService;
+    this.logService = logService;
   }
 
   @PutMapping("/create")
@@ -60,6 +64,21 @@ public class GroupController {
         groupEntity,
         members.stream().filter(e -> !e.equals(groupOwner)).toList(),
         request.getRoles());
+
+    logService.logGroupAction(
+            groupEntity,
+            LogSeverity.INFO,
+            "GROUP_CREATED",
+            "Group '" + groupEntity.getName() + "' was created by: " + groupOwner.getEmailAddress()
+    );
+
+    logService.logGroupPrivilegeAction(
+            groupEntity,
+            groupOwner,
+            LogSeverity.INFO,
+            "GROUP_OWNER_PRIVILEGES_GRANTED",
+            "User " + groupOwner.getEmailAddress() + " received full owner permissions for the group"
+    );
 
     GroupCreateResponseDTO response = new GroupCreateResponseDTO(groupEntity.getId());
     return new ResponseEntity<>(response, HttpStatus.CREATED);

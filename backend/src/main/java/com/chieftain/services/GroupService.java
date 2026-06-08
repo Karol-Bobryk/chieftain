@@ -1,6 +1,7 @@
 package com.chieftain.services;
 
 import com.chieftain.enums.GroupUserPermission;
+import com.chieftain.enums.LogSeverity;
 import com.chieftain.models.GroupEntity;
 import com.chieftain.models.GroupPrivilegeEntity;
 import com.chieftain.models.GroupUserPermissionEntity;
@@ -19,14 +20,17 @@ public class GroupService {
   private final GroupRepository groupRepository;
   private final GroupPrivilegeRepository groupPrivilegeRepository;
   private final GroupUserPermissionRepository groupUserPermissionRepository;
+  private final LogService logService;
 
   public GroupService(
-      GroupRepository groupRepository,
-      GroupPrivilegeRepository groupPrivilegeRepository,
-      GroupUserPermissionRepository groupUserPermissionRepository) {
+          GroupRepository groupRepository,
+          GroupPrivilegeRepository groupPrivilegeRepository,
+          GroupUserPermissionRepository groupUserPermissionRepository,
+          LogService logService) {
     this.groupRepository = groupRepository;
     this.groupPrivilegeRepository = groupPrivilegeRepository;
     this.groupUserPermissionRepository = groupUserPermissionRepository;
+    this.logService = logService;
   }
 
   public GroupEntity save(GroupEntity groupEntity) {
@@ -47,6 +51,14 @@ public class GroupService {
       entities.add(privilegeEntity);
     }
 
+    logService.logGroupPrivilegeAction(
+            group,
+            user,
+            LogSeverity.INFO,
+            "PRIVILEGES_GRANTED",
+            "User " + user.getEmailAddress() + " received new permissions in group: " + group.getName()
+    );
+
     return groupPrivilegeRepository.saveAll(entities);
   }
 
@@ -65,6 +77,14 @@ public class GroupService {
         privilege.setPermission(permission);
         privilegeEntities.add(privilege);
       }
+
+      logService.logGroupPrivilegeAction(
+              group,
+              user,
+              LogSeverity.INFO,
+              "PRIVILEGES_GRANTED",
+              "User " + user.getEmailAddress() + " received new permissions in group: " + group.getName()
+      );
     }
 
     privilegeEntities = groupPrivilegeRepository.saveAll(privilegeEntities);
