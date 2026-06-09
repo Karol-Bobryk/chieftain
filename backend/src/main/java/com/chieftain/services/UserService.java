@@ -124,8 +124,7 @@ public class UserService {
   }
 
   @Transactional
-  public void acceptUser(UUID userId, String roleName)
-      throws RoleNotFoundException {
+  public void acceptUser(UUID userId, String roleName) throws RoleNotFoundException {
     UserEntity user = getUserById(userId);
 
     SystemRole requestedRole;
