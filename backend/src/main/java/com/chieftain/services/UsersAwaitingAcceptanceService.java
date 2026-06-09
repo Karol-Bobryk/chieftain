@@ -5,7 +5,8 @@ import com.chieftain.models.OrganizationEntity;
 import com.chieftain.models.UserEntity;
 import com.chieftain.models.UsersAwaitingAcceptanceEntity;
 import com.chieftain.repositories.UsersAwaitingAcceptanceRepository;
-import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -35,8 +36,9 @@ public class UsersAwaitingAcceptanceService {
     usersAwaitingAcceptanceRepository.delete(awaitingRecord);
   }
 
-  public List<UserEntity> getUsersInQueue(OrganizationEntity organization) {
-    //    usersAwaitingAcceptanceRepository.
+  public Page<UsersAwaitingAcceptanceEntity> getUsersInQueue(
+      OrganizationEntity organization, Pageable pageable) {
+    usersAwaitingAcceptanceRepository.findAllByOrganization(organization, pageable);
     return null;
   }
 }

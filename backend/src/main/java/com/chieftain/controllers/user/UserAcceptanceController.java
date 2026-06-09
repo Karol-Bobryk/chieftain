@@ -5,8 +5,8 @@ import com.chieftain.controllers.user.dto.AcceptUserRequestDTO;
 import com.chieftain.controllers.user.dto.GetUsersAwaitingAcceptanceResponseDTO;
 import com.chieftain.controllers.user.dto.UserDisplayDTO;
 import com.chieftain.models.UsersAwaitingAcceptanceEntity;
-import com.chieftain.repositories.UsersAwaitingAcceptanceRepository;
 import com.chieftain.services.UserService;
+import com.chieftain.services.UsersAwaitingAcceptanceService;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -24,13 +24,12 @@ import org.springframework.web.bind.annotation.*;
 public class UserAcceptanceController {
 
   private final UserService userService;
-  private final UsersAwaitingAcceptanceRepository usersAwaitingAcceptanceRepository;
+  private final UsersAwaitingAcceptanceService usersAwaitingAcceptanceService;
 
   public UserAcceptanceController(
-      UserService userService,
-      UsersAwaitingAcceptanceRepository usersAwaitingAcceptanceRepository) {
+      UserService userService, UsersAwaitingAcceptanceService usersAwaitingAcceptanceService) {
     this.userService = userService;
-    this.usersAwaitingAcceptanceRepository = usersAwaitingAcceptanceRepository;
+    this.usersAwaitingAcceptanceService = usersAwaitingAcceptanceService;
   }
 
   @PostMapping("/{id}/accept")
@@ -52,8 +51,7 @@ public class UserAcceptanceController {
     Pageable pageable = PageRequest.of(page, size);
 
     Page<UsersAwaitingAcceptanceEntity> usersPage =
-        usersAwaitingAcceptanceRepository.findAllByOrganization(
-            userDetails.getOrganization(), pageable);
+        usersAwaitingAcceptanceService.getUsersInQueue(userDetails.getOrganization(), pageable);
 
     List<UserDisplayDTO> userList =
         usersPage
