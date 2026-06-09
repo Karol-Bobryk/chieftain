@@ -38,7 +38,6 @@ public class UsersAwaitingAcceptanceService {
 
   public Page<UsersAwaitingAcceptanceEntity> getUsersInQueue(
       OrganizationEntity organization, Pageable pageable) {
-    usersAwaitingAcceptanceRepository.findAllByOrganization(organization, pageable);
-    return null;
+    return usersAwaitingAcceptanceRepository.findAllByOrganization(organization, pageable);
   }
 }

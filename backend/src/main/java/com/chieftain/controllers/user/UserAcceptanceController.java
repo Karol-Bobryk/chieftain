@@ -2,17 +2,15 @@ package com.chieftain.controllers.user;
 
 import com.chieftain.adapters.CustomUserDetails;
 import com.chieftain.controllers.user.dto.AcceptUserRequestDTO;
-import com.chieftain.controllers.user.dto.GetUsersAwaitingAcceptanceResponseDTO;
 import com.chieftain.controllers.user.dto.UserDisplayDTO;
-import com.chieftain.models.UsersAwaitingAcceptanceEntity;
 import com.chieftain.services.UserService;
 import com.chieftain.services.UsersAwaitingAcceptanceService;
 import jakarta.validation.Valid;
-import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,24 +41,21 @@ public class UserAcceptanceController {
 
   @GetMapping("/awaiting-acceptance")
   @PreAuthorize("hasAnyAuthority('OWNER', 'TASK_MASTER')")
-  public ResponseEntity<GetUsersAwaitingAcceptanceResponseDTO> getUsersAwaitingAcceptance(
+  public ResponseEntity<PagedModel<UserDisplayDTO>> getUsersAwaitingAcceptance(
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
 
     Pageable pageable = PageRequest.of(page, size);
 
-    Page<UsersAwaitingAcceptanceEntity> usersPage =
-        usersAwaitingAcceptanceService.getUsersInQueue(userDetails.getOrganization(), pageable);
-
-    List<UserDisplayDTO> userList =
-        usersPage
+    Page<UserDisplayDTO> usersPage =
+        usersAwaitingAcceptanceService
+            .getUsersInQueue(userDetails.getOrganization(), pageable)
             .map(
-                e ->
+                (e) ->
                     new UserDisplayDTO(
-                        e.getId().getUserId(), e.getUser().getName(), e.getUser().getSurname()))
-            .toList();
+                        e.getId().getUserId(), e.getUser().getName(), e.getUser().getSurname()));
 
-    return ResponseEntity.ok(new GetUsersAwaitingAcceptanceResponseDTO(userList));
+    return ResponseEntity.ok(new PagedModel<>(usersPage));
   }
 }
