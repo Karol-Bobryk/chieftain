@@ -5,6 +5,7 @@ import com.chieftain.models.OrganizationEntity;
 import com.chieftain.models.UserEntity;
 import com.chieftain.models.UsersAwaitingAcceptanceEntity;
 import com.chieftain.repositories.UsersAwaitingAcceptanceRepository;
+import java.util.List;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -25,10 +26,17 @@ public class UsersAwaitingAcceptanceService {
   }
 
   public void removeFromQueue(UserEntity user) {
-    UsersAwaitingAcceptanceEntity awaitingRecord = usersAwaitingAcceptanceRepository
+    UsersAwaitingAcceptanceEntity awaitingRecord =
+        usersAwaitingAcceptanceRepository
             .findByUser(user)
-            .orElseThrow(() -> new UserNotFoundInQueueException("User is not in the awaiting queue."));
+            .orElseThrow(
+                () -> new UserNotFoundInQueueException("User is not in the awaiting queue."));
 
     usersAwaitingAcceptanceRepository.delete(awaitingRecord);
+  }
+
+  public List<UserEntity> getUsersInQueue(OrganizationEntity organization) {
+    //    usersAwaitingAcceptanceRepository.
+    return null;
   }
 }
