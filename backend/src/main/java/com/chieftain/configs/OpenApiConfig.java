@@ -10,17 +10,13 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 @OpenAPIDefinition(
-        info = @Info(title = "Chieftain API"),
-        security = @SecurityRequirement(name = "authentication")
-)
+    info = @Info(title = "Chieftain API"),
+    security = @SecurityRequirement(name = "authentication"))
 @SecurityScheme(
-        type = SecuritySchemeType.HTTP,
-        name = "authentication",
-        description = "Use /auth/user/login to get the JWT token and put it here:",
-        in = SecuritySchemeIn.HEADER,
-        scheme = "bearer",
-        bearerFormat = "JWT"
-)
-public class OpenApiConfig {
-
-}
+    type = SecuritySchemeType.HTTP,
+    name = "authentication",
+    description = "Use /auth/user/login to get the JWT token and put it here:",
+    in = SecuritySchemeIn.HEADER,
+    scheme = "bearer",
+    bearerFormat = "JWT")
+public class OpenApiConfig {}

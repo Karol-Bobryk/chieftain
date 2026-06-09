@@ -1,10 +1,8 @@
 package com.chieftain.services;
 
 import com.chieftain.enums.GroupUserPermission;
-import com.chieftain.models.GroupEntity;
-import com.chieftain.models.GroupPrivilegeEntity;
-import com.chieftain.models.GroupUserPermissionEntity;
-import com.chieftain.models.UserEntity;
+import com.chieftain.exceptions.GroupNotFoundException;
+import com.chieftain.models.*;
 import com.chieftain.repositories.GroupPrivilegeRepository;
 import com.chieftain.repositories.GroupRepository;
 import com.chieftain.repositories.GroupUserPermissionRepository;
@@ -12,6 +10,7 @@ import jakarta.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -27,6 +26,12 @@ public class GroupService {
     this.groupRepository = groupRepository;
     this.groupPrivilegeRepository = groupPrivilegeRepository;
     this.groupUserPermissionRepository = groupUserPermissionRepository;
+  }
+
+  public GroupEntity getGroupById(UUID groupId) {
+    return groupRepository
+        .findById(groupId)
+        .orElseThrow(() -> new GroupNotFoundException("No group with id " + groupId));
   }
 
   public GroupEntity save(GroupEntity groupEntity) {
@@ -71,8 +76,26 @@ public class GroupService {
     return privilegeEntities;
   }
 
+  public boolean isUserEligible(
+      UserEntity user, GroupEntity group, GroupUserPermission groupPermission) {
+    return groupPrivilegeRepository.existsByGroupAndUserAndPermission(
+        group, user, getPermissionEntity(groupPermission));
+  }
+
+  public List<GroupPrivilegeEntity> getAllUserGroupPrivileges(GroupPrivilegeId gpId) {
+    return groupPrivilegeRepository.findAllById(gpId);
+  }
+
+  public GroupUserPermissionEntity getPermissionEntity(GroupUserPermission permission) {
+    return groupUserPermissionRepository.findByPermissionName(permission);
+  }
+
   public List<GroupUserPermissionEntity> getPermissionEntities(
       Collection<GroupUserPermission> permissions) {
     return groupUserPermissionRepository.findAllByPermissionNameIn(permissions);
+  }
+
+  public boolean isUserInGroup(GroupEntity group, UserEntity user) {
+    return group.getMembers().contains(user);
   }
 }

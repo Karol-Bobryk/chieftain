@@ -25,9 +25,11 @@ public class UsersAwaitingAcceptanceService {
   }
 
   public void removeFromQueue(UserEntity user) {
-    UsersAwaitingAcceptanceEntity awaitingRecord = usersAwaitingAcceptanceRepository
+    UsersAwaitingAcceptanceEntity awaitingRecord =
+        usersAwaitingAcceptanceRepository
             .findByUser(user)
-            .orElseThrow(() -> new UserNotFoundInQueueException("User is not in the awaiting queue."));
+            .orElseThrow(
+                () -> new UserNotFoundInQueueException("User is not in the awaiting queue."));
 
     usersAwaitingAcceptanceRepository.delete(awaitingRecord);
   }

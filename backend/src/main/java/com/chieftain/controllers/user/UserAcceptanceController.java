@@ -22,8 +22,7 @@ public class UserAcceptanceController {
   @PostMapping("/{id}/accept")
   @PreAuthorize("hasAnyAuthority('OWNER', 'TASK_MASTER')")
   public ResponseEntity<String> acceptUser(
-      @PathVariable UUID id,
-      @Valid @RequestBody AcceptUserRequestDTO request) {
+      @PathVariable UUID id, @Valid @RequestBody AcceptUserRequestDTO request) {
 
     userService.acceptUser(id, request.getRole());
     return new ResponseEntity<>("User accepted successfully", HttpStatus.OK);
