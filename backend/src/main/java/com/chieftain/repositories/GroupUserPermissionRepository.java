@@ -10,4 +10,6 @@ public interface GroupUserPermissionRepository
     extends JpaRepository<GroupUserPermissionEntity, Integer> {
   List<GroupUserPermissionEntity> findAllByPermissionNameIn(
       Collection<GroupUserPermission> permissionNames);
+
+  GroupUserPermissionEntity findByPermissionName(GroupUserPermission permissionName);
 }

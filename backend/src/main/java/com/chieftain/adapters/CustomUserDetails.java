@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 import org.jspecify.annotations.Nullable;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 public class CustomUserDetails implements UserDetails {
@@ -21,7 +22,7 @@ public class CustomUserDetails implements UserDetails {
   @Nonnull
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return List.of(); // TODO: APPLY ROLES ENUM HERE
+    return List.of(new SimpleGrantedAuthority(userEntity.getRole().getRoleName().name()));
   }
 
   public OrganizationEntity getOrganization() {

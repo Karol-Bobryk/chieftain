@@ -30,7 +30,7 @@ public class GroupController {
   private final UserService userService;
   private final GroupRepository groupRepository;
 
-  public GroupController(GroupService groupService, UserService userService, GroupRepository groupRepository) {
+  public GroupController(GroupService groupService, UserService userService) {
     this.groupService = groupService;
     this.userService = userService;
     this.groupRepository = groupRepository;

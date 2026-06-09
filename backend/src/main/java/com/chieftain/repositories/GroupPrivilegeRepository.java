@@ -1,5 +1,7 @@
 package com.chieftain.repositories;
 
+import com.chieftain.models.*;
+import java.util.List;
 import com.chieftain.enums.GroupUserPermission;
 import com.chieftain.models.GroupPrivilegeEntity;
 import com.chieftain.models.GroupPrivilegeId;
@@ -12,6 +14,11 @@ import org.springframework.data.repository.query.Param;
 
 public interface GroupPrivilegeRepository
     extends JpaRepository<GroupPrivilegeEntity, GroupPrivilegeId> {
+  List<GroupPrivilegeEntity> findAllById(GroupPrivilegeId id);
+
+  boolean existsByGroupAndUserAndPermission(
+      GroupEntity group, UserEntity user, GroupUserPermissionEntity permission);
+
   @Modifying
   @Query(
       "DELETE FROM GroupPrivilegeEntity g WHERE g.user.pkUserId =:userId AND g.group.id =:groupId")

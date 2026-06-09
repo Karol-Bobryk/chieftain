@@ -2,6 +2,8 @@ package com.chieftain.services;
 
 import com.chieftain.enums.GroupUserPermission;
 import com.chieftain.models.*;
+import com.chieftain.exceptions.GroupNotFoundException;
+import com.chieftain.models.*;
 import com.chieftain.repositories.GroupPrivilegeRepository;
 import com.chieftain.repositories.GroupRepository;
 import com.chieftain.repositories.GroupUserPermissionRepository;
@@ -11,6 +13,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.http.HttpStatus;
+import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -27,6 +30,12 @@ public class GroupService {
     this.groupRepository = groupRepository;
     this.groupPrivilegeRepository = groupPrivilegeRepository;
     this.groupUserPermissionRepository = groupUserPermissionRepository;
+  }
+
+  public GroupEntity getGroupById(UUID groupId) {
+    return groupRepository
+        .findById(groupId)
+        .orElseThrow(() -> new GroupNotFoundException("No group with id " + groupId));
   }
 
   public GroupEntity save(GroupEntity groupEntity) {
@@ -69,6 +78,20 @@ public class GroupService {
 
     privilegeEntities = groupPrivilegeRepository.saveAll(privilegeEntities);
     return privilegeEntities;
+  }
+
+  public boolean isUserEligible(
+      UserEntity user, GroupEntity group, GroupUserPermission groupPermission) {
+    return groupPrivilegeRepository.existsByGroupAndUserAndPermission(
+        group, user, getPermissionEntity(groupPermission));
+  }
+
+  public List<GroupPrivilegeEntity> getAllUserGroupPrivileges(GroupPrivilegeId gpId) {
+    return groupPrivilegeRepository.findAllById(gpId);
+  }
+
+  public GroupUserPermissionEntity getPermissionEntity(GroupUserPermission permission) {
+    return groupUserPermissionRepository.findByPermissionName(permission);
   }
 
   public List<GroupUserPermissionEntity> getPermissionEntities(
@@ -118,5 +141,9 @@ public class GroupService {
 
     groupPrivilegeRepository.deleteByUserPkUserIdAndGroupId(userId, groupId);
     groupRepository.save(group);
+  }
+
+  public boolean isUserInGroup(GroupEntity group, UserEntity user) {
+    return group.getMembers().contains(user);
   }
 }
