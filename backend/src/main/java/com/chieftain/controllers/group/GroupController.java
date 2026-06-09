@@ -5,15 +5,18 @@ import com.chieftain.controllers.group.dto.GroupCreateRequestDTO;
 import com.chieftain.controllers.group.dto.GroupCreateResponseDTO;
 import com.chieftain.enums.GroupUserPermission;
 import com.chieftain.enums.LogSeverity;
+import com.chieftain.events.GroupLogEvent;
+import com.chieftain.events.GroupPrivilegeLogEvent;
 import com.chieftain.models.GroupEntity;
 import com.chieftain.models.UserEntity;
 import com.chieftain.services.GroupService;
-import com.chieftain.services.LogService;
 import com.chieftain.services.UserService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,12 +27,13 @@ import org.springframework.web.bind.annotation.*;
 public class GroupController {
   private final GroupService groupService;
   private final UserService userService;
-  private final LogService logService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
-  public GroupController(GroupService groupService, UserService userService, LogService logService) {
+  public GroupController(
+          GroupService groupService, UserService userService, ApplicationEventPublisher applicationEventPublisher) {
     this.groupService = groupService;
     this.userService = userService;
-    this.logService = logService;
+      this.applicationEventPublisher = applicationEventPublisher;
   }
 
   @PutMapping("/create")
@@ -65,20 +69,19 @@ public class GroupController {
         members.stream().filter(e -> !e.equals(groupOwner)).toList(),
         request.getRoles());
 
-    logService.logGroupAction(
-            groupEntity,
-            LogSeverity.INFO,
-            "GROUP_CREATED",
-            "Group '" + groupEntity.getName() + "' was created by: " + groupOwner.getEmailAddress()
-    );
+    applicationEventPublisher.publishEvent(
+    new GroupLogEvent(
+        groupEntity.getId(),
+        LogSeverity.INFO,
+        "GROUP_CREATED",
+        "Group '" + groupEntity.getName() + "' was created by: " + groupOwner.getEmailAddress()));
 
-    logService.logGroupPrivilegeAction(
-            groupEntity,
-            groupOwner,
-            LogSeverity.INFO,
-            "GROUP_OWNER_PRIVILEGES_GRANTED",
-            "User " + groupOwner.getEmailAddress() + " received full owner permissions for the group"
-    );
+    applicationEventPublisher.publishEvent( new GroupPrivilegeLogEvent(
+        groupEntity.getId(),
+        groupOwner.getPkUserId(),
+        LogSeverity.INFO,
+        "GROUP_OWNER_PRIVILEGES_GRANTED",
+        "User " + groupOwner.getEmailAddress() + " received full owner permissions for the group"));
 
     GroupCreateResponseDTO response = new GroupCreateResponseDTO(groupEntity.getId());
     return new ResponseEntity<>(response, HttpStatus.CREATED);

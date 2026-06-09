@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/tasks")
 public class TaskController {
+  //TODO: add logs
 
   private final TaskService taskService;
   private final UserService userService;
@@ -105,11 +106,11 @@ public class TaskController {
 
     UserEntity user = userService.getUserById(userId);
 
-    if (!groupService.isUserInGroup(task.getGroup(), issuer)) {
+    if (groupService.isUserNotInGroup(task.getGroup(), issuer)) {
       throw new UserNotEligible("cannot assign user to a task, issuer is not in the group");
     }
 
-    if (!groupService.isUserInGroup(task.getGroup(), user)) {
+    if (groupService.isUserNotInGroup(task.getGroup(), user)) {
       throw new UserNotEligible("cannot assign user to a task, user is not in the group");
     }
 

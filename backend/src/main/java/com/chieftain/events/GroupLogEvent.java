@@ -1,0 +1,21 @@
+package com.chieftain.events;
+
+import com.chieftain.enums.LogSeverity;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
+import java.util.UUID;
+
+
+@Getter
+@NoArgsConstructor
+@AllArgsConstructor
+public class GroupLogEvent extends LogEvent {
+        public UUID groupId;
+        public GroupLogEvent(UUID groupId, LogSeverity severity, String action, String description){
+                super(severity, action, description);
+                this.groupId = groupId;
+        }
+
+}
