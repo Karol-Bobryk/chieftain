@@ -1,5 +1,6 @@
 import ErrorMessageLabel from "@/components/ErrorMessageLabel";
 import SubmitButton from "@/components/SubmitButton";
+import TextInput from "@/components/TextInput";
 import { useState } from "react";
 
 const JoinOrganization = () => {
@@ -60,55 +61,53 @@ const JoinOrganization = () => {
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <input
+          <TextInput
+            type="text"
             placeholder="Name"
             value={form.name}
             onChange={handleChange("name")}
             required
-            className="h-11 rounded-xl border border-zinc-200 px-4 text-sm outline-none focus:border-zinc-400"
           />
 
-          <input
+          <TextInput
+            type="text"
             placeholder="Surname"
             value={form.surname}
             onChange={handleChange("surname")}
             required
-            className="h-11 rounded-xl border border-zinc-200 px-4 text-sm outline-none focus:border-zinc-400"
           />
         </div>
 
-        <input
-          placeholder="Email"
+        <TextInput
           type="email"
+          placeholder="Email"
           value={form.emailAddress}
           onChange={handleChange("emailAddress")}
           required
-          className="h-11 w-full rounded-xl border border-zinc-200 px-4 text-sm outline-none focus:border-zinc-400"
         />
 
-        <input
-          placeholder="Password"
+        <TextInput
           type="password"
+          placeholder="Password"
           value={form.password}
           onChange={handleChange("password")}
           required
-          className="h-11 w-full rounded-xl border border-zinc-200 px-4 text-sm outline-none focus:border-zinc-400"
         />
 
-        <input
+        <TextInput
+          type="text"
           placeholder="Job Title"
           value={form.jobTitle}
           onChange={handleChange("jobTitle")}
           required
-          className="h-11 w-full rounded-xl border border-zinc-200 px-4 text-sm outline-none focus:border-zinc-400"
         />
 
-        <input
+        <TextInput
+          type="text"
           placeholder="Organization Token"
           value={form.organizationToken}
           onChange={handleChange("organizationToken")}
           required
-          className="h-11 w-full rounded-xl border border-zinc-200 px-4 text-sm outline-none focus:border-zinc-400"
         />
 
         <ErrorMessageLabel error={error} />
