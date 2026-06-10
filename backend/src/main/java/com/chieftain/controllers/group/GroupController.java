@@ -1,9 +1,13 @@
 package com.chieftain.controllers.group;
 
 import com.chieftain.adapters.CustomUserDetails;
+import com.chieftain.controllers.group.dto.AddGroupMemberRequestDTO;
 import com.chieftain.controllers.group.dto.GroupCreateRequestDTO;
 import com.chieftain.controllers.group.dto.GroupCreateResponseDTO;
 import com.chieftain.enums.GroupUserPermission;
+import com.chieftain.enums.LogSeverity;
+import com.chieftain.events.GroupLogEvent;
+import com.chieftain.events.GroupPrivilegeLogEvent;
 import com.chieftain.models.GroupEntity;
 import com.chieftain.models.UserEntity;
 import com.chieftain.services.GroupService;
@@ -12,20 +16,27 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
+
+import java.util.UUID;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/groups")
 public class GroupController {
   private final GroupService groupService;
   private final UserService userService;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
-  public GroupController(GroupService groupService, UserService userService) {
+  public GroupController(
+          GroupService groupService, UserService userService, ApplicationEventPublisher applicationEventPublisher) {
     this.groupService = groupService;
     this.userService = userService;
+      this.applicationEventPublisher = applicationEventPublisher;
   }
 
   @PutMapping("/create")
@@ -61,7 +72,54 @@ public class GroupController {
         members.stream().filter(e -> !e.equals(groupOwner)).toList(),
         request.getRoles());
 
+    applicationEventPublisher.publishEvent(
+    new GroupLogEvent(
+        groupEntity.getId(),
+        LogSeverity.INFO,
+        "GROUP_CREATED",
+        "Group '" + groupEntity.getName() + "' was created by: " + groupOwner.getEmailAddress()));
+
+    applicationEventPublisher.publishEvent( new GroupPrivilegeLogEvent(
+        groupEntity.getId(),
+        groupOwner.getPkUserId(),
+        LogSeverity.INFO,
+        "GROUP_OWNER_PRIVILEGES_GRANTED",
+        "User " + groupOwner.getEmailAddress() + " received full owner permissions for the group"));
+
     GroupCreateResponseDTO response = new GroupCreateResponseDTO(groupEntity.getId());
     return new ResponseEntity<>(response, HttpStatus.CREATED);
+  }
+
+  @PutMapping("/{groupId}/members")
+  @Transactional
+  public ResponseEntity<Void> addGroupMembers(
+      @PathVariable UUID groupId,
+      @Valid @RequestBody AddGroupMemberRequestDTO request,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    GroupEntity group = groupService.getByIdAndOrganization(groupId, userDetails.getOrganization());
+
+    List<UserEntity> newMembers = userService.getUsersByIds(request.getMemberIds());
+      boolean differentOrganizationMembers = newMembers.stream()
+              .anyMatch(d -> !d.getOrganization().getPkOrganizationId()
+                      .equals(group.getOrganization().getPkOrganizationId()));
+      if(differentOrganizationMembers){
+          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot add users from different organization");
+      }
+    groupService.addGroupMembers(group, userDetails.getUserId(), newMembers, request.getPermissions());
+
+    return ResponseEntity.noContent().build();
+  }
+
+  @DeleteMapping("/{groupId}/members/{userId}")
+  @Transactional
+  public ResponseEntity<Void> removeGroupMember(
+      @PathVariable UUID groupId,
+      @PathVariable UUID userId,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    groupService.getByIdAndOrganization(groupId, userDetails.getOrganization());
+    groupService.removeMember(groupId, userId, userDetails.getUserId());
+    return ResponseEntity.noContent().build();
   }
 }

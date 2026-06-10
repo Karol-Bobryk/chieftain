@@ -1,6 +1,6 @@
 package com.chieftain.models;
 
-import com.chieftain.enums.SystemRole;
+import com.chieftain.enums.LogSeverity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -22,5 +22,5 @@ public class LogSeverityEntity {
 
   @Enumerated(EnumType.STRING)
   @Column(name = "log_severity_name", unique = true, nullable = false)
-  private SystemRole logSeverityName;
+  private LogSeverity logSeverityName;
 }

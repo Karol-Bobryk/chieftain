@@ -5,6 +5,8 @@ import com.chieftain.models.OrganizationEntity;
 import com.chieftain.models.UserEntity;
 import com.chieftain.models.UsersAwaitingAcceptanceEntity;
 import com.chieftain.repositories.UsersAwaitingAcceptanceRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -32,5 +34,10 @@ public class UsersAwaitingAcceptanceService {
                 () -> new UserNotFoundInQueueException("User is not in the awaiting queue."));
 
     usersAwaitingAcceptanceRepository.delete(awaitingRecord);
+  }
+
+  public Page<UsersAwaitingAcceptanceEntity> getUsersInQueue(
+      OrganizationEntity organization, Pageable pageable) {
+    return usersAwaitingAcceptanceRepository.findAllByOrganization(organization, pageable);
   }
 }
