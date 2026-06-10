@@ -13,9 +13,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.http.HttpStatus;
 
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class GroupService {
@@ -123,6 +125,51 @@ public class GroupService {
       Collection<GroupUserPermission> permissions) {
     return groupUserPermissionRepository.findAllByPermissionNameIn(permissions);
   }
+
+  public void addGroupMembers(GroupEntity group, UUID requesterId, List<UserEntity> newMembers, List<GroupUserPermission> permissions){
+
+      List<UserEntity> membersToAdd = newMembers.stream().
+              filter(checkMember -> !group.getMembers().contains(checkMember)).toList();
+    groupPrivilegeRepository
+            .findPermission(group.getId(), requesterId, GroupUserPermission.ADD_USER_TO_GROUP)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "User has insufficient permissions"));
+
+      group.getMembers().addAll(membersToAdd);
+      groupRepository.save(group);
+
+      addPrivilegesForMultipleUsers(group, membersToAdd, permissions);
+  }
+
+  public GroupEntity getByIdAndOrganization(UUID groupId, OrganizationEntity organization) {
+    GroupEntity group =
+        groupRepository
+            .findById(groupId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    if (!group.getOrganization().getPkOrganizationId().equals(organization.getPkOrganizationId())) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+    return group;
+  }
+
+  public void removeMember(UUID groupId, UUID userId, UUID requesterId) {
+    GroupEntity group =
+        groupRepository
+            .findById(groupId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+    groupPrivilegeRepository
+        .findPermission(groupId, requesterId, GroupUserPermission.REMOVE_USER_FROM_GROUP)
+        .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "User has insufficient permissions"));
+
+    boolean wasRemoved = group.getMembers().removeIf(id -> id.getPkUserId().equals(userId));
+    if (!wasRemoved) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+    }
+
+    groupPrivilegeRepository.deleteByUserPkUserIdAndGroupId(userId, groupId);
+    groupRepository.save(group);
+  }
+
 
   public boolean isUserNotInGroup(GroupEntity group, UserEntity user) {
     return !group.getMembers().contains(user);

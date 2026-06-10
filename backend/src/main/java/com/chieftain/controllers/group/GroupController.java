@@ -1,6 +1,7 @@
 package com.chieftain.controllers.group;
 
 import com.chieftain.adapters.CustomUserDetails;
+import com.chieftain.controllers.group.dto.AddGroupMemberRequestDTO;
 import com.chieftain.controllers.group.dto.GroupCreateRequestDTO;
 import com.chieftain.controllers.group.dto.GroupCreateResponseDTO;
 import com.chieftain.enums.GroupUserPermission;
@@ -16,11 +17,13 @@ import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
+import java.util.UUID;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/groups")
@@ -85,5 +88,38 @@ public class GroupController {
 
     GroupCreateResponseDTO response = new GroupCreateResponseDTO(groupEntity.getId());
     return new ResponseEntity<>(response, HttpStatus.CREATED);
+  }
+
+  @PutMapping("/{groupId}/members")
+  @Transactional
+  public ResponseEntity<Void> addGroupMembers(
+      @PathVariable UUID groupId,
+      @Valid @RequestBody AddGroupMemberRequestDTO request,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    GroupEntity group = groupService.getByIdAndOrganization(groupId, userDetails.getOrganization());
+
+    List<UserEntity> newMembers = userService.getUsersByIds(request.getMemberIds());
+      boolean differentOrganizationMembers = newMembers.stream()
+              .anyMatch(d -> !d.getOrganization().getPkOrganizationId()
+                      .equals(group.getOrganization().getPkOrganizationId()));
+      if(differentOrganizationMembers){
+          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot add users from different organization");
+      }
+    groupService.addGroupMembers(group, userDetails.getUserId(), newMembers, request.getPermissions());
+
+    return ResponseEntity.noContent().build();
+  }
+
+  @DeleteMapping("/{groupId}/members/{userId}")
+  @Transactional
+  public ResponseEntity<Void> removeGroupMember(
+      @PathVariable UUID groupId,
+      @PathVariable UUID userId,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    groupService.getByIdAndOrganization(groupId, userDetails.getOrganization());
+    groupService.removeMember(groupId, userId, userDetails.getUserId());
+    return ResponseEntity.noContent().build();
   }
 }
