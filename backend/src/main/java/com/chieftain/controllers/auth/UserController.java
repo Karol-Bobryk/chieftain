@@ -5,19 +5,19 @@ import com.chieftain.controllers.auth.dto.CreateUserRequestDTO;
 import com.chieftain.controllers.auth.dto.CreateUserWithOrganizationRequestDTO;
 import com.chieftain.controllers.auth.dto.LoginUserRequestDTO;
 import com.chieftain.controllers.auth.dto.LoginUserResponseDTO;
+import com.chieftain.enums.LogSeverity;
 import com.chieftain.enums.SystemRole;
+import com.chieftain.events.UserLogEvent;
 import com.chieftain.exceptions.InvalidUserSecretProvidedException;
 import com.chieftain.models.OrganizationEntity;
 import com.chieftain.models.RoleEntity;
 import com.chieftain.models.UserEntity;
 import com.chieftain.repositories.RoleRepository;
-import com.chieftain.services.JwtService;
-import com.chieftain.services.OrganizationService;
-import com.chieftain.services.UserService;
-import com.chieftain.services.UsersAwaitingAcceptanceService;
+import com.chieftain.services.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,17 +30,20 @@ public class UserController {
   private final OrganizationService organizationService;
   private final UsersAwaitingAcceptanceService usersAwaitingAcceptanceService;
   private final RoleRepository roleRepository;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
   @Autowired
   public UserController(
-      UserService userService,
-      OrganizationService organizationService,
-      UsersAwaitingAcceptanceService usersAwaitingAcceptanceService,
-      RoleRepository roleRepository) {
+          UserService userService,
+          OrganizationService organizationService,
+          UsersAwaitingAcceptanceService usersAwaitingAcceptanceService,
+          RoleRepository roleRepository,
+           ApplicationEventPublisher applicationEventPublisher) {
     this.userService = userService;
     this.organizationService = organizationService;
     this.usersAwaitingAcceptanceService = usersAwaitingAcceptanceService;
     this.roleRepository = roleRepository;
+      this.applicationEventPublisher = applicationEventPublisher;
   }
 
   @PostMapping("/create")
@@ -72,6 +75,11 @@ public class UserController {
 
     usersAwaitingAcceptanceService.createAndSave(userEntity, organization);
 
+    applicationEventPublisher.publishEvent( new UserLogEvent(
+        userEntity.getPkUserId(),
+        LogSeverity.INFO,
+        "USER_REGISTERED_WITH_TOKEN",
+        "User registered via join token and is awaiting acceptance in organization"));
     return new ResponseEntity<>(HttpStatus.CREATED);
   }
 
@@ -86,6 +94,7 @@ public class UserController {
 
   @PostMapping("/login")
   @ResponseBody
+  @Transactional
   public ResponseEntity<LoginUserResponseDTO> loginUser(
       @Valid @RequestBody LoginUserRequestDTO request) throws InvalidUserSecretProvidedException {
     UserEntity userEntity =
@@ -95,6 +104,9 @@ public class UserController {
 
     String accessToken = JwtService.createJwsAccessToken(customUserDetails);
     String refreshToken = JwtService.createJwsRefreshToken(customUserDetails);
+
+    applicationEventPublisher.publishEvent( new UserLogEvent(
+        userEntity.getPkUserId(), LogSeverity.INFO, "USER_LOGGED_IN", "User successfully logged into the system"));
 
     LoginUserResponseDTO loginUserResponseDTO = new LoginUserResponseDTO();
     loginUserResponseDTO.setAccessToken(accessToken);
