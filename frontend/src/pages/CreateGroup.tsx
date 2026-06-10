@@ -1,130 +1,177 @@
-import { useState } from 'react';
+import ErrorMessageLabel from "@/components/ErrorMessageLabel";
+import SubmitButton from "@/components/SubmitButton";
+import TextInput from "@/components/TextInput";
+import { useState } from "react";
+import JoinOrganization from "./JoinOrganization";
 
-export default function CreateGroup() {
-    const [name, setName] = useState('');
-    const [members, setMembers] = useState<string[]>([]);
-    const [roles, setRoles] = useState<string[]>([]);
+const CreateGroup = () => {
+  const [name, setName] = useState("");
+  const [members, setMembers] = useState<string[]>([]);
+  const [roles, setRoles] = useState<string[]>([]);
 
-    const [tempMemberId, setTempMemberId] = useState('');
-    const [tempRoles, setTempRoles] = useState<string[]>([]);
+  const [tempMemberId, setTempMemberId] = useState("");
+  const [tempRoles, setTempRoles] = useState<string[]>([]);
 
-    const togglePermission = (perm: string) => {
-        if (tempRoles.includes(perm)) {
-            setTempRoles(tempRoles.filter(r => r !== perm));
-        } else {
-            setTempRoles([...tempRoles, perm]);
-        }
-    };
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-    const addMember = () => {
-        if (!tempMemberId) return;
-        if (tempRoles.length === 0) {
-            alert('Please select at least one permission.');
-            return;
-        }
+  const togglePermission = (perm: string) => {
+    if (tempRoles.includes(perm)) {
+      setTempRoles(tempRoles.filter((r) => r !== perm));
+    } else {
+      setTempRoles([...tempRoles, perm]);
+    }
+  };
 
-        const newMembers = tempRoles.map(() => tempMemberId);
+  const addMember = () => {
+    if (!tempMemberId) return;
+    if (tempRoles.length === 0) {
+      setError("Please select at least one permission.");
+      return;
+    }
 
-        setMembers([...members, ...newMembers]);
-        setRoles([...roles, ...tempRoles]);
+    const newMembers = tempRoles.map(() => tempMemberId);
 
-        setTempMemberId('');
-        setTempRoles([]);
-    };
+    setMembers([...members, ...newMembers]);
+    setRoles([...roles, ...tempRoles]);
 
-    const submit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        const token = localStorage.getItem('accessToken');
+    setTempMemberId("");
+    setTempRoles([]);
+  };
 
-        const payload: any = { name };
+  const submit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
 
-        if (members.length > 0) {
-            payload.members = members;
-            payload.roles = roles;
-        }
+    try {
+      const token = localStorage.getItem("accessToken");
+      const payload: any = { name };
 
-        const res = await fetch('/api/groups/create', {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(payload)
-        });
-        alert(res.ok ? 'Group created!' : 'Failed to create group');
-    };
+      if (members.length > 0) {
+        payload.members = members;
+        payload.roles = roles;
+      }
 
-    return (
-        <div style={{ display: 'flex', gap: '20px' }}>
-            <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', width: '250px', gap: '10px' }}>
-                <h2>Create Group</h2>
-                <input placeholder="Group Name" required value={name} onChange={e => setName(e.target.value)} />
-                <button type="submit">Create Group</button>
-            </form>
+      const res = await fetch("/api/groups/create", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
 
-            <div style={{ display: 'flex', flexDirection: 'column', width: '250px', gap: '10px', padding: '10px', border: '1px solid #ccc' }}>
-                <h3>Add Members (Optional)</h3>
-                <input placeholder="Member UUID" value={tempMemberId} onChange={e => setTempMemberId(e.target.value)} />
+      if (!res.ok) throw new Error();
+    } catch {
+      setError("Failed to create group");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                    <strong>Permissions:</strong>
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-6 py-12">
+      <div className="flex w-full max-w-4xl flex-col gap-6 md:flex-row">
+        <form
+          onSubmit={submit}
+          className="flex-1 space-y-5 rounded-3xl border border-zinc-200 bg-white p-8"
+        >
+          <div className="space-y-1">
+            <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
+              Create Group
+            </h1>
+            <p className="text-sm text-zinc-500">Name your group and save.</p>
+          </div>
 
-                    <label style={{ fontSize: '14px', cursor: 'pointer' }}>
-                        <input
-                            type="checkbox"
-                            checked={tempRoles.includes('ADD_TASK')}
-                            onChange={() => togglePermission('ADD_TASK')}
-                        />
-                        ADD_TASK
-                    </label>
+          <TextInput
+            type="text"
+            placeholder="Group Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
 
-                    <label style={{ fontSize: '14px', cursor: 'pointer' }}>
-                        <input
-                            type="checkbox"
-                            checked={tempRoles.includes('REMOVE_TASK')}
-                            onChange={() => togglePermission('REMOVE_TASK')}
-                        />
-                        REMOVE_TASK
-                    </label>
+          <ErrorMessageLabel error={error} />
 
-                    <label style={{ fontSize: '14px', cursor: 'pointer' }}>
-                        <input
-                            type="checkbox"
-                            checked={tempRoles.includes('EDIT_TASK')}
-                            onChange={() => togglePermission('EDIT_TASK')}
-                        />
-                        EDIT_TASK
-                    </label>
+          <SubmitButton
+            displayedText={loading ? "Creating..." : "Create Group"}
+            isEnabled={loading}
+          />
+        </form>
 
-                    <label style={{ fontSize: '14px', cursor: 'pointer' }}>
-                        <input
-                            type="checkbox"
-                            checked={tempRoles.includes('ADD_USER_TO_GROUP')}
-                            onChange={() => togglePermission('ADD_USER_TO_GROUP')}
-                        />
-                        ADD_USER_TO_GROUP
-                    </label>
+        <div className="flex-1 space-y-5 rounded-3xl border border-zinc-200 bg-white p-8">
+          <div className="space-y-1">
+            <h3 className="text-2xl font-semibold tracking-tight text-zinc-900">
+              Add Members
+            </h3>
+            <p className="text-sm text-zinc-500">
+              Pre-configure member permissions.
+            </p>
+          </div>
 
-                    <label style={{ fontSize: '14px', cursor: 'pointer' }}>
-                        <input
-                            type="checkbox"
-                            checked={tempRoles.includes('REMOVE_USER_FROM_GROUP')}
-                            onChange={() => togglePermission('REMOVE_USER_FROM_GROUP')}
-                        />
-                        REMOVE_USER_FROM_GROUP
-                    </label>
-                </div>
+          <TextInput
+            type="text"
+            placeholder="Member UUID"
+            value={tempMemberId}
+            onChange={(e) => setTempMemberId(e.target.value)}
+          />
 
-                <button type="button" onClick={addMember}>Add to List</button>
-
-                <ul style={{ fontSize: '14px', paddingLeft: '20px' }}>
-                    {members.map((m, i) => (
-                        <li key={i} style={{ wordBreak: 'break-all' }}>
-                            {m.substring(0, 8)}... - <strong>{roles[i]}</strong>
-                        </li>
-                    ))}
-                </ul>
+          <div className="space-y-3">
+            <strong className="text-sm font-medium text-zinc-700">
+              Permissions:
+            </strong>
+            <div className="flex flex-col gap-3">
+              {[
+                "ADD_TASK",
+                "REMOVE_TASK",
+                "EDIT_TASK",
+                "ADD_USER_TO_GROUP",
+                "REMOVE_USER_FROM_GROUP",
+              ].map((perm) => (
+                <label
+                  key={perm}
+                  className="flex cursor-pointer items-center gap-3 text-sm text-zinc-600 transition hover:text-zinc-900"
+                >
+                  <input
+                    type="checkbox"
+                    checked={tempRoles.includes(perm)}
+                    onChange={() => togglePermission(perm)}
+                    className="h-4 w-4 rounded border-zinc-300 accent-zinc-900"
+                  />
+                  {perm}
+                </label>
+              ))}
             </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={addMember}
+            className="h-11 w-full rounded-xl border border-zinc-200 bg-zinc-50 text-sm font-medium text-zinc-900 transition hover:bg-zinc-100"
+          >
+            Add to List
+          </button>
+
+          {members.length > 0 && (
+            <ul className="space-y-2 rounded-xl bg-zinc-50 p-4 text-sm text-zinc-600">
+              {members.map((m, i) => (
+                <li key={i} className="break-all">
+                  <span className="font-mono text-xs">
+                    {m.substring(0, 8)}...
+                  </span>{" "}
+                  -{" "}
+                  <strong className="font-medium text-zinc-900">
+                    {roles[i]}
+                  </strong>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
-    );
-}
+      </div>
+    </div>
+  );
+};
+
+export default CreateGroup;
