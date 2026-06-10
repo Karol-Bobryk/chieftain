@@ -1,7 +1,9 @@
 package com.chieftain.services;
 
 import com.chieftain.controllers.auth.dto.CreateUserWithOrganizationRequestDTO;
+import com.chieftain.enums.LogSeverity;
 import com.chieftain.enums.SystemRole;
+import com.chieftain.events.UserLogEvent;
 import com.chieftain.exceptions.*;
 import com.chieftain.models.OrganizationEntity;
 import com.chieftain.models.RoleEntity;
@@ -11,6 +13,7 @@ import com.chieftain.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -21,18 +24,21 @@ public class UserService {
   private final OrganizationService organizationService;
   private final UsersAwaitingAcceptanceService awaitingService;
   private final RoleRepository roleRepository;
+  private final ApplicationEventPublisher applicationEventPublisher;
 
   public UserService(
       UserRepository userRepository,
       PasswordEncoder passwordEncoder,
       OrganizationService organizationService,
       UsersAwaitingAcceptanceService awaitingService,
-      RoleRepository roleRepository) {
+      RoleRepository roleRepository,
+      ApplicationEventPublisher applicationEventPublisher) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
     this.organizationService = organizationService;
     this.awaitingService = awaitingService;
     this.roleRepository = roleRepository;
+    this.applicationEventPublisher = applicationEventPublisher;
   }
 
   public UserEntity save(UserEntity userEntity)
@@ -64,6 +70,13 @@ public class UserService {
                         "No user is associated with email: " + emailAddress));
 
     if (!passwordEncoder.matches(password, userEntity.getSecretHash())) {
+
+      applicationEventPublisher.publishEvent(new UserLogEvent (
+          userEntity.getPkUserId(),
+          LogSeverity.WARNING,
+          "FAILED_LOGIN_ATTEMPT",
+          "Failed login attempt due to invalid password"));
+
       throw new InvalidUserSecretProvidedException(
           "Failed to authenticate user: " + emailAddress + " invalid secret");
     }
@@ -90,7 +103,14 @@ public class UserService {
     userEntity.setBlocked(false);
     userEntity.setOrganization(organization);
 
-    save(userEntity);
+    UserEntity savedUser = save(userEntity);
+
+    applicationEventPublisher.publishEvent(
+        new UserLogEvent(
+            userEntity.getPkUserId(),
+            LogSeverity.INFO,
+            "USER_REGISTERED_AS_OWNER",
+            "User registered and created a new organization: " + organization.getName()));
   }
 
   public UserEntity getUserById(UUID userId) {
@@ -113,6 +133,7 @@ public class UserService {
     } catch (IllegalArgumentException e) {
       throw new RoleNotFoundException("Role '" + roleName + "' does not exist");
     }
+
     RoleEntity roleEntity =
         roleRepository
             .findByRoleName(requestedRole)
@@ -123,5 +144,8 @@ public class UserService {
     awaitingService.removeFromQueue(user);
     user.setRole(roleEntity);
     userRepository.save(user);
+
+    applicationEventPublisher.publishEvent(new UserLogEvent (
+        user.getPkUserId(), LogSeverity.INFO, "USER_ACCEPTED", "User accepted and assigned to role: " + roleName) );
   }
 }
