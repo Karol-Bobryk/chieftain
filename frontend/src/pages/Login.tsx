@@ -1,7 +1,6 @@
 import { useState } from "react";
 import type { LoginForm } from "@/interfaces/LoginForm.ts";
 import { login } from "@/auth/auth.ts";
-import { useNavigate } from "react-router-dom";
 import SubmitButton from "@/components/SubmitButton";
 import ErrorMessageLabel from "@/components/ErrorMessageLabel";
 import TextInput from "@/components/TextInput";
@@ -13,7 +12,6 @@ const Login = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  const navigate = useNavigate();
 
   const handleChange =
     (field: keyof LoginForm) => (e: React.ChangeEvent<HTMLInputElement>) => {
