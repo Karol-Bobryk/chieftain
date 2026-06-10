@@ -94,6 +94,7 @@ public class UserController {
 
   @PostMapping("/login")
   @ResponseBody
+  @Transactional
   public ResponseEntity<LoginUserResponseDTO> loginUser(
       @Valid @RequestBody LoginUserRequestDTO request) throws InvalidUserSecretProvidedException {
     UserEntity userEntity =
