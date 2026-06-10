@@ -1,19 +1,25 @@
-import { useState } from 'react';
+import TextInput from "@/components/TextInput";
+import { useState } from "react";
 
 export default function CreateOrganization() {
-    const [form, setForm] = useState({
-        name: '', surname: '', emailAddress: '', password: '', jobTitle: '', organizationName: ''
-    });
+  const [form, setForm] = useState({
+    name: "",
+    surname: "",
+    emailAddress: "",
+    password: "",
+    jobTitle: "",
+    organizationName: "",
+  });
 
-    const submit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        const res = await fetch('/auth/user/create-with-organization', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(form)
-        });
-        alert(res.ok ? 'Organization created!' : 'Error creating organization');
-    };
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const res = await fetch("/auth/user/create-with-organization", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+    alert(res.ok ? "Organization created!" : "Error creating organization");
+  };
 
     return (
         <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', width: '250px', gap: '10px' }}>
