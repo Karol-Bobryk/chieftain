@@ -1,9 +1,7 @@
 package com.chieftain.listeners;
 
 import com.chieftain.events.GroupLogEvent;
-import com.chieftain.events.UserLogEvent;
 import com.chieftain.models.GroupEntity;
-import com.chieftain.models.UserEntity;
 import com.chieftain.services.GroupService;
 import com.chieftain.services.LogService;
 import com.chieftain.services.UserService;
@@ -14,9 +12,10 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 public class GroupLogTransactionListener extends LogTransactionListener<GroupLogEvent> {
-    private final GroupService groupService;
+  private final GroupService groupService;
 
-  public GroupLogTransactionListener(LogService logService, UserService userService, GroupService groupService) {
+  public GroupLogTransactionListener(
+      LogService logService, UserService userService, GroupService groupService) {
     super(logService);
     this.groupService = groupService;
   }
@@ -25,6 +24,7 @@ public class GroupLogTransactionListener extends LogTransactionListener<GroupLog
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handleLog(GroupLogEvent event) {
     GroupEntity group = groupService.getGroupById(event.getGroupId());
-    logService.logGroupAction(group, event.getSeverity(), event.getAction(), event.getDescription());
+    logService.logGroupAction(
+        group, event.getSeverity(), event.getAction(), event.getDescription());
   }
 }

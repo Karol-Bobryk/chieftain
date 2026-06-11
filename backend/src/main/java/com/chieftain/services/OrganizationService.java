@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class OrganizationService {
-  //TODO: add logs
+  // TODO: add logs
   private final OrganizationRepository organizationRepository;
 
   public OrganizationService(OrganizationRepository organizationRepository) {

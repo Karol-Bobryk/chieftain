@@ -20,7 +20,6 @@ import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.UUID;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -29,7 +28,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/tasks")
 public class TaskController {
-  //TODO: add logs
+  // TODO: add logs
 
   private final TaskService taskService;
   private final UserService userService;
@@ -37,7 +36,10 @@ public class TaskController {
   private final ApplicationEventPublisher applicationEventPublisher;
 
   public TaskController(
-          TaskService taskService, UserService userService, GroupService groupService, ApplicationEventPublisher applicationEventPublisher) {
+      TaskService taskService,
+      UserService userService,
+      GroupService groupService,
+      ApplicationEventPublisher applicationEventPublisher) {
     this.taskService = taskService;
     this.userService = userService;
     this.groupService = groupService;
@@ -60,6 +62,12 @@ public class TaskController {
     UserEntity taskCreator = userService.getUserById(userDetails.getUserId());
 
     if (!groupService.isUserEligible(taskCreator, group, GroupUserPermission.ADD_TASK)) {
+      applicationEventPublisher.publishEvent(
+          new TaskLogEvent(
+              task.getId(),
+              LogSeverity.WARNING,
+              "TASK_CREATED",
+              "User is not eligible for task creation: " + userDetails.getUserId()));
       throw new UserNotEligible("user doesn't meet the requirements to create tasks in this group");
     }
 
@@ -89,6 +97,12 @@ public class TaskController {
       try {
         taskService.isSubtaskEligible(parentTask, task);
       } catch (SubtaskNotEligible e) {
+        applicationEventPublisher.publishEvent(
+            new TaskLogEvent(
+                task.getId(),
+                LogSeverity.ERROR,
+                "TASK_CREATED",
+                "Subtask is not eligible for creation"));
         throw new SubtaskNotEligible("Couldn't create a subtask: " + e.getMessage());
       }
 
@@ -96,8 +110,6 @@ public class TaskController {
     }
 
     task = taskService.save(task);
-
-    applicationEventPublisher.publishEvent(new TaskLogEvent(task.getId(), LogSeverity.INFO, "TASK_CREATED", "Task successfully created"));
 
     return ResponseEntity.ok(new CreateTaskResponseDTO(task.getId()));
   }
@@ -115,16 +127,26 @@ public class TaskController {
     UserEntity user = userService.getUserById(userId);
 
     if (groupService.isUserNotInGroup(task.getGroup(), issuer)) {
+      applicationEventPublisher.publishEvent(
+          new TaskLogEvent(
+              task.getId(),
+              LogSeverity.WARNING,
+              "TASK_USER_ASSIGNED",
+              "Issuer with id: " + issuer.getPkUserId() + " is not in the group"));
       throw new UserNotEligible("cannot assign user to a task, issuer is not in the group");
     }
 
     if (groupService.isUserNotInGroup(task.getGroup(), user)) {
+      applicationEventPublisher.publishEvent(
+          new TaskLogEvent(
+              task.getId(),
+              LogSeverity.WARNING,
+              "TASK_USER_ASSIGNED",
+              "User with id: " + user.getPkUserId() + " is not in the group"));
       throw new UserNotEligible("cannot assign user to a task, user is not in the group");
     }
 
-    task = taskService.assignUser(task, user);
-
-    applicationEventPublisher.publishEvent(new TaskLogEvent(task.getId(), LogSeverity.INFO, "TASK_USER_ASSIGNED", "Assigned user with id: " + user.getPkUserId()));
+    taskService.assignUser(task, user);
 
     return ResponseEntity.noContent().build();
   }

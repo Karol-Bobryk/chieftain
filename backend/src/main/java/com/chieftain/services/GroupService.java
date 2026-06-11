@@ -13,9 +13,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.http.HttpStatus;
-
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -24,17 +23,17 @@ public class GroupService {
   private final GroupRepository groupRepository;
   private final GroupPrivilegeRepository groupPrivilegeRepository;
   private final GroupUserPermissionRepository groupUserPermissionRepository;
-    private final ApplicationEventPublisher applicationEventPublisher;
+  private final ApplicationEventPublisher applicationEventPublisher;
 
   public GroupService(
-          GroupRepository groupRepository,
-          GroupPrivilegeRepository groupPrivilegeRepository,
-          GroupUserPermissionRepository groupUserPermissionRepository,
-           ApplicationEventPublisher applicationEventPublisher) {
+      GroupRepository groupRepository,
+      GroupPrivilegeRepository groupPrivilegeRepository,
+      GroupUserPermissionRepository groupUserPermissionRepository,
+      ApplicationEventPublisher applicationEventPublisher) {
     this.groupRepository = groupRepository;
     this.groupPrivilegeRepository = groupPrivilegeRepository;
     this.groupUserPermissionRepository = groupUserPermissionRepository;
-      this.applicationEventPublisher = applicationEventPublisher;
+    this.applicationEventPublisher = applicationEventPublisher;
   }
 
   public GroupEntity getGroupById(UUID groupId) {
@@ -62,15 +61,15 @@ public class GroupService {
     }
 
     applicationEventPublisher.publishEvent(
-    new GroupPrivilegeLogEvent(
-        group.getId(),
-        user.getPkUserId(),
-        LogSeverity.INFO,
-        "PRIVILEGES_GRANTED",
-        "User "
-            + user.getEmailAddress()
-            + " received new permissions in group: "
-            + group.getName()));
+        new GroupPrivilegeLogEvent(
+            group.getId(),
+            user.getPkUserId(),
+            LogSeverity.INFO,
+            "PRIVILEGES_GRANTED",
+            "User "
+                + user.getEmailAddress()
+                + " received new permissions in group: "
+                + group.getName()));
 
     return groupPrivilegeRepository.saveAll(entities);
   }
@@ -92,15 +91,15 @@ public class GroupService {
       }
 
       applicationEventPublisher.publishEvent(
-              new GroupPrivilegeLogEvent(
-          group.getId(),
-          user.getPkUserId(),
-          LogSeverity.INFO,
-          "PRIVILEGES_GRANTED",
-          "User "
-              + user.getEmailAddress()
-              + " received new permissions in group: "
-              + group.getName()));
+          new GroupPrivilegeLogEvent(
+              group.getId(),
+              user.getPkUserId(),
+              LogSeverity.INFO,
+              "PRIVILEGES_GRANTED",
+              "User "
+                  + user.getEmailAddress()
+                  + " received new permissions in group: "
+                  + group.getName()));
     }
 
     privilegeEntities = groupPrivilegeRepository.saveAll(privilegeEntities);
@@ -126,18 +125,27 @@ public class GroupService {
     return groupUserPermissionRepository.findAllByPermissionNameIn(permissions);
   }
 
-  public void addGroupMembers(GroupEntity group, UUID requesterId, List<UserEntity> newMembers, List<GroupUserPermission> permissions){
+  public void addGroupMembers(
+      GroupEntity group,
+      UUID requesterId,
+      List<UserEntity> newMembers,
+      List<GroupUserPermission> permissions) {
 
-      List<UserEntity> membersToAdd = newMembers.stream().
-              filter(checkMember -> !group.getMembers().contains(checkMember)).toList();
+    List<UserEntity> membersToAdd =
+        newMembers.stream()
+            .filter(checkMember -> !group.getMembers().contains(checkMember))
+            .toList();
     groupPrivilegeRepository
-            .findPermission(group.getId(), requesterId, GroupUserPermission.ADD_USER_TO_GROUP)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "User has insufficient permissions"));
+        .findPermission(group.getId(), requesterId, GroupUserPermission.ADD_USER_TO_GROUP)
+        .orElseThrow(
+            () ->
+                new ResponseStatusException(
+                    HttpStatus.FORBIDDEN, "User has insufficient permissions"));
 
-      group.getMembers().addAll(membersToAdd);
-      groupRepository.save(group);
+    group.getMembers().addAll(membersToAdd);
+    groupRepository.save(group);
 
-      addPrivilegesForMultipleUsers(group, membersToAdd, permissions);
+    addPrivilegesForMultipleUsers(group, membersToAdd, permissions);
   }
 
   public GroupEntity getByIdAndOrganization(UUID groupId, OrganizationEntity organization) {
@@ -159,7 +167,10 @@ public class GroupService {
 
     groupPrivilegeRepository
         .findPermission(groupId, requesterId, GroupUserPermission.REMOVE_USER_FROM_GROUP)
-        .orElseThrow(() -> new ResponseStatusException(HttpStatus.FORBIDDEN, "User has insufficient permissions"));
+        .orElseThrow(
+            () ->
+                new ResponseStatusException(
+                    HttpStatus.FORBIDDEN, "User has insufficient permissions"));
 
     boolean wasRemoved = group.getMembers().removeIf(id -> id.getPkUserId().equals(userId));
     if (!wasRemoved) {
@@ -169,7 +180,6 @@ public class GroupService {
     groupPrivilegeRepository.deleteByUserPkUserIdAndGroupId(userId, groupId);
     groupRepository.save(group);
   }
-
 
   public boolean isUserNotInGroup(GroupEntity group, UserEntity user) {
     return !group.getMembers().contains(user);

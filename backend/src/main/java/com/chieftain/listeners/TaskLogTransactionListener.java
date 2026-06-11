@@ -11,11 +11,11 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 public class TaskLogTransactionListener extends LogTransactionListener<TaskLogEvent> {
-    private final TaskService taskService;
+  private final TaskService taskService;
 
   public TaskLogTransactionListener(LogService logService, TaskService taskService) {
     super(logService);
-      this.taskService = taskService;
+    this.taskService = taskService;
   }
 
   @Async
