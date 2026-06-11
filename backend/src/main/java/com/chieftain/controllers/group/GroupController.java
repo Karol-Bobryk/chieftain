@@ -12,6 +12,7 @@ import com.chieftain.models.GroupEntity;
 import com.chieftain.models.UserEntity;
 import com.chieftain.services.GroupService;
 import com.chieftain.services.UserService;
+import com.chieftain.services.UsersAwaitingAcceptanceService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
@@ -31,12 +32,14 @@ public class GroupController {
   private final GroupService groupService;
   private final UserService userService;
     private final ApplicationEventPublisher applicationEventPublisher;
+  private final UsersAwaitingAcceptanceService usersAwaitingAcceptanceService;
 
   public GroupController(
-          GroupService groupService, UserService userService, ApplicationEventPublisher applicationEventPublisher) {
+          GroupService groupService, UserService userService, ApplicationEventPublisher applicationEventPublisher, UsersAwaitingAcceptanceService usersAwaitingAcceptanceService) {
     this.groupService = groupService;
     this.userService = userService;
       this.applicationEventPublisher = applicationEventPublisher;
+    this.usersAwaitingAcceptanceService = usersAwaitingAcceptanceService;
   }
 
   @PutMapping("/create")
@@ -48,7 +51,12 @@ public class GroupController {
     List<UserEntity> members = new ArrayList<>();
 
     if (request.getMembers() != null) {
-      members.addAll(userService.getUsersByIds(request.getMembers()));
+      members = userService.getUsersByIds(request.getMembers());
+      for( UserEntity member : members){
+        if(usersAwaitingAcceptanceService.isUserAwaiting(member.getOrganization(), member)){
+          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User " + member.getPkUserId() + " is awaiting acceptance in organization");
+        }
+      }
     }
 
     UserEntity groupOwner = userService.getUserById(userDetails.getUserId());
