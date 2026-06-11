@@ -5,6 +5,7 @@ import com.chieftain.exceptions.GroupNotFoundException;
 import com.chieftain.exceptions.SubtaskNotEligible;
 import com.chieftain.exceptions.TaskNotFoundException;
 import com.chieftain.exceptions.UserNotEligible;
+import com.chieftain.services.LogService;
 import java.util.Objects;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,12 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice(basePackages = "com.chieftain.controllers.tasks")
 public class TaskExceptionHandler {
+
+  private final LogService logService;
+
+  public TaskExceptionHandler(LogService logService) {
+    this.logService = logService;
+  }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<ErrorResponseDTO> handleValidation(MethodArgumentNotValidException ex) {

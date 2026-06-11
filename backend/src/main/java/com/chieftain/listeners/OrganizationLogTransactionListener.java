@@ -10,11 +10,13 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
-public class OrganizationLogTransactionListener extends LogTransactionListener<OrganizationLogEvent> {
+public class OrganizationLogTransactionListener
+    extends LogTransactionListener<OrganizationLogEvent> {
 
   private final OrganizationService organizationService;
 
-  public OrganizationLogTransactionListener(LogService logService, OrganizationService organizationService) {
+  public OrganizationLogTransactionListener(
+      LogService logService, OrganizationService organizationService) {
     super(logService);
     this.organizationService = organizationService;
   }
@@ -22,7 +24,9 @@ public class OrganizationLogTransactionListener extends LogTransactionListener<O
   @Async
   @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
   public void handleLog(OrganizationLogEvent event) {
-    OrganizationEntity organization = organizationService.getOrganizationById(event.getOrganizationId());
-    logService.logOrganizationAction(organization, event.getSeverity(), event.getAction(), event.getDescription());
+    OrganizationEntity organization =
+        organizationService.getOrganizationById(event.getOrganizationId());
+    logService.logOrganizationAction(
+        organization, event.getSeverity(), event.getAction(), event.getDescription());
   }
 }

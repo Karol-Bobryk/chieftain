@@ -30,20 +30,20 @@ public class UserController {
   private final OrganizationService organizationService;
   private final UsersAwaitingAcceptanceService usersAwaitingAcceptanceService;
   private final RoleRepository roleRepository;
-    private final ApplicationEventPublisher applicationEventPublisher;
+  private final ApplicationEventPublisher applicationEventPublisher;
 
   @Autowired
   public UserController(
-          UserService userService,
-          OrganizationService organizationService,
-          UsersAwaitingAcceptanceService usersAwaitingAcceptanceService,
-          RoleRepository roleRepository,
-           ApplicationEventPublisher applicationEventPublisher) {
+      UserService userService,
+      OrganizationService organizationService,
+      UsersAwaitingAcceptanceService usersAwaitingAcceptanceService,
+      RoleRepository roleRepository,
+      ApplicationEventPublisher applicationEventPublisher) {
     this.userService = userService;
     this.organizationService = organizationService;
     this.usersAwaitingAcceptanceService = usersAwaitingAcceptanceService;
     this.roleRepository = roleRepository;
-      this.applicationEventPublisher = applicationEventPublisher;
+    this.applicationEventPublisher = applicationEventPublisher;
   }
 
   @PostMapping("/create")
@@ -75,11 +75,12 @@ public class UserController {
 
     usersAwaitingAcceptanceService.createAndSave(userEntity, organization);
 
-    applicationEventPublisher.publishEvent( new UserLogEvent(
-        userEntity.getPkUserId(),
-        LogSeverity.INFO,
-        "USER_REGISTERED_WITH_TOKEN",
-        "User registered via join token and is awaiting acceptance in organization"));
+    applicationEventPublisher.publishEvent(
+        new UserLogEvent(
+            userEntity.getPkUserId(),
+            LogSeverity.INFO,
+            "USER_REGISTERED_WITH_TOKEN",
+            "User registered via join token and is awaiting acceptance in organization"));
     return new ResponseEntity<>(HttpStatus.CREATED);
   }
 
@@ -105,8 +106,12 @@ public class UserController {
     String accessToken = JwtService.createJwsAccessToken(customUserDetails);
     String refreshToken = JwtService.createJwsRefreshToken(customUserDetails);
 
-    applicationEventPublisher.publishEvent( new UserLogEvent(
-        userEntity.getPkUserId(), LogSeverity.INFO, "USER_LOGGED_IN", "User successfully logged into the system"));
+    applicationEventPublisher.publishEvent(
+        new UserLogEvent(
+            userEntity.getPkUserId(),
+            LogSeverity.INFO,
+            "USER_LOGGED_IN",
+            "User successfully logged into the system"));
 
     LoginUserResponseDTO loginUserResponseDTO = new LoginUserResponseDTO();
     loginUserResponseDTO.setAccessToken(accessToken);

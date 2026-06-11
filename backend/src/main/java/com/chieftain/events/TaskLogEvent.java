@@ -9,11 +9,11 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
-public class GroupLogEvent extends LogEvent {
-  public UUID groupId;
+public class TaskLogEvent extends LogEvent {
+  public UUID taskId;
 
-  public GroupLogEvent(UUID groupId, LogSeverity severity, String action, String description) {
+  public TaskLogEvent(UUID taskId, LogSeverity severity, String action, String description) {
     super(severity, action, description);
-    this.groupId = groupId;
+    this.taskId = taskId;
   }
 }
