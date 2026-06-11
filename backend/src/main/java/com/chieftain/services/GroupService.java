@@ -5,14 +5,11 @@ import com.chieftain.enums.LogSeverity;
 import com.chieftain.events.GroupPrivilegeLogEvent;
 import com.chieftain.exceptions.GroupNotFoundException;
 import com.chieftain.models.*;
-import com.chieftain.repositories.GroupPrivilegeRepository;
-import com.chieftain.repositories.GroupRepository;
-import com.chieftain.repositories.GroupUserPermissionRepository;
+import com.chieftain.repositories.*;
 import jakarta.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+
+import java.util.*;
+
 import org.springframework.http.HttpStatus;
 
 import org.springframework.context.ApplicationEventPublisher;
@@ -24,17 +21,21 @@ public class GroupService {
   private final GroupRepository groupRepository;
   private final GroupPrivilegeRepository groupPrivilegeRepository;
   private final GroupUserPermissionRepository groupUserPermissionRepository;
-    private final ApplicationEventPublisher applicationEventPublisher;
+  private final ApplicationEventPublisher applicationEventPublisher;
+  private final TaskRepository taskRepository;
+  private final UserRepository userRepository;
 
   public GroupService(
           GroupRepository groupRepository,
           GroupPrivilegeRepository groupPrivilegeRepository,
           GroupUserPermissionRepository groupUserPermissionRepository,
-           ApplicationEventPublisher applicationEventPublisher) {
+          ApplicationEventPublisher applicationEventPublisher, TaskRepository taskRepository, UserRepository userRepository) {
     this.groupRepository = groupRepository;
     this.groupPrivilegeRepository = groupPrivilegeRepository;
     this.groupUserPermissionRepository = groupUserPermissionRepository;
-      this.applicationEventPublisher = applicationEventPublisher;
+    this.applicationEventPublisher = applicationEventPublisher;
+    this.taskRepository = taskRepository;
+    this.userRepository = userRepository;
   }
 
   public GroupEntity getGroupById(UUID groupId) {
@@ -174,4 +175,14 @@ public class GroupService {
   public boolean isUserNotInGroup(GroupEntity group, UserEntity user) {
     return !group.getMembers().contains(user);
   }
+
+  public void removeDeletedMemberFromAssignees(UUID groupId, UUID userId) {
+    UserEntity user = userRepository.findByPkUserId(userId).orElseThrow();
+    List<TaskEntity> tasks = taskRepository.findByGroupIdAndAssigneesContaining(groupId, user);
+
+    for (TaskEntity task : tasks) {
+      task.getAssignees().remove(user);
+    }
+  }
+
 }

@@ -120,6 +120,7 @@ public class GroupController {
 
     groupService.getByIdAndOrganization(groupId, userDetails.getOrganization());
     groupService.removeMember(groupId, userId, userDetails.getUserId());
+    groupService.removeDeletedMemberFromAssignees(groupId, userId);
     return ResponseEntity.noContent().build();
   }
 }
