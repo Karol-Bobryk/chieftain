@@ -62,12 +62,6 @@ public class TaskController {
     UserEntity taskCreator = userService.getUserById(userDetails.getUserId());
 
     if (!groupService.isUserEligible(taskCreator, group, GroupUserPermission.ADD_TASK)) {
-      applicationEventPublisher.publishEvent(
-          new TaskLogEvent(
-              task.getId(),
-              LogSeverity.WARNING,
-              "TASK_CREATED",
-              "User is not eligible for task creation: " + userDetails.getUserId()));
       throw new UserNotEligible("user doesn't meet the requirements to create tasks in this group");
     }
 
@@ -97,12 +91,6 @@ public class TaskController {
       try {
         taskService.isSubtaskEligible(parentTask, task);
       } catch (SubtaskNotEligible e) {
-        applicationEventPublisher.publishEvent(
-            new TaskLogEvent(
-                task.getId(),
-                LogSeverity.ERROR,
-                "TASK_CREATED",
-                "Subtask is not eligible for creation"));
         throw new SubtaskNotEligible("Couldn't create a subtask: " + e.getMessage());
       }
 

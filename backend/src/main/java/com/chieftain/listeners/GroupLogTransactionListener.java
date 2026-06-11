@@ -4,7 +4,6 @@ import com.chieftain.events.GroupLogEvent;
 import com.chieftain.models.GroupEntity;
 import com.chieftain.services.GroupService;
 import com.chieftain.services.LogService;
-import com.chieftain.services.UserService;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -15,7 +14,7 @@ public class GroupLogTransactionListener extends LogTransactionListener<GroupLog
   private final GroupService groupService;
 
   public GroupLogTransactionListener(
-      LogService logService, UserService userService, GroupService groupService) {
+      LogService logService, GroupService groupService) {
     super(logService);
     this.groupService = groupService;
   }
