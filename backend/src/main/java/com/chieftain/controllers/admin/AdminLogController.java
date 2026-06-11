@@ -35,6 +35,7 @@ public class AdminLogController {
                 .getSystemLogs(pageable)
                 .map(entity -> new SystemLogDTO(
                         entity.getDomain(),
+                        entity.getEntityId(),
                         entity.getSeverity(),
                         entity.getAction(),
                         entity.getDescription(),

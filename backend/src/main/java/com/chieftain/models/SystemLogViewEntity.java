@@ -7,6 +7,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import org.hibernate.annotations.Immutable;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Immutable
@@ -20,6 +21,9 @@ public class SystemLogViewEntity {
 
     @Column(name = "domain")
     private String domain;
+
+    @Column(name = "entity_id")
+    private UUID entityId;
 
     @Column(name = "severity")
     private String severity;
