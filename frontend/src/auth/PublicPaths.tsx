@@ -1,7 +1,8 @@
+import { useAuthStore } from "@/store/auth.store";
 import { Navigate, Outlet } from "react-router-dom";
 
 const PublicRoute = () => {
-  const accessToken = localStorage.getItem("accessToken");
+  const accessToken = useAuthStore.getState().accessToken;
 
   if (!accessToken) {
     return <Outlet />;

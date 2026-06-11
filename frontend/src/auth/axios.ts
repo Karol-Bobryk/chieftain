@@ -85,7 +85,8 @@ api.interceptors.response.use(
       return api(originalRequest);
     } catch (err) {
       processQueue(err, null);
-      useAuthStore.getState().clearTokens;
+      useAuthStore.getState().clearTokens();
+      window.location.href = "/";
       return Promise.reject(err);
     } finally {
       isRefreshing = false;

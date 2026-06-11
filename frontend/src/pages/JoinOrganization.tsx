@@ -1,6 +1,7 @@
 import ErrorMessageLabel from "@/components/ErrorMessageLabel";
 import SubmitButton from "@/components/SubmitButton";
 import TextInput from "@/components/TextInput";
+import axios, { AxiosError } from "axios";
 import { useState } from "react";
 
 const JoinOrganization = () => {
@@ -30,16 +31,18 @@ const JoinOrganization = () => {
     setError("");
 
     try {
-      const res = await fetch("/auth/user/create", {
-        // TODO: axios please
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+      await axios.post("/auth/user/create", form).catch((error: AxiosError) => {
+        switch (error.response?.status) {
+          case 409:
+            throw new Error("Username already taken");
+          case 400:
+            throw new Error("Invalid details");
+          default:
+            throw new Error("Error ocurred");
+        }
       });
-
-      if (!res.ok) throw new Error();
-    } catch {
-      setError("Error joining organization");
+    } catch (e) {
+      if (e instanceof Error) setError(e.message);
     } finally {
       setLoading(false);
     }
@@ -114,7 +117,7 @@ const JoinOrganization = () => {
 
         <SubmitButton
           displayedText={loading ? "Joining..." : "Join organization"}
-          isEnabled={loading}
+          isEnabled={!loading}
         />
       </form>
     </div>

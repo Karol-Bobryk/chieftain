@@ -1,8 +1,9 @@
 import Navbar from "@/components/Navbar";
+import { useAuthStore } from "@/store/auth.store";
 import { Navigate, Outlet } from "react-router-dom";
 
 export default function ProtectedRoute() {
-  const accessToken = localStorage.getItem("accessToken");
+  const accessToken = useAuthStore.getState().accessToken;
 
   if (!accessToken) {
     return <Navigate to="/" replace />;
