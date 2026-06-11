@@ -1,8 +1,14 @@
 import ErrorMessageLabel from "@/components/ErrorMessageLabel";
 import SubmitButton from "@/components/SubmitButton";
 import TextInput from "@/components/TextInput";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import CreateOrganization from "./CreateOrganization";
+
+interface UserDisplayDTO {
+  userId: string;
+  name: string;
+  surname: string;
+}
 
 const AcceptUser = () => {
   const [form, setForm] = useState({
@@ -10,8 +16,24 @@ const AcceptUser = () => {
     role: "GROUP_USER",
   });
 
+  const [users, setUsers] = useState<UserDisplayDTO[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  const fetchUsers = async () => {
+    const token = localStorage.getItem("accessToken");
+    const res = await fetch("/api/users/awaiting-acceptance?size=100", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setUsers(data.content || []);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
 
   const handleChange =
     (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -45,6 +67,8 @@ const AcceptUser = () => {
         console.error("Backend returned an error:", res.status, errorData);
         throw new Error(errorData?.message || `Server error: ${res.status}`);
       }
+      await fetchUsers();
+      setForm((prev) => ({ ...prev, userId: "" }));
     } catch (err) {
       console.error("Request failed completely:", err);
 
@@ -73,13 +97,19 @@ const AcceptUser = () => {
           </p>
         </div>
 
-        <TextInput
-          type="text"
-          placeholder="User UUID"
+        <select
           value={form.userId}
           onChange={handleChange("userId")}
           required
-        />
+          className="h-11 w-full appearance-none rounded-xl border border-zinc-200 bg-white px-4 text-sm outline-none focus:border-zinc-400"
+        >
+          <option value="" disabled>Select a user to accept</option>
+          {users.map((user) => (
+            <option key={user.userId} value={user.userId}>
+              {user.name} {user.surname}
+            </option>
+          ))}
+        </select>
 
         <select
           value={form.role}
