@@ -1,8 +1,6 @@
 import ErrorMessageLabel from "@/components/ErrorMessageLabel";
 import SubmitButton from "@/components/SubmitButton";
-import TextInput from "@/components/TextInput";
 import { useState, useEffect } from "react";
-import CreateOrganization from "./CreateOrganization";
 
 interface UserDisplayDTO {
   userId: string;
@@ -36,7 +34,8 @@ const AcceptUser = () => {
   }, []);
 
   const handleChange =
-    (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    (field: keyof typeof form) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       setForm((prev) => ({
         ...prev,
         [field]: e.target.value,
@@ -54,15 +53,15 @@ const AcceptUser = () => {
     try {
       const res = await fetch(`/api/users/${userId}/accept`, {
         // TODO: axios please
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ role })
+        body: JSON.stringify({ role }),
       });
 
-      if (!res.ok){
+      if (!res.ok) {
         const errorData = await res.json().catch(() => null);
         console.error("Backend returned an error:", res.status, errorData);
         throw new Error(errorData?.message || `Server error: ${res.status}`);
@@ -103,7 +102,9 @@ const AcceptUser = () => {
           required
           className="h-11 w-full appearance-none rounded-xl border border-zinc-200 bg-white px-4 text-sm outline-none focus:border-zinc-400"
         >
-          <option value="" disabled>Select a user to accept</option>
+          <option value="" disabled>
+            Select a user to accept
+          </option>
           {users.map((user) => (
             <option key={user.userId} value={user.userId}>
               {user.name} {user.surname}

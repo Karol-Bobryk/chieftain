@@ -21,18 +21,14 @@ const Login = () => {
       }));
     };
 
-  const submit = async (e: React.SubmitEvent) => {
+  const submit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     setLoading(true);
     setError("");
 
     try {
-      const res = await login(form);
-
-      localStorage.setItem("accessToken", res.accessToken);
-      localStorage.setItem("refreshToken", res.refreshToken);
-
+      await login(form);
       // TODO: add default private path
     } catch {
       setError("Invalid email or password.");
@@ -72,7 +68,7 @@ const Login = () => {
 
           <SubmitButton
             displayedText={loading ? "Joining..." : "Join organization"}
-            isEnabled={loading}
+            isEnabled={!loading}
           />
         </div>
       </form>
