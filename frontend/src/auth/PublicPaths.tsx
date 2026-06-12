@@ -8,7 +8,7 @@ const PublicRoute = () => {
     return <Outlet />;
   }
 
-  return <Navigate to={"/join"} />;
+  return <Navigate to={"/home"} />;
   // TODO: add default private path
 };
 

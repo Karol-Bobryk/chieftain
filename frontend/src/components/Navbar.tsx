@@ -20,20 +20,6 @@ const Navbar = () => {
         {/* Navigation */}
         <div className="flex items-center gap-1">
           <Link
-            to="/join"
-            className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
-          >
-            Join Org
-          </Link>
-
-          <Link
-            to="/create-org"
-            className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
-          >
-            Create Org
-          </Link>
-
-          <Link
             to="/create-group"
             className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
           >
@@ -48,7 +34,6 @@ const Navbar = () => {
           </Link>
         </div>
 
-        {/* Right side */}
         <div className="ml-auto flex items-center gap-3">
           <button
             onClick={logOut}

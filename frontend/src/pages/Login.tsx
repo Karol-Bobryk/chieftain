@@ -4,6 +4,7 @@ import { login } from "@/auth/auth.ts";
 import SubmitButton from "@/components/SubmitButton";
 import ErrorMessageLabel from "@/components/ErrorMessageLabel";
 import TextInput from "@/components/TextInput";
+import { useNavigate } from "react-router-dom";
 const Login = () => {
   const [form, setForm] = useState<LoginForm>({
     emailAddress: "",
@@ -12,6 +13,7 @@ const Login = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleChange =
     (field: keyof LoginForm) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,7 +31,7 @@ const Login = () => {
 
     try {
       await login(form);
-      // TODO: add default private path
+      navigate("/home");
     } catch {
       setError("Invalid email or password.");
     } finally {

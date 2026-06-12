@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Link, Navigate} from "react-router-dom";
+import { BrowserRouter, Routes, Route, Link, Navigate } from "react-router-dom";
 import Login from "@/pages/Login";
 import JoinOrganization from "@/pages/JoinOrganization";
 import CreateOrganization from "@/pages/CreateOrganization";
@@ -6,7 +6,8 @@ import CreateGroup from "@/pages/CreateGroup";
 import AcceptUser from "@/pages/AcceptUser";
 import ProtectedRoute from "@/auth/ProtectedRoute";
 import PublicRoute from "@/auth/PublicPaths";
-import NotFound from "@/pages/NotFound"
+import NotFound from "@/pages/NotFound";
+import LandingPage from "@/pages/LandingPage";
 
 export default function App() {
   return (
@@ -18,12 +19,13 @@ export default function App() {
           <Route path="/create-org" element={<CreateOrganization />} />
         </Route>
         <Route element={<ProtectedRoute />}>
+          <Route path="/home" element={<LandingPage />} />
           <Route path="/create-group" element={<CreateGroup />} />
           <Route path="/accept-user" element={<AcceptUser />} />
         </Route>
 
         <Route path="/not-found" element={<NotFound />} />
-        <Route path="*" element={<Navigate to="/not-found" replace/>} />
+        <Route path="*" element={<Navigate to="/not-found" replace />} />
       </Routes>
     </BrowserRouter>
   );

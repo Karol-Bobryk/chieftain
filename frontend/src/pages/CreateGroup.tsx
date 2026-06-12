@@ -2,20 +2,27 @@ import ErrorMessageLabel from "@/components/ErrorMessageLabel";
 import SubmitButton from "@/components/SubmitButton";
 import TextInput from "@/components/TextInput";
 import { useState } from "react";
-import JoinOrganization from "./JoinOrganization";
+import { GroupPrivileges } from "@/enums/GroupPrivilege";
+import { api } from "@/auth/axios";
+
+interface CreateGroupRequestDTO {
+  name: string;
+  members: string[];
+  roles: GroupPrivileges[];
+}
 
 const CreateGroup = () => {
   const [name, setName] = useState("");
   const [members, setMembers] = useState<string[]>([]);
-  const [roles, setRoles] = useState<string[]>([]);
+  const [roles, setRoles] = useState<GroupPrivileges[]>([]);
 
   const [tempMemberId, setTempMemberId] = useState("");
-  const [tempRoles, setTempRoles] = useState<string[]>([]);
+  const [tempRoles, setTempRoles] = useState<GroupPrivileges[]>([]);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const togglePermission = (perm: string) => {
+  const togglePermission = (perm: GroupPrivileges) => {
     if (tempRoles.includes(perm)) {
       setTempRoles(tempRoles.filter((r) => r !== perm));
     } else {
@@ -39,30 +46,24 @@ const CreateGroup = () => {
     setTempRoles([]);
   };
 
-  const submit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const submit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
     try {
-      const token = localStorage.getItem("accessToken");
-      const payload: any = { name };
+      const payload: CreateGroupRequestDTO = {
+        name,
+        members: [],
+        roles: [],
+      };
 
       if (members.length > 0) {
         payload.members = members;
         payload.roles = roles;
       }
 
-      const res = await fetch("/api/groups/create", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) throw new Error();
+      await api.put<CreateGroupRequestDTO>("/api/groups/create");
     } catch {
       setError("Failed to create group");
     } finally {
@@ -71,17 +72,20 @@ const CreateGroup = () => {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-6 py-12">
-      <div className="flex w-full max-w-4xl flex-col gap-6 md:flex-row">
+    <div className="min-h-screen -slate-50 px-6 py-12">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 md:flex-row">
+        {/* LEFT */}
         <form
           onSubmit={submit}
-          className="flex-1 space-y-5 rounded-3xl border border-zinc-200 bg-white p-8"
+          className="flex-1 space-y-5 rounded-xl border border-slate-200 bg-white p-6"
         >
           <div className="space-y-1">
-            <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">
+            <h1 className="text-xl font-semibold text-slate-900">
               Create Group
             </h1>
-            <p className="text-sm text-zinc-500">Name your group and save.</p>
+            <p className="text-sm text-slate-500">
+              Name your group and save it.
+            </p>
           </div>
 
           <TextInput
@@ -100,14 +104,13 @@ const CreateGroup = () => {
           />
         </form>
 
-        <div className="flex-1 space-y-5 rounded-3xl border border-zinc-200 bg-white p-8">
+        {/* RIGHT */}
+        <div className="flex-1 space-y-5 rounded-xl border border-slate-200 bg-white p-6">
           <div className="space-y-1">
-            <h3 className="text-2xl font-semibold tracking-tight text-zinc-900">
+            <h2 className="text-xl font-semibold text-slate-900">
               Add Members
-            </h3>
-            <p className="text-sm text-zinc-500">
-              Pre-configure member permissions.
-            </p>
+            </h2>
+            <p className="text-sm text-slate-500">Configure permissions.</p>
           </div>
 
           <TextInput
@@ -118,52 +121,53 @@ const CreateGroup = () => {
           />
 
           <div className="space-y-3">
-            <strong className="text-sm font-medium text-zinc-700">
-              Permissions:
-            </strong>
-            <div className="flex flex-col gap-3">
+            <p className="text-sm font-medium text-zinc-700">Permissions</p>
+
+            <div className="flex flex-col gap-2">
               {[
-                "ADD_TASK",
-                "REMOVE_TASK",
-                "EDIT_TASK",
-                "ADD_USER_TO_GROUP",
-                "REMOVE_USER_FROM_GROUP",
+                GroupPrivileges.ADD_TASK,
+                GroupPrivileges.REMOVE_TASK,
+                GroupPrivileges.EDIT_TASK,
+                GroupPrivileges.ADD_USER_TO_GROUP,
+                GroupPrivileges.REMOVE_USER_FROM_GROUP,
               ].map((perm) => (
                 <label
                   key={perm}
-                  className="flex cursor-pointer items-center gap-3 text-sm text-zinc-600 transition hover:text-zinc-900"
+                  className="flex items-center gap-3 rounded-md px-2 py-1 text-sm text-slate-600 transition hover:bg-slate-50 hover:text-slate-900"
                 >
                   <input
                     type="checkbox"
                     checked={tempRoles.includes(perm)}
                     onChange={() => togglePermission(perm)}
-                    className="h-4 w-4 rounded border-zinc-300 accent-zinc-900"
+                    className="h-4 w-4 accent-slate-900"
                   />
                   {perm}
                 </label>
               ))}
             </div>
           </div>
-
           <button
             type="button"
             onClick={addMember}
-            className="h-11 w-full rounded-xl border border-zinc-200 bg-zinc-50 text-sm font-medium text-zinc-900 transition hover:bg-zinc-100"
+            className="h-10 w-full rounded-lg bg-zinc-900 text-sm font-medium text-white transition hover:bg-zinc-800"
           >
             Add to List
           </button>
 
           {members.length > 0 && (
-            <ul className="space-y-2 rounded-xl bg-zinc-50 p-4 text-sm text-zinc-600">
+            <ul className="space-y-2">
               {members.map((m, i) => (
-                <li key={i} className="break-all">
-                  <span className="font-mono text-xs">
+                <li
+                  key={i}
+                  className="flex items-center justify-between rounded-md border border-slate-100 bg-slate-50 px-3 py-2"
+                >
+                  <span className="font-mono text-xs text-zinc-500">
                     {m.substring(0, 8)}...
-                  </span>{" "}
-                  -{" "}
-                  <strong className="font-medium text-zinc-900">
+                  </span>
+
+                  <span className="text-sm font-medium text-zinc-800">
                     {roles[i]}
-                  </strong>
+                  </span>
                 </li>
               ))}
             </ul>

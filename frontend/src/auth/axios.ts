@@ -86,7 +86,7 @@ api.interceptors.response.use(
     } catch (err) {
       processQueue(err, null);
       useAuthStore.getState().clearTokens();
-      window.location.href = "/";
+      window.location.href = "/home";
       return Promise.reject(err);
     } finally {
       isRefreshing = false;
