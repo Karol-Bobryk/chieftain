@@ -45,8 +45,7 @@ public class UserAcceptanceController {
     UserEntity user = userService.getUserById(userId);
 
     Page<GroupEntity> groupPage = userService.getGroupsForUsers(user, pageable);
-    Page<GroupDisplayDTO> groupDisplay =
-        groupPage.map(GroupDisplayDTO::fromGroupEntity);
+    Page<GroupDisplayDTO> groupDisplay = groupPage.map(GroupDisplayDTO::fromGroupEntity);
 
     return ResponseEntity.ok(new PagedModel<>(groupDisplay));
   }
