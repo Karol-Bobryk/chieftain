@@ -2,9 +2,13 @@ package com.chieftain.controllers.user;
 
 import com.chieftain.adapters.CustomUserDetails;
 import com.chieftain.controllers.user.dto.AcceptUserRequestDTO;
+import com.chieftain.controllers.user.dto.GroupDisplayDTO;
 import com.chieftain.controllers.user.dto.UserDisplayDTO;
+import com.chieftain.models.GroupEntity;
+import com.chieftain.models.UserEntity;
 import com.chieftain.services.UserService;
 import com.chieftain.services.UsersAwaitingAcceptanceService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -28,6 +32,22 @@ public class UserAcceptanceController {
       UserService userService, UsersAwaitingAcceptanceService usersAwaitingAcceptanceService) {
     this.userService = userService;
     this.usersAwaitingAcceptanceService = usersAwaitingAcceptanceService;
+  }
+
+  @GetMapping("/groups")
+  @Transactional
+  public ResponseEntity<PagedModel<GroupDisplayDTO>> getUserGroups(
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    UUID userId = userDetails.getUserId();
+    Pageable pageable = PageRequest.of(page, size);
+    UserEntity user = userService.getUserById(userId);
+
+    Page<GroupEntity> groupPage = userService.getGroupsForUsers(user, pageable);
+    Page<GroupDisplayDTO> groupDisplay = groupPage.map(GroupDisplayDTO::fromGroupEntity);
+
+    return ResponseEntity.ok(new PagedModel<>(groupDisplay));
   }
 
   @PostMapping("/{id}/accept")

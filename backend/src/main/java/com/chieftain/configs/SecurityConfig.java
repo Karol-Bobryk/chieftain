@@ -40,7 +40,13 @@ public class SecurityConfig {
             session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .authorizeHttpRequests(
             authorize ->
-                authorize.requestMatchers(publicPaths).permitAll().anyRequest().authenticated())
+                authorize
+                    .requestMatchers("/api/admin/**")
+                    .hasAuthority("SITE_ADMIN")
+                    .requestMatchers(publicPaths)
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
         .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
 
     return httpSecurity.build();

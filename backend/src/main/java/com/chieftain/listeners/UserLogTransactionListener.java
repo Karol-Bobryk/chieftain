@@ -13,7 +13,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 public class UserLogTransactionListener extends LogTransactionListener<UserLogEvent> {
   private final UserService userService;
 
-  public UserLogTransactionListener(LogService logService, UserService userService ) {
+  public UserLogTransactionListener(LogService logService, UserService userService) {
     super(logService);
     this.userService = userService;
   }

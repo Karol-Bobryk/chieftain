@@ -4,7 +4,9 @@ import com.chieftain.adapters.CustomUserDetails;
 import com.chieftain.controllers.tasks.dto.CreateTaskRequestDTO;
 import com.chieftain.controllers.tasks.dto.CreateTaskResponseDTO;
 import com.chieftain.enums.GroupUserPermission;
+import com.chieftain.enums.LogSeverity;
 import com.chieftain.enums.TaskStatus;
+import com.chieftain.events.TaskLogEvent;
 import com.chieftain.exceptions.SubtaskNotEligible;
 import com.chieftain.exceptions.UserNotEligible;
 import com.chieftain.models.GroupEntity;
@@ -18,6 +20,7 @@ import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.UUID;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -25,17 +28,22 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/tasks")
 public class TaskController {
-  //TODO: add logs
+  // TODO: add logs
 
   private final TaskService taskService;
   private final UserService userService;
   private final GroupService groupService;
+  private final ApplicationEventPublisher applicationEventPublisher;
 
   public TaskController(
-      TaskService taskService, UserService userService, GroupService groupService) {
+      TaskService taskService,
+      UserService userService,
+      GroupService groupService,
+      ApplicationEventPublisher applicationEventPublisher) {
     this.taskService = taskService;
     this.userService = userService;
     this.groupService = groupService;
+    this.applicationEventPublisher = applicationEventPublisher;
   }
 
   @PutMapping("/create")
@@ -107,15 +115,43 @@ public class TaskController {
     UserEntity user = userService.getUserById(userId);
 
     if (groupService.isUserNotInGroup(task.getGroup(), issuer)) {
+      applicationEventPublisher.publishEvent(
+          new TaskLogEvent(
+              task.getId(),
+              LogSeverity.WARNING,
+              "TASK_USER_ASSIGNED",
+              "Issuer with id: " + issuer.getPkUserId() + " is not in the group"));
       throw new UserNotEligible("cannot assign user to a task, issuer is not in the group");
     }
 
     if (groupService.isUserNotInGroup(task.getGroup(), user)) {
+      applicationEventPublisher.publishEvent(
+          new TaskLogEvent(
+              task.getId(),
+              LogSeverity.WARNING,
+              "TASK_USER_ASSIGNED",
+              "User with id: " + user.getPkUserId() + " is not in the group"));
       throw new UserNotEligible("cannot assign user to a task, user is not in the group");
     }
 
     taskService.assignUser(task, user);
 
+    return ResponseEntity.noContent().build();
+  }
+
+  @DeleteMapping("/{taskId}/delete")
+  @Transactional
+  public ResponseEntity<Void> deleteTask(
+      @PathVariable UUID taskId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    TaskEntity task = taskService.getTaskById(taskId);
+    if (!groupService.isUserEligible(
+        userService.getUserById(userDetails.getUserId()),
+        task.getGroup(),
+        GroupUserPermission.REMOVE_TASK)) {
+      throw new UserNotEligible("user doesn't meet the requirements to delete tasks in this group");
+    }
+
+    taskService.delete(task);
     return ResponseEntity.noContent().build();
   }
 }
