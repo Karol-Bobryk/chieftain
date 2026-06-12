@@ -138,4 +138,20 @@ public class TaskController {
 
     return ResponseEntity.noContent().build();
   }
+
+  @DeleteMapping("/{taskId}/delete")
+  @Transactional
+  public ResponseEntity<Void> deleteTask(
+      @PathVariable UUID taskId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    TaskEntity task = taskService.getTaskById(taskId);
+    if (!groupService.isUserEligible(
+        userService.getUserById(userDetails.getUserId()),
+        task.getGroup(),
+        GroupUserPermission.REMOVE_TASK)) {
+      throw new UserNotEligible("user doesn't meet the requirements to delete tasks in this group");
+    }
+
+    taskService.delete(task);
+    return ResponseEntity.noContent().build();
+  }
 }

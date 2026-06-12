@@ -31,4 +31,6 @@ public interface GroupPrivilegeRepository
       @Param("groupId") UUID groupId,
       @Param("userId") UUID userId,
       @Param("permission") GroupUserPermission groupUserPermission);
+
+  void deleteAllByGroupId(UUID groupId);
 }

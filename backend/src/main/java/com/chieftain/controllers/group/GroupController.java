@@ -12,11 +12,13 @@ import com.chieftain.models.GroupEntity;
 import com.chieftain.models.UserEntity;
 import com.chieftain.services.GroupService;
 import com.chieftain.services.UserService;
+import com.chieftain.services.UsersAwaitingAcceptanceService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,14 +32,17 @@ public class GroupController {
   private final GroupService groupService;
   private final UserService userService;
   private final ApplicationEventPublisher applicationEventPublisher;
+  private final UsersAwaitingAcceptanceService usersAwaitingAcceptanceService;
 
   public GroupController(
       GroupService groupService,
       UserService userService,
-      ApplicationEventPublisher applicationEventPublisher) {
+      ApplicationEventPublisher applicationEventPublisher,
+      UsersAwaitingAcceptanceService usersAwaitingAcceptanceService) {
     this.groupService = groupService;
     this.userService = userService;
     this.applicationEventPublisher = applicationEventPublisher;
+    this.usersAwaitingAcceptanceService = usersAwaitingAcceptanceService;
   }
 
   @PutMapping("/create")
@@ -49,7 +54,14 @@ public class GroupController {
     List<UserEntity> members = new ArrayList<>();
 
     if (request.getMembers() != null) {
-      members.addAll(userService.getUsersByIds(request.getMembers()));
+      members = userService.getUsersByIds(request.getMembers());
+      for (UserEntity member : members) {
+        if (usersAwaitingAcceptanceService.isUserAwaiting(member.getOrganization(), member)) {
+          throw new ResponseStatusException(
+              HttpStatus.BAD_REQUEST,
+              "User " + member.getEmailAddress() + " is awaiting acceptance in organization");
+        }
+      }
     }
 
     UserEntity groupOwner = userService.getUserById(userDetails.getUserId());
@@ -118,8 +130,26 @@ public class GroupController {
       throw new ResponseStatusException(
           HttpStatus.BAD_REQUEST, "Cannot add users from different organization");
     }
+
+    for (UserEntity member : newMembers) {
+      if (usersAwaitingAcceptanceService.isUserAwaiting(member.getOrganization(), member)) {
+        throw new ResponseStatusException(
+            HttpStatus.BAD_REQUEST,
+            "User " + member.getEmailAddress() + " is awaiting acceptance in organization");
+      }
+    }
+
     groupService.addGroupMembers(
         group, userDetails.getUserId(), newMembers, request.getPermissions());
+
+    String addedMembers =
+        newMembers.stream().map(user -> user.getEmailAddress()).collect(Collectors.joining(", "));
+    applicationEventPublisher.publishEvent(
+        new GroupLogEvent(
+            group.getId(),
+            LogSeverity.INFO,
+            "GROUP_MEMBER_ADDED",
+            "User: " + addedMembers + " added to group"));
 
     return ResponseEntity.noContent().build();
   }
@@ -133,6 +163,16 @@ public class GroupController {
 
     groupService.getByIdAndOrganization(groupId, userDetails.getOrganization());
     groupService.removeMember(groupId, userId, userDetails.getUserId());
+    groupService.removeDeletedMemberFromAssignees(groupId, userId);
+    return ResponseEntity.noContent().build();
+  }
+
+  @DeleteMapping("/{groupId}/delete")
+  @Transactional
+  public ResponseEntity<Void> deleteGroup(
+      @PathVariable UUID groupId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    groupService.deleteGroup(groupId, userDetails.getUserId());
     return ResponseEntity.noContent().build();
   }
 }

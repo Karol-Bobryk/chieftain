@@ -40,4 +40,8 @@ public class UsersAwaitingAcceptanceService {
       OrganizationEntity organization, Pageable pageable) {
     return usersAwaitingAcceptanceRepository.findAllByOrganization(organization, pageable);
   }
+
+  public boolean isUserAwaiting(OrganizationEntity organization, UserEntity user) {
+    return usersAwaitingAcceptanceRepository.existsByOrganizationAndUser(organization, user);
+  }
 }
