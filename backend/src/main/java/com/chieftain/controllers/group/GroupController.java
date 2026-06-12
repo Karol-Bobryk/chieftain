@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +33,6 @@ public class GroupController {
   private final UserService userService;
   private final ApplicationEventPublisher applicationEventPublisher;
   private final UsersAwaitingAcceptanceService usersAwaitingAcceptanceService;
-
 
   public GroupController(
       GroupService groupService,
@@ -57,9 +55,11 @@ public class GroupController {
 
     if (request.getMembers() != null) {
       members = userService.getUsersByIds(request.getMembers());
-      for(UserEntity member : members){
-        if(usersAwaitingAcceptanceService.isUserAwaiting(member.getOrganization(), member)){
-          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User " + member.getEmailAddress() + " is awaiting acceptance in organization");
+      for (UserEntity member : members) {
+        if (usersAwaitingAcceptanceService.isUserAwaiting(member.getOrganization(), member)) {
+          throw new ResponseStatusException(
+              HttpStatus.BAD_REQUEST,
+              "User " + member.getEmailAddress() + " is awaiting acceptance in organization");
         }
       }
     }
@@ -119,29 +119,37 @@ public class GroupController {
     GroupEntity group = groupService.getByIdAndOrganization(groupId, userDetails.getOrganization());
 
     List<UserEntity> newMembers = userService.getUsersByIds(request.getMemberIds());
-      boolean differentOrganizationMembers = newMembers.stream()
-              .anyMatch(d -> !d.getOrganization().getPkOrganizationId()
-                      .equals(group.getOrganization().getPkOrganizationId()));
-      if(differentOrganizationMembers){
-          throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot add users from different organization");
-      }
+    boolean differentOrganizationMembers =
+        newMembers.stream()
+            .anyMatch(
+                d ->
+                    !d.getOrganization()
+                        .getPkOrganizationId()
+                        .equals(group.getOrganization().getPkOrganizationId()));
+    if (differentOrganizationMembers) {
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "Cannot add users from different organization");
+    }
 
-    for(UserEntity member : newMembers){
-      if(usersAwaitingAcceptanceService.isUserAwaiting(member.getOrganization(), member)){
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User " + member.getEmailAddress() + " is awaiting acceptance in organization");
+    for (UserEntity member : newMembers) {
+      if (usersAwaitingAcceptanceService.isUserAwaiting(member.getOrganization(), member)) {
+        throw new ResponseStatusException(
+            HttpStatus.BAD_REQUEST,
+            "User " + member.getEmailAddress() + " is awaiting acceptance in organization");
       }
     }
 
-    groupService.addGroupMembers(group, userDetails.getUserId(), newMembers, request.getPermissions());
+    groupService.addGroupMembers(
+        group, userDetails.getUserId(), newMembers, request.getPermissions());
 
-    String addedMembers = newMembers.stream()
-            .map(user -> user.getEmailAddress()).collect(Collectors.joining(", "));
+    String addedMembers =
+        newMembers.stream().map(user -> user.getEmailAddress()).collect(Collectors.joining(", "));
     applicationEventPublisher.publishEvent(
-    new GroupLogEvent(
-        group.getId(),
-        LogSeverity.INFO,
-        "GROUP_MEMBER_ADDED",
-        "User: " + addedMembers  + " added to group"));
+        new GroupLogEvent(
+            group.getId(),
+            LogSeverity.INFO,
+            "GROUP_MEMBER_ADDED",
+            "User: " + addedMembers + " added to group"));
 
     return ResponseEntity.noContent().build();
   }

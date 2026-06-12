@@ -15,6 +15,6 @@ public interface UsersAwaitingAcceptanceRepository
 
   Page<UsersAwaitingAcceptanceEntity> findAllByOrganization(
       OrganizationEntity organization, Pageable pageable);
-  
+
   boolean existsByOrganizationAndUser(OrganizationEntity organization, UserEntity user);
 }
