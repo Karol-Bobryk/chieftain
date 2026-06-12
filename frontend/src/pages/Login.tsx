@@ -4,7 +4,7 @@ import { login } from "@/auth/auth.ts";
 import SubmitButton from "@/components/SubmitButton";
 import ErrorMessageLabel from "@/components/ErrorMessageLabel";
 import TextInput from "@/components/TextInput";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 const Login = () => {
   const [form, setForm] = useState<LoginForm>({
     emailAddress: "",
@@ -72,6 +72,24 @@ const Login = () => {
             displayedText={loading ? "Joining..." : "Join organization"}
             isEnabled={!loading}
           />
+          <p className="pt-2 text-center text-sm text-slate-500">
+            Don't have an account yet?{" "}
+            <Link
+              to="/join"
+              className="font-medium text-slate-700 underline underline-offset-4 hover:text-slate-900"
+            >
+              Create an account
+            </Link>
+            <br />
+            or{" "}
+            <Link
+              to="/create-org"
+              className="font-medium text-slate-700 underline underline-offset-4 hover:text-slate-900"
+            >
+              create an organization
+            </Link>
+            .
+          </p>
         </div>
       </form>
     </div>

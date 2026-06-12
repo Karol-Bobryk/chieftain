@@ -3,6 +3,7 @@ import SubmitButton from "@/components/SubmitButton";
 import TextInput from "@/components/TextInput";
 import axios, { AxiosError } from "axios";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const JoinOrganization = () => {
   const [form, setForm] = useState({
@@ -119,6 +120,16 @@ const JoinOrganization = () => {
           displayedText={loading ? "Joining..." : "Join organization"}
           isEnabled={!loading}
         />
+        <p className="pt-2 text-center text-sm text-slate-500">
+          Already have an account?{" "}
+          <Link
+            to="/"
+            className="font-medium text-slate-700 underline underline-offset-4 transition hover:text-slate-900"
+          >
+            Sign in
+          </Link>
+          .
+        </p>
       </form>
     </div>
   );

@@ -2,6 +2,7 @@ import ErrorMessageLabel from "@/components/ErrorMessageLabel";
 import SubmitButton from "@/components/SubmitButton";
 import TextInput from "@/components/TextInput";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 
 const CreateOrganization = () => {
   const [form, setForm] = useState({
@@ -116,6 +117,16 @@ const CreateOrganization = () => {
           displayedText={loading ? "Creating..." : "Create organization"}
           isEnabled={loading}
         />
+        <p className="pt-2 text-center text-sm text-slate-500">
+          Want to join an existing organization instead?{" "}
+          <Link
+            to="/join"
+            className="font-medium text-slate-700 underline underline-offset-4 transition hover:text-slate-900"
+          >
+            Join with an invitation
+          </Link>
+          .
+        </p>
       </form>
     </div>
   );
