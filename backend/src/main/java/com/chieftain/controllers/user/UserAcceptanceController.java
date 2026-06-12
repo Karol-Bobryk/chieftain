@@ -2,7 +2,6 @@ package com.chieftain.controllers.user;
 
 import com.chieftain.adapters.CustomUserDetails;
 import com.chieftain.controllers.user.dto.AcceptUserRequestDTO;
-import com.chieftain.controllers.user.dto.GetUserGroupsResponseDTO;
 import com.chieftain.controllers.user.dto.GroupDisplayDTO;
 import com.chieftain.controllers.user.dto.UserDisplayDTO;
 import com.chieftain.models.GroupEntity;
@@ -11,7 +10,6 @@ import com.chieftain.services.UserService;
 import com.chieftain.services.UsersAwaitingAcceptanceService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -38,7 +36,7 @@ public class UserAcceptanceController {
 
   @GetMapping("/groups")
   @Transactional
-  public ResponseEntity<GetUserGroupsResponseDTO> getUserGroups(
+  public ResponseEntity<PagedModel<GroupDisplayDTO>> getUserGroups(
       @RequestParam(defaultValue = "0") int page,
       @RequestParam(defaultValue = "10") int size,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
@@ -47,10 +45,10 @@ public class UserAcceptanceController {
     UserEntity user = userService.getUserById(userId);
 
     Page<GroupEntity> groupPage = userService.getGroupsForUsers(user, pageable);
-    List<GroupDisplayDTO> groupDisplay =
-        groupPage.map(GroupDisplayDTO::fromGroupEntity).stream().toList();
+    Page<GroupDisplayDTO> groupDisplay =
+        groupPage.map(GroupDisplayDTO::fromGroupEntity);
 
-    return ResponseEntity.ok(new GetUserGroupsResponseDTO(groupDisplay));
+    return ResponseEntity.ok(new PagedModel<>(groupDisplay));
   }
 
   @PostMapping("/{id}/accept")
