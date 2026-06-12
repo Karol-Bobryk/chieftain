@@ -21,6 +21,7 @@ public class GroupService {
   private final ApplicationEventPublisher applicationEventPublisher;
   private final TaskRepository taskRepository;
   private final UserRepository userRepository;
+  private final TaskService taskService;
 
   public GroupService(
       GroupRepository groupRepository,
@@ -28,13 +29,15 @@ public class GroupService {
       GroupUserPermissionRepository groupUserPermissionRepository,
       ApplicationEventPublisher applicationEventPublisher,
       TaskRepository taskRepository,
-      UserRepository userRepository) {
+      UserRepository userRepository,
+      TaskService taskService) {
     this.groupRepository = groupRepository;
     this.groupPrivilegeRepository = groupPrivilegeRepository;
     this.groupUserPermissionRepository = groupUserPermissionRepository;
     this.applicationEventPublisher = applicationEventPublisher;
     this.taskRepository = taskRepository;
     this.userRepository = userRepository;
+    this.taskService = taskService;
   }
 
   public GroupEntity getGroupById(UUID groupId) {
@@ -206,8 +209,11 @@ public class GroupService {
         groupRepository
             .findById(groupId)
             .orElseThrow(() -> new GroupNotFoundException("No group with id " + groupId));
-    for (UserEntity user : group.getMembers()) {
-      removeDeletedMemberFromAssignees(groupId, user.getPkUserId());
+
+    List<TaskEntity> tasks = taskRepository.findByGroupId(groupId);
+
+    for (TaskEntity task : tasks) {
+      taskService.delete(task);
     }
     groupPrivilegeRepository.deleteAllByGroupId(groupId);
     groupRepository.deleteById(groupId);

@@ -96,4 +96,8 @@ public class TaskService {
             task.getId(), LogSeverity.INFO, "TASK_CREATED", "Task successfully created"));
     return task;
   }
+
+  public void delete(TaskEntity task) {
+    taskRepository.delete(task);
+  }
 }

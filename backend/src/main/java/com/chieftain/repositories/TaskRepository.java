@@ -11,4 +11,6 @@ public interface TaskRepository extends JpaRepository<TaskEntity, UUID> {
   boolean existsById(@Nonnull UUID id);
 
   List<TaskEntity> findByGroupIdAndAssigneesContaining(UUID groupId, UserEntity user);
+
+  List<TaskEntity> findByGroupId(UUID groupId);
 }
