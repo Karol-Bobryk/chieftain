@@ -1,5 +1,6 @@
 package com.chieftain.services;
 
+import com.chieftain.controllers.group.dto.GroupTaskResponseDTO;
 import com.chieftain.enums.LogSeverity;
 import com.chieftain.enums.TaskStatus;
 import com.chieftain.events.TaskLogEvent;
@@ -14,6 +15,8 @@ import jakarta.annotation.Nonnull;
 import jakarta.transaction.Transactional;
 import java.util.UUID;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -98,5 +101,9 @@ public class TaskService {
 
   public void delete(TaskEntity task) {
     taskRepository.delete(task);
+  }
+
+  public Page<TaskEntity> getTasksByGroupId(UUID groupId, Pageable pageable) {
+    return taskRepository.findByGroupId(groupId, pageable);
   }
 }

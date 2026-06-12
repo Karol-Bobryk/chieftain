@@ -220,6 +220,4 @@ public class GroupService {
     groupRepository.deleteById(groupId);
   }
 
-//  public Page<TaskEntity> searchTasksInGroup(UUID groupId, UUID requesterId, String)
-
 }
