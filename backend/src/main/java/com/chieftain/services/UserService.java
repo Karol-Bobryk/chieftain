@@ -71,11 +71,12 @@ public class UserService {
 
     if (!passwordEncoder.matches(password, userEntity.getSecretHash())) {
 
-      applicationEventPublisher.publishEvent(new UserLogEvent (
-          userEntity.getPkUserId(),
-          LogSeverity.WARNING,
-          "FAILED_LOGIN_ATTEMPT",
-          "Failed login attempt due to invalid password"));
+      applicationEventPublisher.publishEvent(
+          new UserLogEvent(
+              userEntity.getPkUserId(),
+              LogSeverity.WARNING,
+              "FAILED_LOGIN_ATTEMPT",
+              "Failed login attempt due to invalid password"));
 
       throw new InvalidUserSecretProvidedException(
           "Failed to authenticate user: " + emailAddress + " invalid secret");
@@ -145,7 +146,11 @@ public class UserService {
     user.setRole(roleEntity);
     userRepository.save(user);
 
-    applicationEventPublisher.publishEvent(new UserLogEvent (
-        user.getPkUserId(), LogSeverity.INFO, "USER_ACCEPTED", "User accepted and assigned to role: " + roleName) );
+    applicationEventPublisher.publishEvent(
+        new UserLogEvent(
+            user.getPkUserId(),
+            LogSeverity.INFO,
+            "USER_ACCEPTED",
+            "User accepted and assigned to role: " + roleName));
   }
 }

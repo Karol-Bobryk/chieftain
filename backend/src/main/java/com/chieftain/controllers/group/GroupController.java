@@ -17,7 +17,6 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
-
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -33,14 +32,18 @@ import org.springframework.web.server.ResponseStatusException;
 public class GroupController {
   private final GroupService groupService;
   private final UserService userService;
-    private final ApplicationEventPublisher applicationEventPublisher;
+  private final ApplicationEventPublisher applicationEventPublisher;
   private final UsersAwaitingAcceptanceService usersAwaitingAcceptanceService;
 
+
   public GroupController(
-          GroupService groupService, UserService userService, ApplicationEventPublisher applicationEventPublisher, UsersAwaitingAcceptanceService usersAwaitingAcceptanceService) {
+      GroupService groupService,
+      UserService userService,
+      ApplicationEventPublisher applicationEventPublisher,
+      UsersAwaitingAcceptanceService usersAwaitingAcceptanceService) {
     this.groupService = groupService;
     this.userService = userService;
-      this.applicationEventPublisher = applicationEventPublisher;
+    this.applicationEventPublisher = applicationEventPublisher;
     this.usersAwaitingAcceptanceService = usersAwaitingAcceptanceService;
   }
 
@@ -83,18 +86,24 @@ public class GroupController {
         request.getRoles());
 
     applicationEventPublisher.publishEvent(
-    new GroupLogEvent(
-        groupEntity.getId(),
-        LogSeverity.INFO,
-        "GROUP_CREATED",
-        "Group '" + groupEntity.getName() + "' was created by: " + groupOwner.getEmailAddress()));
+        new GroupLogEvent(
+            groupEntity.getId(),
+            LogSeverity.INFO,
+            "GROUP_CREATED",
+            "Group '"
+                + groupEntity.getName()
+                + "' was created by: "
+                + groupOwner.getEmailAddress()));
 
-    applicationEventPublisher.publishEvent( new GroupPrivilegeLogEvent(
-        groupEntity.getId(),
-        groupOwner.getPkUserId(),
-        LogSeverity.INFO,
-        "GROUP_OWNER_PRIVILEGES_GRANTED",
-        "User " + groupOwner.getEmailAddress() + " received full owner permissions for the group"));
+    applicationEventPublisher.publishEvent(
+        new GroupPrivilegeLogEvent(
+            groupEntity.getId(),
+            groupOwner.getPkUserId(),
+            LogSeverity.INFO,
+            "GROUP_OWNER_PRIVILEGES_GRANTED",
+            "User "
+                + groupOwner.getEmailAddress()
+                + " received full owner permissions for the group"));
 
     GroupCreateResponseDTO response = new GroupCreateResponseDTO(groupEntity.getId());
     return new ResponseEntity<>(response, HttpStatus.CREATED);

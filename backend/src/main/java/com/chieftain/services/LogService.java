@@ -3,11 +3,13 @@ package com.chieftain.services;
 import com.chieftain.enums.LogSeverity;
 import com.chieftain.models.*;
 import com.chieftain.repositories.*;
-import jakarta.transaction.Transactional;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(propagation = Propagation.REQUIRES_NEW)
 public class LogService {
 
   private final LogSeverityRepository severityRepository;
@@ -15,14 +17,16 @@ public class LogService {
   private final TaskLogRepository taskLogRepository;
   private final GroupLogRepository groupLogRepository;
   private final GroupPrivilegeLogRepository groupPrivilegeLogRepository;
-    private final OrganizationLogRepository organizationLogRepository;
+  private final OrganizationLogRepository organizationLogRepository;
 
   public LogService(
-          LogSeverityRepository severityRepository,
-          UserLogRepository userLogRepository,
-          TaskLogRepository taskLogRepository,
-          GroupLogRepository groupLogRepository,
-          GroupPrivilegeLogRepository groupPrivilegeLogRepository, OrganizationService organizationService, OrganizationLogRepository organizationLogRepository) {
+      LogSeverityRepository severityRepository,
+      UserLogRepository userLogRepository,
+      TaskLogRepository taskLogRepository,
+      GroupLogRepository groupLogRepository,
+      GroupPrivilegeLogRepository groupPrivilegeLogRepository,
+      OrganizationService organizationService,
+      OrganizationLogRepository organizationLogRepository) {
     this.severityRepository = severityRepository;
     this.userLogRepository = userLogRepository;
     this.taskLogRepository = taskLogRepository;
@@ -82,7 +86,10 @@ public class LogService {
   @Async
   @Transactional
   public void logOrganizationAction(
-          OrganizationEntity organization, LogSeverity severityEnum, String action, String description) {
+      OrganizationEntity organization,
+      LogSeverity severityEnum,
+      String action,
+      String description) {
     OrganizationLogEntity log = new OrganizationLogEntity();
     log.setOrganization(organization);
     log.setSeverity(getSeverityEntity(severityEnum));
@@ -93,7 +100,7 @@ public class LogService {
   }
 
   @Async
-  @Transactional
+  @Transactional(propagation = Propagation.REQUIRES_NEW)
   public void logGroupPrivilegeAction(
       GroupEntity group,
       UserEntity targetUser,
