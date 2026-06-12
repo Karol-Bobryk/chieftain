@@ -9,14 +9,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class AdminLogService {
 
-    private final SystemLogViewRepository systemLogViewRepository;
+  private final SystemLogViewRepository systemLogViewRepository;
 
-    public AdminLogService(SystemLogViewRepository systemLogViewRepository) {
-        this.systemLogViewRepository = systemLogViewRepository;
-    }
+  public AdminLogService(SystemLogViewRepository systemLogViewRepository) {
+    this.systemLogViewRepository = systemLogViewRepository;
+  }
 
-    public Page<SystemLogViewEntity> getSystemLogs(Pageable pageable) {
+  public Page<SystemLogViewEntity> getSystemLogs(Pageable pageable) {
 
-        return systemLogViewRepository.findAll(pageable);
-    }
+    return systemLogViewRepository.findAll(pageable);
+  }
 }

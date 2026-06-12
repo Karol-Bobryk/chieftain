@@ -17,31 +17,32 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/admin/logs")
 public class AdminLogController {
 
-    private final AdminLogService adminLogService;
+  private final AdminLogService adminLogService;
 
-    public AdminLogController(AdminLogService adminLogService) {
-        this.adminLogService = adminLogService;
-    }
-    
-    @GetMapping
-    @PreAuthorize("hasAnyAuthority('SITE_ADMIN')")
-    public ResponseEntity<Page<SystemLogDTO>> getLogsTimeline(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "5") int size) {
+  public AdminLogController(AdminLogService adminLogService) {
+    this.adminLogService = adminLogService;
+  }
 
-        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+  @GetMapping
+  @PreAuthorize("hasAnyAuthority('SITE_ADMIN')")
+  public ResponseEntity<Page<SystemLogDTO>> getLogsTimeline(
+      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
 
-        Page<SystemLogDTO> logsPage = adminLogService
-                .getSystemLogs(pageable)
-                .map(entity -> new SystemLogDTO(
+    Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+    Page<SystemLogDTO> logsPage =
+        adminLogService
+            .getSystemLogs(pageable)
+            .map(
+                entity ->
+                    new SystemLogDTO(
                         entity.getDomain(),
                         entity.getEntityId(),
                         entity.getSeverity(),
                         entity.getAction(),
                         entity.getDescription(),
-                        entity.getCreatedAt()
-                ));
+                        entity.getCreatedAt()));
 
-        return ResponseEntity.ok(logsPage);
-    }
+    return ResponseEntity.ok(logsPage);
+  }
 }

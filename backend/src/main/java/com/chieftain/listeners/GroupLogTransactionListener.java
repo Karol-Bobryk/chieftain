@@ -13,8 +13,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 public class GroupLogTransactionListener extends LogTransactionListener<GroupLogEvent> {
   private final GroupService groupService;
 
-  public GroupLogTransactionListener(
-      LogService logService, GroupService groupService) {
+  public GroupLogTransactionListener(LogService logService, GroupService groupService) {
     super(logService);
     this.groupService = groupService;
   }

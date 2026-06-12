@@ -5,15 +5,19 @@ import com.chieftain.enums.LogSeverity;
 import com.chieftain.enums.SystemRole;
 import com.chieftain.events.UserLogEvent;
 import com.chieftain.exceptions.*;
+import com.chieftain.models.GroupEntity;
 import com.chieftain.models.OrganizationEntity;
 import com.chieftain.models.RoleEntity;
 import com.chieftain.models.UserEntity;
+import com.chieftain.repositories.GroupRepository;
 import com.chieftain.repositories.RoleRepository;
 import com.chieftain.repositories.UserRepository;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +29,7 @@ public class UserService {
   private final UsersAwaitingAcceptanceService awaitingService;
   private final RoleRepository roleRepository;
   private final ApplicationEventPublisher applicationEventPublisher;
+  private final GroupRepository groupRepository;
 
   public UserService(
       UserRepository userRepository,
@@ -32,13 +37,15 @@ public class UserService {
       OrganizationService organizationService,
       UsersAwaitingAcceptanceService awaitingService,
       RoleRepository roleRepository,
-      ApplicationEventPublisher applicationEventPublisher) {
+      ApplicationEventPublisher applicationEventPublisher,
+      GroupRepository groupRepository) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
     this.organizationService = organizationService;
     this.awaitingService = awaitingService;
     this.roleRepository = roleRepository;
     this.applicationEventPublisher = applicationEventPublisher;
+    this.groupRepository = groupRepository;
   }
 
   public UserEntity save(UserEntity userEntity)
@@ -152,5 +159,9 @@ public class UserService {
             LogSeverity.INFO,
             "USER_ACCEPTED",
             "User accepted and assigned to role: " + roleName));
+  }
+
+  public Page<GroupEntity> getGroupsForUsers(UserEntity user, Pageable pageable) {
+    return groupRepository.findAllByMembersContaining(user, pageable);
   }
 }
