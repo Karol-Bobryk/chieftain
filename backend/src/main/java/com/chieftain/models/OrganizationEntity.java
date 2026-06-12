@@ -46,6 +46,9 @@ public class OrganizationEntity {
   @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<GroupEntity> groups = new ArrayList<>();
 
+  @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true)
+  private List<UserEntity> users;
+
   @PrePersist
   public void generateToken() {
     joinToken =
