@@ -4,6 +4,7 @@ import com.chieftain.controllers.organization.dto.OrganizationUserResponseDTO;
 import com.chieftain.enums.SystemRole;
 import com.chieftain.exceptions.InvalidOrganizationJoinToken;
 import com.chieftain.exceptions.OrganizationNotFoundException;
+import com.chieftain.exceptions.UserNotFoundException;
 import com.chieftain.models.OrganizationEntity;
 import com.chieftain.models.RoleEntity;
 import com.chieftain.models.UserEntity;
@@ -11,6 +12,8 @@ import com.chieftain.repositories.GroupPrivilegeRepository;
 import com.chieftain.repositories.OrganizationRepository;
 
 import org.springframework.data.domain.Pageable;
+
+import java.util.List;
 import java.util.UUID;
 
 import com.chieftain.repositories.UserRepository;
@@ -62,6 +65,30 @@ public class OrganizationService {
 
   public Page<UserEntity> getUsersInOrganization(OrganizationEntity organization, Pageable pageable){
     return userRepository.findByOrganization(organization, pageable);
+  }
+
+  public void deleteOrganization(UUID organizationId, UUID requesterId){
+
+    OrganizationEntity organization = organizationRepository.getOrganizationByPkOrganizationId(organizationId);
+    UserEntity requester = userRepository.findByPkUserId(requesterId)
+            .orElseThrow(()-> new UserNotFoundException("No user with id: " + requesterId));
+
+    if(!hasPermissionToDeleteOrganization(requester, organizationId)){
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User has insufficient permissions to delete this organization");
+    }
+
+    organizationRepository.deleteById(organizationId);
+
+  }
+
+  private boolean hasPermissionToDeleteOrganization(UserEntity requester, UUID organizationId){
+    if(requester == null) {
+      return false;
+    }
+    SystemRole requesterRole= requester.getRole().getRoleName();
+    boolean isSiteAdmin = requesterRole.equals(SITE_ADMIN);
+    boolean isOwner = requesterRole.equals(OWNER) && requester.getOrganization().getPkOrganizationId().equals(organizationId);
+    return isSiteAdmin || isOwner;
   }
 
 }
