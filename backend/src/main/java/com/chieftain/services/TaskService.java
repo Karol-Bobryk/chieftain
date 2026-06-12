@@ -70,21 +70,20 @@ public class TaskService {
       task.getAssignees().add(user);
       task = save(task);
       applicationEventPublisher.publishEvent(
-              new TaskLogEvent(
-                      task.getId(),
-                      LogSeverity.INFO,
-                      "TASK_USER_ASSIGNED",
-                      "Assigned user with id: " + user.getPkUserId()));
+          new TaskLogEvent(
+              task.getId(),
+              LogSeverity.INFO,
+              "TASK_USER_ASSIGNED",
+              "Assigned user with id: " + user.getPkUserId()));
       return task;
     }
 
     applicationEventPublisher.publishEvent(
-            new TaskLogEvent(
-                    task.getId(),
-                    LogSeverity.WARNING,
-                    "TASK_USER_ASSIGNED",
-                    "User already assigned: " + user.getPkUserId()));
-
+        new TaskLogEvent(
+            task.getId(),
+            LogSeverity.WARNING,
+            "TASK_USER_ASSIGNED",
+            "User already assigned: " + user.getPkUserId()));
 
     return task;
   }

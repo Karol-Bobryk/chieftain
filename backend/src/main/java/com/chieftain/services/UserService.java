@@ -32,12 +32,13 @@ public class UserService {
   private final GroupRepository groupRepository;
 
   public UserService(
-          UserRepository userRepository,
-          PasswordEncoder passwordEncoder,
-          OrganizationService organizationService,
-          UsersAwaitingAcceptanceService awaitingService,
-          RoleRepository roleRepository,
-          ApplicationEventPublisher applicationEventPublisher, GroupRepository groupRepository) {
+      UserRepository userRepository,
+      PasswordEncoder passwordEncoder,
+      OrganizationService organizationService,
+      UsersAwaitingAcceptanceService awaitingService,
+      RoleRepository roleRepository,
+      ApplicationEventPublisher applicationEventPublisher,
+      GroupRepository groupRepository) {
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
     this.organizationService = organizationService;
@@ -160,7 +161,7 @@ public class UserService {
             "User accepted and assigned to role: " + roleName));
   }
 
-  public Page<GroupEntity> getGroupsForUsers(UserEntity user, Pageable pageable){
+  public Page<GroupEntity> getGroupsForUsers(UserEntity user, Pageable pageable) {
     return groupRepository.findAllByMembersContaining(user, pageable);
   }
 }

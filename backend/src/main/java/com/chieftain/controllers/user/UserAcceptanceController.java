@@ -5,14 +5,12 @@ import com.chieftain.controllers.user.dto.AcceptUserRequestDTO;
 import com.chieftain.controllers.user.dto.GetUserGroupsResponseDTO;
 import com.chieftain.controllers.user.dto.GroupDisplayDTO;
 import com.chieftain.controllers.user.dto.UserDisplayDTO;
-import com.chieftain.exceptions.UserNotEligible;
 import com.chieftain.models.GroupEntity;
 import com.chieftain.models.UserEntity;
 import com.chieftain.services.UserService;
 import com.chieftain.services.UsersAwaitingAcceptanceService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -38,23 +36,19 @@ public class UserAcceptanceController {
     this.usersAwaitingAcceptanceService = usersAwaitingAcceptanceService;
   }
 
-  @GetMapping("/{userId}/groups")
+  @GetMapping("/groups")
   @Transactional
   public ResponseEntity<GetUserGroupsResponseDTO> getUserGroups(
-          @PathVariable UUID userId,
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size,
-          @AuthenticationPrincipal CustomUserDetails userDetails) {
-    if (userId != userDetails.getUserId() ) {
-      throw new UserNotEligible("Cannot preview other users groups");
-    }
-
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    UUID userId = userDetails.getUserId();
     Pageable pageable = PageRequest.of(page, size);
     UserEntity user = userService.getUserById(userId);
 
-    Page<GroupEntity> groupPage  =userService.getGroupsForUsers(user, pageable);
-    List<GroupDisplayDTO> groupDisplay = groupPage.map(GroupDisplayDTO::fromGroupEntity).stream().toList();
-
+    Page<GroupEntity> groupPage = userService.getGroupsForUsers(user, pageable);
+    List<GroupDisplayDTO> groupDisplay =
+        groupPage.map(GroupDisplayDTO::fromGroupEntity).stream().toList();
 
     return ResponseEntity.ok(new GetUserGroupsResponseDTO(groupDisplay));
   }

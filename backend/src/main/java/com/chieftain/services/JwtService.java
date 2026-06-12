@@ -68,7 +68,6 @@ public class JwtService {
     SecretKey secretKey = Keys.hmacShaKeyFor(decodedSecret);
 
     Date exp = new Date();
-
     int duration = Integer.parseInt(System.getenv("JWT_REFRESH_EXPIRATION_DURATION_SECONDS"));
 
     Calendar cal = Calendar.getInstance();
