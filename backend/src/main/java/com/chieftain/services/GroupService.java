@@ -8,8 +8,8 @@ import com.chieftain.models.*;
 import com.chieftain.repositories.*;
 import jakarta.transaction.Transactional;
 import java.util.*;
-import org.springframework.http.HttpStatus;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -153,7 +153,7 @@ public class GroupService {
     GroupEntity group =
         groupRepository
             .findById(groupId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+            .orElseThrow(() -> new GroupNotFoundException("No group with id " + groupId));
     if (!group.getOrganization().getPkOrganizationId().equals(organization.getPkOrganizationId())) {
       throw new ResponseStatusException(HttpStatus.NOT_FOUND);
     }
@@ -164,7 +164,7 @@ public class GroupService {
     GroupEntity group =
         groupRepository
             .findById(groupId)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+            .orElseThrow(() -> new GroupNotFoundException("No group with id " + groupId));
 
     groupPrivilegeRepository
         .findPermission(groupId, requesterId, GroupUserPermission.REMOVE_USER_FROM_GROUP)
@@ -195,4 +195,21 @@ public class GroupService {
     }
   }
 
+  public void deleteGroup(UUID groupId, UUID requesterId) {
+    groupPrivilegeRepository
+        .findPermission(groupId, requesterId, GroupUserPermission.REMOVE_USER_FROM_GROUP)
+        .orElseThrow(
+            () ->
+                new ResponseStatusException(
+                    HttpStatus.FORBIDDEN, "User has insufficient permissions"));
+    GroupEntity group =
+        groupRepository
+            .findById(groupId)
+            .orElseThrow(() -> new GroupNotFoundException("No group with id " + groupId));
+    for (UserEntity user : group.getMembers()) {
+      removeDeletedMemberFromAssignees(groupId, user.getPkUserId());
+    }
+    groupPrivilegeRepository.deleteAllByGroupId(groupId);
+    groupRepository.deleteById(groupId);
+  }
 }

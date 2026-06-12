@@ -166,4 +166,13 @@ public class GroupController {
     groupService.removeDeletedMemberFromAssignees(groupId, userId);
     return ResponseEntity.noContent().build();
   }
+
+  @DeleteMapping("/{groupId}/delete")
+  @Transactional
+  public ResponseEntity<Void> deleteGroup(
+      @PathVariable UUID groupId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    groupService.deleteGroup(groupId, userDetails.getUserId());
+    return ResponseEntity.noContent().build();
+  }
 }
