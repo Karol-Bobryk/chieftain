@@ -21,12 +21,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,19 +36,20 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("/api/groups")
 public class GroupController {
-  private static final List<String> SORT_FIELDS = List.of("startedAt", "createdAt", "doneAt", "deadline");
+  private static final List<String> SORT_FIELDS =
+      List.of("startedAt", "createdAt", "doneAt", "deadline");
   private final GroupService groupService;
   private final UserService userService;
   private final ApplicationEventPublisher applicationEventPublisher;
   private final UsersAwaitingAcceptanceService usersAwaitingAcceptanceService;
   private final TaskService taskService;
 
-
   public GroupController(
-          GroupService groupService,
-          UserService userService,
-          ApplicationEventPublisher applicationEventPublisher,
-          UsersAwaitingAcceptanceService usersAwaitingAcceptanceService, TaskService taskService) {
+      GroupService groupService,
+      UserService userService,
+      ApplicationEventPublisher applicationEventPublisher,
+      UsersAwaitingAcceptanceService usersAwaitingAcceptanceService,
+      TaskService taskService) {
     this.groupService = groupService;
     this.userService = userService;
     this.applicationEventPublisher = applicationEventPublisher;
@@ -191,24 +191,21 @@ public class GroupController {
   @GetMapping("/{groupId}/tasks")
   @Transactional
   public ResponseEntity<PagedModel<GroupTaskResponseDTO>> getGroupTasks(
-          @PathVariable UUID groupId,
-          @RequestParam(defaultValue = "deadline") String sortBy,
-          @RequestParam(defaultValue = "asc") String direction,
-          @RequestParam(defaultValue = "0") int page,
-          @RequestParam(defaultValue = "10") int size,
-          @AuthenticationPrincipal CustomUserDetails userDetails){
+      @PathVariable UUID groupId,
+      @RequestParam(defaultValue = "deadline") String sortBy,
+      @RequestParam(defaultValue = "asc") String direction,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "10") int size,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
 
     groupService.getByIdAndOrganization(groupId, userDetails.getOrganization());
 
     Sort sort = Sort.by(Sort.Direction.fromString(direction), sortBy);
     Pageable pageable = PageRequest.of(page, size, sort);
 
-    Page<GroupTaskResponseDTO> tasksPage = taskService.getTasksByGroupId(groupId, pageable)
-            .map(GroupTaskResponseDTO::fromTaskEntity);
+    Page<GroupTaskResponseDTO> tasksPage =
+        taskService.getTasksByGroupId(groupId, pageable).map(GroupTaskResponseDTO::fromTaskEntity);
 
     return ResponseEntity.ok(new PagedModel<>(tasksPage));
   }
-
-
-
 }

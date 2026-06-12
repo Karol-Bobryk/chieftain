@@ -1,6 +1,5 @@
 package com.chieftain.services;
 
-import com.chieftain.controllers.group.dto.GroupTaskResponseDTO;
 import com.chieftain.enums.LogSeverity;
 import com.chieftain.enums.TaskStatus;
 import com.chieftain.events.TaskLogEvent;

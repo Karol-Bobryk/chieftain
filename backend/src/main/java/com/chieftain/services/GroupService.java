@@ -218,5 +218,4 @@ public class GroupService {
     groupPrivilegeRepository.deleteAllByGroupId(groupId);
     groupRepository.deleteById(groupId);
   }
-
 }
