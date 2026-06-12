@@ -41,8 +41,12 @@ public class SecurityConfig {
         .authorizeHttpRequests(
             authorize ->
                 authorize
-                        .requestMatchers("/api/admin/**").hasAuthority("SITE_ADMIN")
-                        .requestMatchers(publicPaths).permitAll().anyRequest().authenticated())
+                    .requestMatchers("/api/admin/**")
+                    .hasAuthority("SITE_ADMIN")
+                    .requestMatchers(publicPaths)
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
         .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class);
 
     return httpSecurity.build();
