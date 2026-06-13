@@ -69,7 +69,10 @@ const Groups = () => {
 
               <select
                 value={pageSize}
-                onChange={(e) => setPageSize(Number(e.target.value))}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setPageNumber(0);
+                }}
                 className="rounded-xl border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-700 outline-none transition focus:border-zinc-300"
               >
                 <option value={10}>10</option>
