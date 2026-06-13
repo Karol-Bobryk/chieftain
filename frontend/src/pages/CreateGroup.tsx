@@ -100,7 +100,7 @@ const CreateGroup = () => {
 
           <SubmitButton
             displayedText={loading ? "Creating..." : "Create Group"}
-            isEnabled={loading}
+            isEnabled={!loading && name !== ""}
           />
         </form>
 

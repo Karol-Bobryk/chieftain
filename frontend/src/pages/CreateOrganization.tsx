@@ -3,7 +3,7 @@ import SubmitButton from "@/components/SubmitButton";
 import TextInput from "@/components/TextInput";
 import axios from "axios";
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const CreateOrganization = () => {
   const [form, setForm] = useState({
@@ -17,6 +17,7 @@ const CreateOrganization = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleChange =
     (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,7 +35,8 @@ const CreateOrganization = () => {
     try {
       const res = await axios.post("/auth/user/create-with-organization", form);
 
-      if (res.status !== 200) throw new Error();
+      if (res.status !== 201) throw new Error();
+      navigate("/");
     } catch {
       setError("Error creating organization");
     } finally {
