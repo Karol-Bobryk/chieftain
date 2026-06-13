@@ -2,6 +2,7 @@ package com.chieftain.controllers.group.dto;
 
 import com.chieftain.controllers.user.dto.GroupDisplayDTO;
 import com.chieftain.controllers.user.dto.UserDisplayDTO;
+import com.chieftain.enums.TaskStatus;
 import com.chieftain.models.TaskEntity;
 import com.chieftain.models.TaskStatusEntity;
 import jakarta.annotation.Nonnull;
@@ -37,7 +38,7 @@ public class RootTaskDisplayDTO {
 
   @Nonnull private LocalDateTime deadline;
 
-  @Nonnull private TaskStatusEntity status;
+  @Nonnull private TaskStatus status;
 
   @Nullable private String description;
 
@@ -53,7 +54,7 @@ public class RootTaskDisplayDTO {
     dto.setCreatedAt(task.getCreatedAt());
     dto.setDoneAt(task.getDoneAt());
     dto.setDeadline(task.getDeadline());
-    dto.setStatus(task.getStatus());
+    dto.setStatus(task.getStatus().getStatusName());
     dto.setDescription(task.getDescription());
     dto.setGroup(GroupDisplayDTO.fromGroupEntity(task.getGroup()));
     dto.setAssignees(task.getAssignees().stream().map(UserDisplayDTO::ofEntity).toList());
