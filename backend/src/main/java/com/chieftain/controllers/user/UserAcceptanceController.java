@@ -10,6 +10,8 @@ import com.chieftain.services.UserService;
 import com.chieftain.services.UsersAwaitingAcceptanceService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+
+import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -77,5 +79,14 @@ public class UserAcceptanceController {
                         e.getId().getUserId(), e.getUser().getName(), e.getUser().getSurname()));
 
     return ResponseEntity.ok(new PagedModel<>(usersPage));
+  }
+
+  @GetMapping("/search")
+  public ResponseEntity<List<UserDisplayDTO>> searchUsers(
+          @RequestParam("q") String query,
+          @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    List<UserDisplayDTO> users = userService.searchUsersInOrganization(userDetails.getOrganization(), query);
+    return ResponseEntity.ok(users);
   }
 }

@@ -1,7 +1,7 @@
 import ErrorMessageLabel from "@/components/ErrorMessageLabel";
 import SubmitButton from "@/components/SubmitButton";
 import TextInput from "@/components/TextInput";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GroupPrivileges } from "@/enums/GroupPrivilege";
 import { api } from "@/auth/axios";
 
@@ -11,17 +11,44 @@ interface CreateGroupRequestDTO {
   roles: GroupPrivileges[];
 }
 
+interface UserDisplayDTO {
+  userId: string;
+  name: string;
+  surname: string;
+}
+
 const CreateGroup = () => {
   const [name, setName] = useState("");
   const [members, setMembers] = useState<string[]>([]);
   const [roles, setRoles] = useState<GroupPrivileges[]>([]);
 
-  const [tempMemberId, setTempMemberId] = useState("");
   const [tempRoles, setTempRoles] = useState<GroupPrivileges[]>([]);
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+
+  const [displayMembers, setDisplayMembers] = useState<{name: string, id: string}[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<UserDisplayDTO[]>([]);
+  const [selectedUser, setSelectedUser] = useState<UserDisplayDTO | null>(null);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      if (searchQuery.length < 2) {
+        setSearchResults([]);
+        return;
+      }
+      try {
+        const res = await api.get<UserDisplayDTO[]>(`/api/users/search?q=${searchQuery}`);
+        setSearchResults(res.data);
+      } catch (err) {
+        console.error("Failed to search users", err);
+      }
+    };
+    const delay = setTimeout(fetchUsers, 300);
+    return () => clearTimeout(delay);
+  }, [searchQuery]);
 
   const togglePermission = (perm: GroupPrivileges) => {
     if (tempRoles.includes(perm)) {
@@ -32,19 +59,25 @@ const CreateGroup = () => {
   };
 
   const addMember = () => {
-    if (!tempMemberId) return;
+    if (!selectedUser) return;
     if (tempRoles.length === 0) {
       setError("Please select at least one permission.");
       return;
     }
 
-    const newMembers = tempRoles.map(() => tempMemberId);
+    const newMembers = tempRoles.map(() => selectedUser.userId);
+    const newDisplay = tempRoles.map(() => ({
+      name: `${selectedUser.name} ${selectedUser.surname}`,
+      id: selectedUser.userId
+    }));
 
     setMembers([...members, ...newMembers]);
     setRoles([...roles, ...tempRoles]);
+    setDisplayMembers([...displayMembers, ...newDisplay]);
 
-    setTempMemberId("");
     setTempRoles([]);
+    setSelectedUser(null);
+    setSearchQuery("");
   };
 
   const submit = async (e: React.SubmitEvent<HTMLFormElement>) => {
@@ -66,6 +99,11 @@ const CreateGroup = () => {
 
       await api.put<CreateGroupRequestDTO>("/api/groups/create", payload);
       setSuccessMessage("Group " + name + " created successfully");
+
+      setName("");
+      setMembers([]);
+      setRoles([]);
+      setDisplayMembers([]);
 
       setTimeout(() => {
         setSuccessMessage("");
@@ -124,12 +162,50 @@ const CreateGroup = () => {
             <p className="text-sm text-slate-500">Configure permissions.</p>
           </div>
 
-          <TextInput
-            type="text"
-            placeholder="Member UUID"
-            value={tempMemberId}
-            onChange={(e) => setTempMemberId(e.target.value)}
-          />
+          <div className="relative space-y-2">
+            {!selectedUser ? (
+              <>
+                <TextInput
+                  type="text"
+                  placeholder="Search user by name..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                {searchResults.length > 0 && (
+                  <ul className="w-full mt-1 max-h-48 overflow-y-auto rounded-md border border-slate-200 bg-white shadow-lg">
+                    {searchResults.map((user) => (
+                      <li
+                        key={user.userId}
+                        className="cursor-pointer px-4 py-2 hover:bg-slate-50 border-b border-slate-100 last:border-0"
+                        onClick={() => {
+                          setSelectedUser(user);
+                          setSearchQuery("");
+                          setSearchResults([]);
+                        }}
+                      >
+                        <div className="font-medium text-sm text-slate-800">
+                          {user.name} {user.surname}
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </>
+            ) : (
+              <div className="flex items-center justify-between rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2">
+                <div className="text-sm font-medium text-emerald-800">
+                  {selectedUser.name} {selectedUser.surname}
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedUser(null)}
+                  className="text-sm font-medium text-emerald-700 hover:text-emerald-900"
+                >
+                  Clear
+                </button>
+              </div>
+            )}
+          </div>
 
           <div className="space-y-3">
             <p className="text-sm font-medium text-zinc-700">Permissions</p>
@@ -173,7 +249,7 @@ const CreateGroup = () => {
                   className="flex items-center justify-between rounded-md border border-slate-100 bg-slate-50 px-3 py-2"
                 >
                   <span className="font-mono text-xs text-zinc-500">
-                    {m.substring(0, 8)}...
+                    {displayMembers[i]?.name}
                   </span>
 
                   <span className="text-sm font-medium text-zinc-800">

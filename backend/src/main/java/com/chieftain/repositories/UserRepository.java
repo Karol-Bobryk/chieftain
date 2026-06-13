@@ -1,5 +1,6 @@
 package com.chieftain.repositories;
 
+import com.chieftain.models.OrganizationEntity;
 import com.chieftain.models.UserEntity;
 import com.chieftain.repositories.dto.SecretHashOnly;
 import java.util.List;
@@ -17,4 +18,9 @@ public interface UserRepository extends JpaRepository<UserEntity, UUID> {
   List<UserEntity> findAllByPkUserIdIn(List<UUID> pkUserIds);
 
   SecretHashOnly findSecretHashByEmailAddress(String emailAddress);
+
+  List<UserEntity> findTop10ByOrganizationAndNameContainingIgnoreCaseOrOrganizationAndSurnameContainingIgnoreCase(
+          OrganizationEntity organization1, String nameQuery,
+          OrganizationEntity organization2, String surnameQuery
+  );
 }
