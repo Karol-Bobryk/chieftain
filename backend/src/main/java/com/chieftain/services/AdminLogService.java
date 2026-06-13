@@ -1,9 +1,7 @@
 package com.chieftain.services;
 
 import com.chieftain.controllers.admin.dto.SystemLogDTO;
-import com.chieftain.models.SystemLogViewEntity;
 import com.chieftain.repositories.AdminLogJdbcRepository;
-import com.chieftain.repositories.SystemLogViewRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
