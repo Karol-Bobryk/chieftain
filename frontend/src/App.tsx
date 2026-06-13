@@ -8,6 +8,7 @@ import ProtectedRoute from "@/auth/ProtectedRoute";
 import PublicRoute from "@/auth/PublicPaths";
 import NotFound from "@/pages/NotFound";
 import LandingPage from "@/pages/LandingPage";
+import Groups from "@/pages/Groups";
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
           <Route path="/home" element={<LandingPage />} />
           <Route path="/create-group" element={<CreateGroup />} />
           <Route path="/accept-user" element={<AcceptUser />} />
+          <Route path="/groups" element={<Groups />} />
         </Route>
 
         <Route path="/not-found" element={<NotFound />} />

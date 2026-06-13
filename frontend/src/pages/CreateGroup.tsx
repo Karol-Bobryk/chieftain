@@ -63,7 +63,7 @@ const CreateGroup = () => {
         payload.roles = roles;
       }
 
-      await api.put<CreateGroupRequestDTO>("/api/groups/create");
+      await api.put<CreateGroupRequestDTO>("/api/groups/create", payload);
     } catch {
       setError("Failed to create group");
     } finally {
