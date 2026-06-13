@@ -1,6 +1,7 @@
 import ErrorMessageLabel from "@/components/ErrorMessageLabel";
 import SubmitButton from "@/components/SubmitButton";
 import TextInput from "@/components/TextInput";
+import axios from "axios";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
@@ -31,14 +32,9 @@ const CreateOrganization = () => {
     setError("");
 
     try {
-      const res = await fetch("/auth/user/create-with-organization", {
-        // TODO: axios please
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
+      const res = await axios.post("/auth/user/create-with-organization", form);
 
-      if (!res.ok) throw new Error();
+      if (res.status !== 200) throw new Error();
     } catch {
       setError("Error creating organization");
     } finally {
@@ -115,7 +111,7 @@ const CreateOrganization = () => {
 
         <SubmitButton
           displayedText={loading ? "Creating..." : "Create organization"}
-          isEnabled={loading}
+          isEnabled={!loading}
         />
         <p className="pt-2 text-center text-sm text-slate-500">
           Want to join an existing organization instead?{" "}
