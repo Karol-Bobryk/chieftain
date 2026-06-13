@@ -3,6 +3,7 @@ package com.chieftain.controllers.tasks;
 import com.chieftain.adapters.CustomUserDetails;
 import com.chieftain.controllers.tasks.dto.CreateTaskRequestDTO;
 import com.chieftain.controllers.tasks.dto.CreateTaskResponseDTO;
+import com.chieftain.controllers.tasks.dto.UpdateTaskStatusRequestDTO;
 import com.chieftain.enums.GroupUserPermission;
 import com.chieftain.enums.LogSeverity;
 import com.chieftain.enums.TaskStatus;
@@ -102,7 +103,7 @@ public class TaskController {
     return ResponseEntity.ok(new CreateTaskResponseDTO(task.getId()));
   }
 
-  @PutMapping("/api/tasks/{taskId}/assignees/{userId}")
+  @PutMapping("/{taskId}/assignees/{userId}")
   @Transactional
   public ResponseEntity<Void> assignToTask(
       @PathVariable UUID taskId,
@@ -153,5 +154,28 @@ public class TaskController {
 
     taskService.delete(task);
     return ResponseEntity.noContent().build();
+  }
+
+  @PatchMapping("/{taskId}/status")
+  @Transactional
+  public ResponseEntity<Void> updateTaskStatus(
+          @PathVariable UUID taskId,
+          @RequestBody UpdateTaskStatusRequestDTO request,
+          @AuthenticationPrincipal CustomUserDetails userDetails
+  ) {
+    TaskEntity task = taskService.getTaskById(taskId);
+    UserEntity requester = userService.getUserById(userDetails.getUserId());
+
+    boolean isAssignee = task.getAssignees().contains(requester);
+    boolean hasPermission  = groupService.isUserEligible(requester, task.getGroup(), GroupUserPermission.EDIT_TASK);
+
+    if(!isAssignee && !hasPermission) {
+      throw new UserNotEligible(
+              "User must be an assignee or have edit task permission to change task status"
+      );
+    }
+    taskService.updateStatus(task, request.getStatus());
+    return ResponseEntity.noContent().build();
+
   }
 }
