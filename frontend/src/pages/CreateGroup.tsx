@@ -21,6 +21,7 @@ const CreateGroup = () => {
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
 
   const togglePermission = (perm: GroupPrivileges) => {
     if (tempRoles.includes(perm)) {
@@ -64,6 +65,11 @@ const CreateGroup = () => {
       }
 
       await api.put<CreateGroupRequestDTO>("/api/groups/create", payload);
+      setSuccessMessage("Group " + name + " created successfully");
+
+      setTimeout(() => {
+        setSuccessMessage("");
+      }, 3000);
     } catch {
       setError("Failed to create group");
     } finally {
@@ -102,6 +108,11 @@ const CreateGroup = () => {
             displayedText={loading ? "Creating..." : "Create Group"}
             isEnabled={!loading && name !== ""}
           />
+          {successMessage && (
+            <div className="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
+              ✓ {successMessage}
+            </div>
+          )}
         </form>
 
         {/* RIGHT */}
