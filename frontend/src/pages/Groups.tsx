@@ -1,18 +1,8 @@
 import { useEffect, useState } from "react";
 import { api } from "@/auth/axios";
 import ErrorMessageLabel from "@/components/ErrorMessageLabel";
-
-interface GroupDisplayDTO {
-  groupId: string;
-  name: string;
-  members: [
-    {
-      userId: string;
-      name: string;
-      surname: string;
-    },
-  ];
-}
+import type { GroupDisplayDTO } from "@/interfaces/GroupDisplayDTO";
+import { Link } from "react-router-dom";
 
 interface PageGroupDisplayResponse {
   content: GroupDisplayDTO[];
@@ -108,10 +98,11 @@ const Groups = () => {
               className="rounded-3xl border border-zinc-200 bg-white p-6"
             >
               <div className="border-b border-zinc-100 pb-4">
-                <h2 className="text-lg font-semibold text-zinc-900">
-                  {group.name}
-                </h2>
-
+                <Link to={`/group/${group.groupId}`}>
+                  <h2 className="text-lg font-semibold text-zinc-900">
+                    {group.name}
+                  </h2>
+                </Link>
                 <p className="mt-1 text-sm text-zinc-500">
                   {group.members.length} member
                   {group.members.length !== 1 ? "s" : ""}
