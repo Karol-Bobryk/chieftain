@@ -1,20 +1,21 @@
 package com.chieftain.controllers.group;
 
 import com.chieftain.adapters.CustomUserDetails;
-import com.chieftain.controllers.group.dto.AddGroupMemberRequestDTO;
-import com.chieftain.controllers.group.dto.GroupCreateRequestDTO;
-import com.chieftain.controllers.group.dto.GroupCreateResponseDTO;
+import com.chieftain.controllers.group.dto.*;
 import com.chieftain.enums.GroupUserPermission;
 import com.chieftain.enums.LogSeverity;
 import com.chieftain.events.GroupLogEvent;
 import com.chieftain.events.GroupPrivilegeLogEvent;
+import com.chieftain.exceptions.UserNotEligible;
 import com.chieftain.models.GroupEntity;
+import com.chieftain.models.TaskEntity;
 import com.chieftain.models.UserEntity;
 import com.chieftain.services.GroupService;
 import com.chieftain.services.UserService;
 import com.chieftain.services.UsersAwaitingAcceptanceService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -174,5 +175,25 @@ public class GroupController {
 
     groupService.deleteGroup(groupId, userDetails.getUserId());
     return ResponseEntity.noContent().build();
+  }
+
+  @GetMapping("/{groupId}/tasks")
+  @Transactional
+  public ResponseEntity<GetTasksInGroupResponseDTO> getTasks(
+      @PathVariable UUID groupId,
+      @RequestParam Instant periodStart,
+      @RequestParam Instant periodEnd,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+    UserEntity user = userService.getUserById(userDetails.getUserId());
+    GroupEntity group = groupService.getGroupById(groupId);
+
+    if (groupService.isUserNotInGroup(group, user)) {
+      throw new UserNotEligible("User is not in group");
+    }
+
+    List<TaskEntity> tasks = groupService.getGroupTasksFromPeriod(group, periodStart, periodEnd);
+    List<RootTaskDisplayDTO> taskDTOs = tasks.stream().map(RootTaskDisplayDTO::ofEntity).toList();
+
+    return ResponseEntity.ok(new GetTasksInGroupResponseDTO(taskDTOs));
   }
 }

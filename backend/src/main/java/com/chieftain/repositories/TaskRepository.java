@@ -1,8 +1,10 @@
 package com.chieftain.repositories;
 
+import com.chieftain.models.GroupEntity;
 import com.chieftain.models.TaskEntity;
 import com.chieftain.models.UserEntity;
 import jakarta.annotation.Nonnull;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -13,4 +15,7 @@ public interface TaskRepository extends JpaRepository<TaskEntity, UUID> {
   List<TaskEntity> findByGroupIdAndAssigneesContaining(UUID groupId, UserEntity user);
 
   List<TaskEntity> findByGroupId(UUID groupId);
+
+  List<TaskEntity> findAllByGroupAndParentTaskIsNullAndStartedAtBetween(
+      GroupEntity group, LocalDateTime startedAtAfter, LocalDateTime startedAtBefore);
 }
