@@ -18,8 +18,10 @@ import java.util.UUID;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class UserService {
@@ -132,8 +134,12 @@ public class UserService {
   }
 
   @Transactional
-  public void acceptUser(UUID userId, String roleName) throws RoleNotFoundException {
+  public void acceptUser(UUID userId, String roleName, UUID requesterOrgId) throws RoleNotFoundException {
     UserEntity user = getUserById(userId);
+
+    if(!user.getOrganization().getPkOrganizationId().equals(requesterOrgId)){
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is in different organization");
+    }
 
     SystemRole requestedRole;
     try {
@@ -149,7 +155,7 @@ public class UserService {
                 () ->
                     new RoleNotFoundException(
                         "This role (" + requestedRole + ") is not in database dictionary"));
-    awaitingService.removeFromQueue(user);
+    awaitingService.removeFromQueue(user, requesterOrgId);
     user.setRole(roleEntity);
     userRepository.save(user);
 

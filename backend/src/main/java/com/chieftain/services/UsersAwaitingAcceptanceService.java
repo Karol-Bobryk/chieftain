@@ -9,6 +9,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 public class UsersAwaitingAcceptanceService {
 
@@ -26,10 +28,10 @@ public class UsersAwaitingAcceptanceService {
     usersAwaitingAcceptanceRepository.save(usersAwaitingAcceptance);
   }
 
-  public void removeFromQueue(UserEntity user) {
+  public void removeFromQueue(UserEntity user, UUID organizationId) {
     UsersAwaitingAcceptanceEntity awaitingRecord =
         usersAwaitingAcceptanceRepository
-            .findByUser(user)
+            .findByUserAndOrganizationPkOrganizationId(user, organizationId)
             .orElseThrow(
                 () -> new UserNotFoundInQueueException("User is not in the awaiting queue."));
 
