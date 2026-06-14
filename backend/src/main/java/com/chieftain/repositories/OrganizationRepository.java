@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface OrganizationRepository extends JpaRepository<OrganizationEntity, UUID> {
   Optional<OrganizationEntity> findByJoinToken(String joinToken);
+
+  OrganizationEntity getOrganizationByPkOrganizationId(UUID organizationId);
 }

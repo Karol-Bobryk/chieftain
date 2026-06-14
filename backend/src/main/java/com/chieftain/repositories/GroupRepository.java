@@ -9,5 +9,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface GroupRepository extends JpaRepository<GroupEntity, UUID> {
   Page<GroupEntity> findAllByMembersContaining(UserEntity member, Pageable pageable);
+
   void deleteById(UUID groupId);
 }

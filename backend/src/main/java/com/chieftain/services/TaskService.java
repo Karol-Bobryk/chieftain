@@ -14,6 +14,9 @@ import jakarta.annotation.Nonnull;
 import jakarta.transaction.Transactional;
 import java.util.UUID;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.config.Task;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -98,5 +101,24 @@ public class TaskService {
 
   public void delete(TaskEntity task) {
     taskRepository.delete(task);
+  }
+
+  public Page<TaskEntity> getTasksByGroupId(UUID groupId, Pageable pageable) {
+    return taskRepository.findByGroupId(groupId, pageable);
+  }
+
+  @Transactional
+  public TaskEntity updateStatus(TaskEntity task, TaskStatus newStatus){
+    task.setStatus(getTaskStatusEntity(newStatus));
+    task = taskRepository.save(task);
+    applicationEventPublisher.publishEvent(
+            new TaskLogEvent(
+                    task.getId(),
+                    LogSeverity.INFO,
+                    "TASK_STATUS_UPDATED",
+                    "Status changed to: " + newStatus.name()
+                    )
+    );
+    return task;
   }
 }
