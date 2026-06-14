@@ -26,22 +26,15 @@ public class AdminLogController {
   @GetMapping
   @PreAuthorize("hasAnyAuthority('SITE_ADMIN')")
   public ResponseEntity<Page<SystemLogDTO>> getLogsTimeline(
-      @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "5") int size) {
+      @RequestParam(required = false) String domain,
+      @RequestParam(required = false) String severity,
+      @RequestParam(defaultValue = "0") int page,
+      @RequestParam(defaultValue = "5") int size) {
 
     Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
     Page<SystemLogDTO> logsPage =
-        adminLogService
-            .getSystemLogs(pageable)
-            .map(
-                entity ->
-                    new SystemLogDTO(
-                        entity.getDomain(),
-                        entity.getEntityId(),
-                        entity.getSeverity(),
-                        entity.getAction(),
-                        entity.getDescription(),
-                        entity.getCreatedAt()));
+        adminLogService.getSystemLogs(domain, severity, pageable);
 
     return ResponseEntity.ok(logsPage);
   }

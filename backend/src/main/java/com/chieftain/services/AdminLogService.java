@@ -1,7 +1,7 @@
 package com.chieftain.services;
 
-import com.chieftain.models.SystemLogViewEntity;
-import com.chieftain.repositories.SystemLogViewRepository;
+import com.chieftain.controllers.admin.dto.SystemLogDTO;
+import com.chieftain.repositories.AdminLogJdbcRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -9,14 +9,14 @@ import org.springframework.stereotype.Service;
 @Service
 public class AdminLogService {
 
-  private final SystemLogViewRepository systemLogViewRepository;
+  private final AdminLogJdbcRepository adminLogJdbcRepository;
 
-  public AdminLogService(SystemLogViewRepository systemLogViewRepository) {
-    this.systemLogViewRepository = systemLogViewRepository;
+  public AdminLogService(AdminLogJdbcRepository adminLogJdbcRepository) {
+    this.adminLogJdbcRepository = adminLogJdbcRepository;
   }
 
-  public Page<SystemLogViewEntity> getSystemLogs(Pageable pageable) {
+  public Page<SystemLogDTO> getSystemLogs(String domain, String severity, Pageable pageable){
 
-    return systemLogViewRepository.findAll(pageable);
+    return adminLogJdbcRepository.findFilteredLogs(domain, severity, pageable);
   }
 }
