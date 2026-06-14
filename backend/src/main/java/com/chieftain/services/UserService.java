@@ -164,4 +164,10 @@ public class UserService {
   public Page<GroupEntity> getGroupsForUsers(UserEntity user, Pageable pageable) {
     return groupRepository.findAllByMembersContaining(user, pageable);
   }
+
+  public UserEntity blockUserById(UUID userId) {
+    UserEntity user = getUserById(userId);
+    user.setBlocked(true);
+    return userRepository.save(user);
+  }
 }

@@ -1,6 +1,7 @@
 package com.chieftain.filters;
 
 import com.chieftain.adapters.CustomUserDetails;
+import com.chieftain.exceptions.UserIsBarredException;
 import com.chieftain.services.CustomUserDetailsService;
 import com.chieftain.services.JwtService;
 import jakarta.servlet.FilterChain;
@@ -51,6 +52,11 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 
       if (SecurityContextHolder.getContext().getAuthentication() == null) {
         CustomUserDetails customUserDetails = customUserDetailsService.loadUserById(userId);
+
+        if (!customUserDetails.isAccountNonLocked()) {
+          throw new UserIsBarredException("User is barred");
+        }
+
         if (JwtService.isTokenValidForUser(token, customUserDetails)) {
           UsernamePasswordAuthenticationToken authenticationToken =
               new UsernamePasswordAuthenticationToken(
@@ -62,8 +68,12 @@ public class JwtAuthFilter extends OncePerRequestFilter {
         }
       }
 
-    } catch (Exception exception) {
-      // TODO: add better errors
+    } catch (UserIsBarredException e) {
+      response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+      response.getWriter().write(e.getMessage());
+      return;
+    }
+    catch (Exception exception) {
       response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       response.getWriter().write("Invalid JWT");
       return;

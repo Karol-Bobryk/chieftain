@@ -21,6 +21,12 @@ public class AuthExceptionHandler {
         .body(ErrorResponseDTO.of(status, "Email address is already in use"));
   }
 
+  @ExceptionHandler(UserIsBarredException.class)
+  public ResponseEntity<ErrorResponseDTO> handleBarredUser() {
+    HttpStatus status = HttpStatus.FORBIDDEN;
+    return ResponseEntity.status(status).body(ErrorResponseDTO.of(status, "User is banned"));
+  }
+
   @ExceptionHandler(UserSecretNotProvidedException.class)
   public ResponseEntity<ErrorResponseDTO> handleSecretNotProvided() {
     HttpStatus status = HttpStatus.BAD_REQUEST;
