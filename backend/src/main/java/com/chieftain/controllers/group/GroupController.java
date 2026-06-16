@@ -40,19 +40,17 @@ public class GroupController {
   private final UserService userService;
   private final ApplicationEventPublisher applicationEventPublisher;
   private final UsersAwaitingAcceptanceService usersAwaitingAcceptanceService;
-  private final TaskService taskService;
 
   public GroupController(
       GroupService groupService,
       UserService userService,
       ApplicationEventPublisher applicationEventPublisher,
-      UsersAwaitingAcceptanceService usersAwaitingAcceptanceService,
-      TaskService taskService) {
+      UsersAwaitingAcceptanceService usersAwaitingAcceptanceService
+      ) {
     this.groupService = groupService;
     this.userService = userService;
     this.applicationEventPublisher = applicationEventPublisher;
     this.usersAwaitingAcceptanceService = usersAwaitingAcceptanceService;
-    this.taskService = taskService;
   }
 
   @PutMapping("/create")
@@ -92,7 +90,7 @@ public class GroupController {
     // Adding all capabilities for the rest of the group
     groupService.addPrivilegesForMultipleUsers(
         groupEntity,
-        members.stream().filter(e -> !e.equals(groupOwner)).toList(),
+        members.stream().filter(e -> e.getPkUserId() != groupOwner.getPkUserId()).toList(),
         request.getRoles());
 
     applicationEventPublisher.publishEvent(
