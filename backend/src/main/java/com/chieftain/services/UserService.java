@@ -166,6 +166,12 @@ public class UserService {
     return groupRepository.findAllByMembersContaining(user, pageable);
   }
 
+  public UserEntity blockUserById(UUID userId) {
+    UserEntity user = getUserById(userId);
+    user.setBlocked(true);
+    return userRepository.save(user);
+  }
+
   public List<UserDisplayDTO> searchUsersInOrganization(OrganizationEntity organization, String query) {
     return userRepository.findTop10ByOrganizationAndNameContainingIgnoreCaseOrOrganizationAndSurnameContainingIgnoreCase(
                     organization, query,

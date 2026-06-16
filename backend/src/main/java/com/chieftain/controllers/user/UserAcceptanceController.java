@@ -4,13 +4,13 @@ import com.chieftain.adapters.CustomUserDetails;
 import com.chieftain.controllers.user.dto.AcceptUserRequestDTO;
 import com.chieftain.controllers.user.dto.GroupDisplayDTO;
 import com.chieftain.controllers.user.dto.UserDisplayDTO;
+import com.chieftain.enums.SystemRole;
 import com.chieftain.models.GroupEntity;
 import com.chieftain.models.UserEntity;
 import com.chieftain.services.UserService;
 import com.chieftain.services.UsersAwaitingAcceptanceService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-
 import java.util.List;
 import java.util.UUID;
 import org.springframework.data.domain.Page;
@@ -20,6 +20,7 @@ import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -88,5 +89,37 @@ public class UserAcceptanceController {
 
     List<UserDisplayDTO> users = userService.searchUsersInOrganization(userDetails.getOrganization(), query);
     return ResponseEntity.ok(users);
+  }
+
+  @GetMapping("/{userId}/block")
+  @PreAuthorize("hasAnyAuthority('OWNER', 'TASK_MASTER','SITE_ADMIN')")
+  @Transactional
+  public ResponseEntity<Void> blockUser(
+      @PathVariable UUID userId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    List<SystemRole> issuerAuthorities =
+        userDetails.getAuthorities().stream()
+            .map(GrantedAuthority::getAuthority)
+            .map(SystemRole::valueOf)
+            .toList();
+
+    SystemRole userAuthorities = userService.getUserById(userId).getRole().getRoleName();
+
+    if (issuerAuthorities.contains(SystemRole.TASK_MASTER)) {
+      if (userAuthorities == SystemRole.GROUP_USER) {
+        userService.blockUserById(userId);
+      }
+    } else if (issuerAuthorities.contains(SystemRole.OWNER)) {
+      if (userAuthorities == SystemRole.GROUP_USER || userAuthorities == SystemRole.TASK_MASTER) {
+        userService.blockUserById(userId);
+      }
+    } else if (issuerAuthorities.contains(SystemRole.SITE_ADMIN)) {
+      if (userAuthorities == SystemRole.GROUP_USER
+          || userAuthorities == SystemRole.TASK_MASTER
+          || userAuthorities == SystemRole.OWNER) {
+        userService.blockUserById(userId);
+      }
+    }
+
+    return ResponseEntity.noContent().build();
   }
 }
