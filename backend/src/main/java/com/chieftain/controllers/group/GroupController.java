@@ -1,6 +1,9 @@
 package com.chieftain.controllers.group;
 
 import com.chieftain.adapters.CustomUserDetails;
+import com.chieftain.controllers.group.dto.AddGroupMemberRequestDTO;
+import com.chieftain.controllers.group.dto.GroupCreateRequestDTO;
+import com.chieftain.controllers.group.dto.GroupCreateResponseDTO;
 import com.chieftain.controllers.group.dto.*;
 import com.chieftain.enums.GroupUserPermission;
 import com.chieftain.enums.LogSeverity;
@@ -11,6 +14,7 @@ import com.chieftain.models.GroupEntity;
 import com.chieftain.models.TaskEntity;
 import com.chieftain.models.UserEntity;
 import com.chieftain.services.GroupService;
+import com.chieftain.services.TaskService;
 import com.chieftain.services.UserService;
 import com.chieftain.services.UsersAwaitingAcceptanceService;
 import jakarta.transaction.Transactional;
@@ -30,20 +34,25 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 @RequestMapping("/api/groups")
 public class GroupController {
+  private static final List<String> SORT_FIELDS =
+      List.of("startedAt", "createdAt", "doneAt", "deadline");
   private final GroupService groupService;
   private final UserService userService;
   private final ApplicationEventPublisher applicationEventPublisher;
   private final UsersAwaitingAcceptanceService usersAwaitingAcceptanceService;
+  private final TaskService taskService;
 
   public GroupController(
       GroupService groupService,
       UserService userService,
       ApplicationEventPublisher applicationEventPublisher,
-      UsersAwaitingAcceptanceService usersAwaitingAcceptanceService) {
+      UsersAwaitingAcceptanceService usersAwaitingAcceptanceService,
+      TaskService taskService) {
     this.groupService = groupService;
     this.userService = userService;
     this.applicationEventPublisher = applicationEventPublisher;
     this.usersAwaitingAcceptanceService = usersAwaitingAcceptanceService;
+    this.taskService = taskService;
   }
 
   @PutMapping("/create")

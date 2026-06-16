@@ -110,4 +110,19 @@ public class TaskService {
     return taskRepository.findAllByGroupAndParentTaskIsNullAndStartedAtBetween(
         group, timePeriodStart, timePeriodEnd);
   }
+
+  @Transactional
+  public TaskEntity updateStatus(TaskEntity task, TaskStatus newStatus){
+    task.setStatus(getTaskStatusEntity(newStatus));
+    task = taskRepository.save(task);
+    applicationEventPublisher.publishEvent(
+            new TaskLogEvent(
+                    task.getId(),
+                    LogSeverity.INFO,
+                    "TASK_STATUS_UPDATED",
+                    "Status changed to: " + newStatus.name()
+                    )
+    );
+    return task;
+  }
 }

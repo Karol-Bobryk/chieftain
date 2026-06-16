@@ -9,6 +9,7 @@ import com.chieftain.enums.LogSeverity;
 import com.chieftain.enums.SystemRole;
 import com.chieftain.events.UserLogEvent;
 import com.chieftain.exceptions.InvalidUserSecretProvidedException;
+import com.chieftain.exceptions.UserIsBarredException;
 import com.chieftain.models.OrganizationEntity;
 import com.chieftain.models.RoleEntity;
 import com.chieftain.models.UserEntity;
@@ -101,6 +102,11 @@ public class UserController {
     UserEntity userEntity =
         userService.isPasswordMatchingForEmailAddress(
             request.getEmailAddress(), request.getPassword());
+
+    if (userEntity.getBlocked()) {
+      throw new UserIsBarredException("User is barred");
+    }
+
     CustomUserDetails customUserDetails = new CustomUserDetails(userEntity);
 
     String accessToken = JwtService.createJwsAccessToken(customUserDetails);
