@@ -69,7 +69,7 @@ public class UserAcceptanceController {
       throw  new ResponseStatusException(HttpStatus.FORBIDDEN);
     }
 
-    userService.acceptUser(id, request.getRole());
+    userService.acceptUser(id, request.getRole(), userDetails.getRole());
     return new ResponseEntity<>("User accepted successfully", HttpStatus.OK);
   }
 
