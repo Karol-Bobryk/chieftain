@@ -7,6 +7,7 @@ import com.chieftain.controllers.user.dto.UserDisplayDTO;
 import com.chieftain.enums.SystemRole;
 import com.chieftain.models.GroupEntity;
 import com.chieftain.models.UserEntity;
+import com.chieftain.repositories.GroupRepository;
 import com.chieftain.services.UserService;
 import com.chieftain.services.UsersAwaitingAcceptanceService;
 import jakarta.transaction.Transactional;
@@ -23,6 +24,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/users")
@@ -30,11 +32,13 @@ public class UserAcceptanceController {
 
   private final UserService userService;
   private final UsersAwaitingAcceptanceService usersAwaitingAcceptanceService;
+  private final GroupRepository groupRepository;
 
   public UserAcceptanceController(
-      UserService userService, UsersAwaitingAcceptanceService usersAwaitingAcceptanceService) {
+          UserService userService, UsersAwaitingAcceptanceService usersAwaitingAcceptanceService, GroupRepository groupRepository) {
     this.userService = userService;
     this.usersAwaitingAcceptanceService = usersAwaitingAcceptanceService;
+    this.groupRepository = groupRepository;
   }
 
   @GetMapping("/groups")
@@ -56,7 +60,14 @@ public class UserAcceptanceController {
   @PostMapping("/{id}/accept")
   @PreAuthorize("hasAnyAuthority('OWNER', 'TASK_MASTER')")
   public ResponseEntity<String> acceptUser(
-      @PathVariable UUID id, @Valid @RequestBody AcceptUserRequestDTO request) {
+      @PathVariable UUID id,
+      @Valid @RequestBody AcceptUserRequestDTO request,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    UserEntity userToAccept = userService.getUserById(id);
+    if(!userToAccept.getOrganization().getPkOrganizationId().equals(userDetails.getOrganization().getPkOrganizationId())){
+      throw  new ResponseStatusException(HttpStatus.FORBIDDEN);
+    }
 
     userService.acceptUser(id, request.getRole());
     return new ResponseEntity<>("User accepted successfully", HttpStatus.OK);
@@ -94,6 +105,11 @@ public class UserAcceptanceController {
             .toList();
 
     SystemRole userAuthorities = userService.getUserById(userId).getRole().getRoleName();
+
+    UserEntity userToBlock = userService.getUserById(userId);
+    if(!userToBlock.getOrganization().getPkOrganizationId().equals(userDetails.getOrganization().getPkOrganizationId())){
+      throw  new ResponseStatusException(HttpStatus.FORBIDDEN);
+    }
 
     if (issuerAuthorities.contains(SystemRole.TASK_MASTER)) {
       if (userAuthorities == SystemRole.GROUP_USER) {
