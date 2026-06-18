@@ -152,8 +152,7 @@ public class TaskService {
 
     if (request.getStatusId() != null) {
       TaskStatusEntity status = taskStatusRepository
-              .findById(request.getStatusId())
-              .orElseThrow(() -> new EntityNotFoundException("Status not found"));
+              .findByStatusName(request.getStatusId());
 
       task.setStatus(status);
     }
