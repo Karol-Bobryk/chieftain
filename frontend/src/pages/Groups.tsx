@@ -19,7 +19,7 @@ interface PageGroupDisplayResponse {
 const Groups = () => {
   const [groupPage, setGroupPage] = useState<PageGroupDisplayResponse>();
 
-  const [pageSize, setPageSize] = useState(10); // TODO:add remembering in the future
+  const [pageSize, setPageSize] = useState(10); // TODO: add remembering in the future
   const [pageNumber, setPageNumber] = useState(0);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -43,44 +43,48 @@ const Groups = () => {
   }, [pageNumber, pageSize]);
 
   return (
-    <div className="min-h-screen bg-zinc-50 px-6 py-12">
-      <GroupListHeaders
-        value={pageSize}
-        onChange={(e) => {
-          setPageSize(Number(e.target.value));
-          setPageNumber(0);
-        }}
-      />
-
-      <ErrorMessageLabel error={errorMessage} />
-
-      {loading && (
-        <div className="rounded-3xl border border-zinc-200 mt-4 bg-white p-8 text-center text-zinc-500">
-          Loading groups...
-        </div>
-      )}
-      {!loading && groupPage && groupPage.content.length === 0 && (
-        <div className="rounded-3xl border border-zinc-200 bg-white p-12 text-center">
-          <h2 className="text-lg font-semibold text-zinc-900">No groups yet</h2>
-
-          <p className="mt-2 text-sm text-zinc-500">
-            Create your first group to start organizing members.
-          </p>
-        </div>
-      )}
-
-      {!loading &&
-        groupPage?.content.map((group) => (
-          <GroupCart key={group.groupId} {...group} />
-        ))}
-
-      {groupPage && groupPage.page.totalPages > 0 && (
-        <PaginationCart
-          pageNumber={pageNumber}
-          setPageNumber={setPageNumber}
-          totalPages={groupPage.page.totalPages}
+    <div className="flex justify-center content-center">
+      <div className="w-full max-w-6xl min-h-screen bg-zinc-50 px-6 py-12">
+        <GroupListHeaders
+          value={pageSize}
+          onChange={(e) => {
+            setPageSize(Number(e.target.value));
+            setPageNumber(0);
+          }}
         />
-      )}
+
+        <ErrorMessageLabel error={errorMessage} />
+
+        {loading && (
+          <div className="rounded-3xl border border-zinc-200 mt-4 bg-white p-8 text-center text-zinc-500">
+            Loading groups...
+          </div>
+        )}
+        {!loading && groupPage && groupPage.content.length === 0 && (
+          <div className="rounded-3xl border border-zinc-200 bg-white p-12 text-center">
+            <h2 className="text-lg font-semibold text-zinc-900">
+              No groups yet
+            </h2>
+
+            <p className="mt-2 text-sm text-zinc-500">
+              Create your first group to start organizing members.
+            </p>
+          </div>
+        )}
+
+        {!loading &&
+          groupPage?.content.map((group) => (
+            <GroupCart key={group.groupId} {...group} />
+          ))}
+
+        {groupPage && groupPage.page.totalPages > 0 && (
+          <PaginationCart
+            pageNumber={pageNumber}
+            setPageNumber={setPageNumber}
+            totalPages={groupPage.page.totalPages}
+          />
+        )}
+      </div>
     </div>
   );
 };
