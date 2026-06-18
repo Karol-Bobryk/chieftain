@@ -33,6 +33,8 @@ const WeekSchedule = () => {
   const [tasks, setTasks] = useState<RootTaskDisplayDTO[]>([]);
   const [events, setEvents] = useState<TaskEvent[]>([]);
 
+  const [availableUsers, setAvailableUsers] = useState<{ userId: string; name: string }[]>([]);
+
   const [selectedEvent, setSelectedEvent] = useState<TaskEvent | null>(null);
   const [menuPosition, setMenuPosition] = useState<{
     x: number;
@@ -60,9 +62,23 @@ const WeekSchedule = () => {
     });
   };
 
+  const fetchGroupMembers = async () => {
+    try {
+      const res = await api.get<{ members: UserDisplayDTO[] }>(`/api/groups/${groupId}/members`);
+      const mappedUsers = res.data.members.map((m) => ({
+        userId: m.userId,
+        name: `${m.name} ${m.surname}`,
+      }));
+      setAvailableUsers(mappedUsers);
+    } catch (error) {
+      console.error("Failed to fetch group members", error);
+    }
+  };
+
   // fetch tasks
   useEffect(() => {
     fetchTasks();
+    fetchGroupMembers();
   }, [groupId]);
 
   // when tasks change
@@ -95,6 +111,7 @@ const WeekSchedule = () => {
       deadline: updated.end || undefined,
       doneAt: updated.end || undefined,
       status: updated.status || undefined,
+      assignees: updated.assignees?.map((a) => a.userId) || undefined,
     });
   };
 
@@ -143,6 +160,7 @@ const WeekSchedule = () => {
 
             <EditTaskForm
               event={editEvent}
+              availableUsers={availableUsers}
               onClose={() => {
                 setIsEditOpen(false);
                 setEditEvent(null);

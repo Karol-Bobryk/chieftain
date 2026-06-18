@@ -25,6 +25,7 @@ import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
@@ -206,8 +207,11 @@ public class TaskController {
       throw new UserNotEligible("User cannot edit tasks in group");
     }
 
-    taskService.updateTaskById(taskId, request);
-
+    List<UserEntity> assignees = null;
+    if (request.getAssignees() != null) {
+      assignees = userService.getUsersByIds(request.getAssignees());
+    }
+    taskService.updateTaskById(taskId, request, assignees);
     return ResponseEntity.noContent().build();
 
   }

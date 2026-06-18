@@ -127,7 +127,7 @@ public class TaskService {
   }
 
   @Transactional
-  public TaskEntity updateTaskById(UUID taskId, TaskUpdateRequestDTO request){
+  public TaskEntity updateTaskById(UUID taskId, TaskUpdateRequestDTO request, List<UserEntity> assignees){
     TaskEntity task = taskRepository.getReferenceById(taskId);
 
     if (request.getName() != null) {
@@ -155,6 +155,10 @@ public class TaskService {
               .findByStatusName(request.getStatusId());
 
       task.setStatus(status);
+    }
+
+    if(assignees != null){
+      task.setAssignees(assignees);
     }
 
     return taskRepository.save(task);
