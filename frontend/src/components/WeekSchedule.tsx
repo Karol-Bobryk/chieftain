@@ -154,8 +154,14 @@ const WeekSchedule = () => {
           onEdit={(event) => {
             setEditEvent(event);
             setIsEditOpen(true);
+            setSelectedEvent(null);
+            setMenuPosition(null);
           }}
-          onDelete={(event) => handleDeleteTask(event)}
+          onDelete={(event) => {
+            handleDeleteTask(event)
+            setSelectedEvent(null);
+            setMenuPosition(null);
+          }}
         />
       )}
       {isEditOpen && editEvent && (
