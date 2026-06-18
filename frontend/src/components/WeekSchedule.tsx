@@ -114,7 +114,7 @@ const WeekSchedule = () => {
       description: updated.description || undefined,
       started: updated.start || undefined,
       deadline: updated.end || undefined,
-      doneAt: updated.end || undefined,
+      doneAt: updated.doneAt || undefined,
       status: updated.status || undefined,
       assignees: updated.assignees?.map((a) => a.userId) || undefined,
     });
