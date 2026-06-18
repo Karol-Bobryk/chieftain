@@ -112,7 +112,7 @@ const WeekSchedule = () => {
     await api.patch(`/api/tasks/${updated.taskId}`, {
       name: updated.title || undefined,
       description: updated.description || undefined,
-      started: updated.start || undefined,
+      startedAt: updated.start || undefined,
       deadline: updated.end || undefined,
       doneAt: updated.doneAt || undefined,
       status: updated.status || undefined,
