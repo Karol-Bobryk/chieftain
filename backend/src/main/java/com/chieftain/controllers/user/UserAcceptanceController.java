@@ -132,4 +132,44 @@ public class UserAcceptanceController {
 
     return ResponseEntity.noContent().build();
   }
+
+  @GetMapping("/{userId}/unblock")
+  @PreAuthorize("hasAnyAuthority('OWNER', 'TASK_MASTER','SITE_ADMIN')")
+  @Transactional
+  public ResponseEntity<Void> unblockUser(
+      @PathVariable UUID userId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+    List<SystemRole> issuerAuthorities =
+        userDetails.getAuthorities().stream()
+            .map(GrantedAuthority::getAuthority)
+            .map(SystemRole::valueOf)
+            .toList();
+
+    SystemRole userAuthorities = userService.getUserById(userId).getRole().getRoleName();
+
+    UserEntity userToUnblock = userService.getUserById(userId);
+
+    if (!issuerAuthorities.contains(SystemRole.SITE_ADMIN)) {
+      if(!userToUnblock.getOrganization().getPkOrganizationId().equals(userDetails.getOrganization().getPkOrganizationId())){
+        throw new ResponseStatusException(HttpStatus.FORBIDDEN);
+      }
+    }
+
+    if (issuerAuthorities.contains(SystemRole.TASK_MASTER)) {
+      if (userAuthorities == SystemRole.GROUP_USER) {
+        userService.unblockUserById(userId);
+      }
+    } else if (issuerAuthorities.contains(SystemRole.OWNER)) {
+      if (userAuthorities == SystemRole.GROUP_USER || userAuthorities == SystemRole.TASK_MASTER) {
+        userService.unblockUserById(userId);
+      }
+    } else if (issuerAuthorities.contains(SystemRole.SITE_ADMIN)) {
+      if (userAuthorities == SystemRole.GROUP_USER
+          || userAuthorities == SystemRole.TASK_MASTER
+          || userAuthorities == SystemRole.OWNER) {
+        userService.unblockUserById(userId);
+      }
+    }
+
+    return ResponseEntity.noContent().build();
+  }
 }

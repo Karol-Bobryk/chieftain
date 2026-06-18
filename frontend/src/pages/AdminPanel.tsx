@@ -99,6 +99,20 @@ const AdminPanel = () => {
     }
   };
 
+  const handleUnblockUser = async (userId: string) => {
+    setError("");
+    try {
+      const res = await api.get(`/api/users/${userId}/unblock`);
+      if (res.status === 200 || res.status === 204) {
+        setReloadUsers((v) => !v);
+      } else {
+        throw new Error("Unable to modify user blocking status.");
+      }
+    } catch (err) {
+      setError("An unexpected error occurred while processing the block request.");
+    }
+  };
+
   return (
     <div className="mx-auto max-w-6xl p-6 space-y-6">
       <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Site Owner Administration</h1>
@@ -119,7 +133,7 @@ const AdminPanel = () => {
             activeTab === "logs" ? "border-blue-600 text-blue-600" : "border-transparent text-slate-500 hover:text-slate-800"
           }`}
         >
-          System Activity Inspector
+          System Log Inspector
         </button>
       </div>
       {activeTab === "users" && (
@@ -161,7 +175,14 @@ const AdminPanel = () => {
                         </span>
                     </td>
                     <td className="py-3.5 px-4 text-right">
-                      {!user.blocked && (
+                      {user.blocked ? (
+                        <button
+                          onClick={() => handleUnblockUser(user.userId)}
+                          className="rounded-lg bg-green-600 px-3 py-1 text-xs font-medium text-white hover:bg-green-700 transition-colors"
+                        >
+                          Unban User
+                        </button>
+                      ) : (
                         <button
                           onClick={() => handleBlockUser(user.userId)}
                           className="rounded-lg bg-red-600 px-3 py-1 text-xs font-medium text-white hover:bg-red-700 transition-colors"

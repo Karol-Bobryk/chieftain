@@ -170,4 +170,10 @@ public class UserService {
     user.setBlocked(true);
     return userRepository.save(user);
   }
+
+  public UserEntity unblockUserById(UUID userId) {
+    UserEntity user = getUserById(userId);
+    user.setBlocked(false);
+    return userRepository.save(user);
+  }
 }
