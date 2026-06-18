@@ -10,6 +10,7 @@ import NotFound from "@/pages/NotFound";
 import LandingPage from "@/pages/LandingPage";
 import Groups from "@/pages/Groups";
 import GroupDetails from "@/pages/GroupDetails";
+import AdminPanel from "@/pages/AdminPanel";
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
           <Route path="/accept-user" element={<AcceptUser />} />
           <Route path="/groups" element={<Groups />} />
           <Route path="/group/:groupId" element={<GroupDetails />} />
+          <Route path="/admin" element={<AdminPanel />} />
         </Route>
 
         <Route path="/not-found" element={<NotFound />} />

@@ -107,8 +107,11 @@ public class UserAcceptanceController {
     SystemRole userAuthorities = userService.getUserById(userId).getRole().getRoleName();
 
     UserEntity userToBlock = userService.getUserById(userId);
-    if(!userToBlock.getOrganization().getPkOrganizationId().equals(userDetails.getOrganization().getPkOrganizationId())){
-      throw  new ResponseStatusException(HttpStatus.FORBIDDEN);
+
+    if (!issuerAuthorities.contains(SystemRole.SITE_ADMIN)) {
+      if(!userToBlock.getOrganization().getPkOrganizationId().equals(userDetails.getOrganization().getPkOrganizationId())){
+        throw  new ResponseStatusException(HttpStatus.FORBIDDEN);
+      }
     }
 
     if (issuerAuthorities.contains(SystemRole.TASK_MASTER)) {
