@@ -59,6 +59,7 @@ public class JwtService {
         .subject(customUserDetails.getUserId().toString())
         .expiration(exp)
         .claim("email", customUserDetails.getUsername())
+        .claim("role", customUserDetails.getAuthorities().stream().toList().getFirst().getAuthority())
         .signWith(secretKey)
         .compact();
   }

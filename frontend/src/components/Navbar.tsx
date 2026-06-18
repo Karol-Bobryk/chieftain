@@ -1,4 +1,6 @@
+import { SystemRole } from "@/enums/SystemRoles";
 import { useAuthStore } from "@/store/auth.store";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
@@ -7,6 +9,8 @@ const Navbar = () => {
     useAuthStore.getState().clearTokens();
     navigate("/");
   };
+  const [role, setRole] = useState<SystemRole>(useAuthStore.getState().role);
+
   return (
     <nav className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center px-6">
@@ -31,12 +35,15 @@ const Navbar = () => {
           >
             Groups
           </Link>
-          <Link
-            to="/accept-user"
-            className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
-          >
-            User Requests
-          </Link>
+
+          {(role === SystemRole.OWNER || role === SystemRole.TASK_MASTER) && (
+            <Link
+              to="/accept-user"
+              className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+            >
+              User Requests
+            </Link>
+          )}
         </div>
 
         <div className="ml-auto flex items-center gap-3">
