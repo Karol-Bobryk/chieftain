@@ -29,15 +29,21 @@ export interface RootTaskDisplayDTO {
 
 export type TaskEvent = Event & {
   taskId: string;
+  description: string;
   assignees: { userId: string; name?: string }[];
+  doneAt: string | null;
+  status: string;
 };
 
 export const toTaskEvent = (task: RootTaskDisplayDTO): TaskEvent => {
   return {
     taskId: task.taskId,
     title: task.name,
+    description: task.description || "",
+    status: task.status.toString() || "CREATED",
     start: new Date(task.startedAt),
     end: new Date(task.deadline),
+    doneAt: task.doneAt,
     assignees: task.assignees ?? [],
   };
 };

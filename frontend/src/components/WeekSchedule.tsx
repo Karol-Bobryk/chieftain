@@ -87,6 +87,16 @@ const WeekSchedule = () => {
       }
     } catch {} // TODO: errors
   };
+  const updateTask = async (updated: Partial<TaskEvent>) => {
+    await api.patch(`/api/tasks/${updated.taskId}`, {
+      name: updated.title || undefined,
+      description: updated.description || undefined,
+      started: updated.start || undefined,
+      deadline: updated.end || undefined,
+      doneAt: updated.end || undefined,
+      status: updated.status || undefined,
+    });
+  };
 
   return (
     <div className="h-screen w-full bg-zinc-50 p-4">
@@ -137,11 +147,11 @@ const WeekSchedule = () => {
                 setIsEditOpen(false);
                 setEditEvent(null);
               }}
-              onSave={(updated) => {
-                console.log("save updated task", updated);
+              onSave={async (updated) => {
                 setIsEditOpen(false);
                 setEditEvent(null);
-                fetchTasks(); // refresh calendar
+                await updateTask(updated);
+                await fetchTasks();
               }}
             />
           </div>
