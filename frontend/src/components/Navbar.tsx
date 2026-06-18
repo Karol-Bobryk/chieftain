@@ -9,7 +9,7 @@ const Navbar = () => {
     useAuthStore.getState().clearTokens();
     navigate("/");
   };
-  const [role, setRole] = useState<SystemRole>(useAuthStore.getState().role);
+  const [role] = useState<SystemRole>(useAuthStore.getState().role);
 
   return (
     <nav className="sticky top-0 z-50 border-b border-slate-200 bg-white/80 backdrop-blur">

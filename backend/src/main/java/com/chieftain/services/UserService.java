@@ -18,8 +18,10 @@ import java.util.UUID;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 @Service
 public class UserService {
@@ -132,15 +134,13 @@ public class UserService {
   }
 
   @Transactional
-  public void acceptUser(UUID userId, String roleName) throws RoleNotFoundException {
-    UserEntity user = getUserById(userId);
+  public void acceptUser(UUID userId, SystemRole requestedRole, SystemRole userRole) throws RoleNotFoundException {
 
-    SystemRole requestedRole;
-    try {
-      requestedRole = SystemRole.valueOf(roleName.toUpperCase());
-    } catch (IllegalArgumentException e) {
-      throw new RoleNotFoundException("Role '" + roleName + "' does not exist");
+    if(!userRole.canAssign(requestedRole)){
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cannot assign this role");
     }
+
+    UserEntity user = getUserById(userId);
 
     RoleEntity roleEntity =
         roleRepository
@@ -158,7 +158,7 @@ public class UserService {
             user.getPkUserId(),
             LogSeverity.INFO,
             "USER_ACCEPTED",
-            "User accepted and assigned to role: " + roleName));
+            "User accepted and assigned to role: " + requestedRole));
   }
 
   public Page<GroupEntity> getGroupsForUsers(UserEntity user, Pageable pageable) {

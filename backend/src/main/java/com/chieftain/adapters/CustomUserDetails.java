@@ -1,5 +1,6 @@
 package com.chieftain.adapters;
 
+import com.chieftain.enums.SystemRole;
 import com.chieftain.models.OrganizationEntity;
 import com.chieftain.models.UserEntity;
 import jakarta.annotation.Nonnull;
@@ -62,5 +63,9 @@ public class CustomUserDetails implements UserDetails {
   @Override
   public boolean isEnabled() {
     return !userEntity.getBlocked();
+  }
+
+  public SystemRole getRole(){
+    return userEntity.getRole().getRoleName();
   }
 }

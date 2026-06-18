@@ -160,7 +160,7 @@ public class TaskController {
   @Transactional
   public ResponseEntity<Void> updateTaskStatus(
           @PathVariable UUID taskId,
-          @RequestBody UpdateTaskStatusRequestDTO request,
+          @Valid @RequestBody UpdateTaskStatusRequestDTO request,
           @AuthenticationPrincipal CustomUserDetails userDetails
   ) {
     TaskEntity task = taskService.getTaskById(taskId);

@@ -1,5 +1,6 @@
 package com.chieftain.controllers.user.dto;
 
+import com.chieftain.enums.SystemRole;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
@@ -7,6 +8,5 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AcceptUserRequestDTO {
-  @NotBlank(message = "Role cannot be blank")
-  private String role;
+  private SystemRole role;
 }
