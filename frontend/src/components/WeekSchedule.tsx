@@ -16,6 +16,7 @@ import { TaskEventCard } from "./TaskEventCard";
 import { TaskEventMenu } from "./TaskEventMenu";
 import deleteTask from "@/helpers/deleteTask";
 import EditTaskForm from "./EditTaskForm";
+import type { UserDisplayDTO } from "@/interfaces/UserDisplayDTO";
 
 const localizer = momentLocalizer(moment);
 
@@ -33,7 +34,9 @@ const WeekSchedule = () => {
   const [tasks, setTasks] = useState<RootTaskDisplayDTO[]>([]);
   const [events, setEvents] = useState<TaskEvent[]>([]);
 
-  const [availableUsers, setAvailableUsers] = useState<{ userId: string; name: string }[]>([]);
+  const [availableUsers, setAvailableUsers] = useState<
+    { userId: string; name: string }[]
+  >([]);
 
   const [selectedEvent, setSelectedEvent] = useState<TaskEvent | null>(null);
   const [menuPosition, setMenuPosition] = useState<{
@@ -64,7 +67,9 @@ const WeekSchedule = () => {
 
   const fetchGroupMembers = async () => {
     try {
-      const res = await api.get<{ members: UserDisplayDTO[] }>(`/api/groups/${groupId}/members`);
+      const res = await api.get<{ members: UserDisplayDTO[] }>(
+        `/api/groups/${groupId}/members`,
+      );
       const mappedUsers = res.data.members.map((m) => ({
         userId: m.userId,
         name: `${m.name} ${m.surname}`,
