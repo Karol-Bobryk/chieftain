@@ -97,6 +97,13 @@ public class AuthExceptionHandler {
         .body(ErrorResponseDTO.of(status, "Refresh token is invalid"));
   }
 
+  @ExceptionHandler(UserIsNotAcceptedException.class)
+  public ResponseEntity<ErrorResponseDTO> handleUserIs(UserIsNotAcceptedException ex) {
+    HttpStatus status = HttpStatus.FORBIDDEN;
+    return ResponseEntity.status(status)
+            .body(ErrorResponseDTO.of(status, ex.getMessage()));
+  }
+
   @ExceptionHandler(Exception.class)
   public ResponseEntity<ErrorResponseDTO> handleGeneralAuthError(Exception ex) {
     HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
