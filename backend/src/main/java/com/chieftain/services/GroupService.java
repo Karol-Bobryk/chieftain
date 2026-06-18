@@ -232,20 +232,7 @@ public class GroupService {
   }
 
 
-  public String enableSharing(UUID groupId, UUID requesterId){
-
-    GroupEntity group =
-            groupRepository
-                    .findById(groupId)
-                    .orElseThrow(() -> new GroupNotFoundException("No group with id " + groupId));
-
-
-    List<UserEntity> members = group.getMembers();
-    boolean isMember = members.stream().anyMatch(user ->user.getPkUserId().equals(requesterId));
-    if(!isMember){
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not in group");
-    }
-
+  public String enableSharing(GroupEntity group){
     String shareToken = Base64.getUrlEncoder().encodeToString(UUID.randomUUID().toString().getBytes());
     group.setShareToken(shareToken);
     groupRepository.save(group);
@@ -253,19 +240,7 @@ public class GroupService {
   }
 
 
-  public void disableSharing(UUID groupId, UUID requesterId){
-
-    GroupEntity group =
-            groupRepository
-                    .findById(groupId)
-                    .orElseThrow(() -> new GroupNotFoundException("No group with id " + groupId));
-
-    List<UserEntity> members = group.getMembers();
-    boolean isMember = members.stream().anyMatch(user ->user.getPkUserId().equals(requesterId));
-    if(!isMember){
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not in group");
-    }
-
+  public void disableSharing(GroupEntity group){
     group.setShareToken(null);
     groupRepository.save(group);
   }

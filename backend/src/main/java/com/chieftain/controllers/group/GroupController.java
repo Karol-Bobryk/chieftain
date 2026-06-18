@@ -211,7 +211,14 @@ public class GroupController {
           @PathVariable UUID groupId,
           @AuthenticationPrincipal CustomUserDetails userDetails){
 
-    String shareToken = groupService.enableSharing(groupId,userDetails.getUserId());
+    UserEntity user = userService.getUserById(userDetails.getUserId());
+    GroupEntity group = groupService.getGroupById(groupId);
+
+    if (groupService.isUserNotInGroup(group, user)) {
+      throw new UserNotEligible("User is not in group");
+    }
+
+    String shareToken = groupService.enableSharing(group);
     return ResponseEntity.ok(new GroupShareTokenResponseDTO(shareToken));
   }
 
@@ -222,7 +229,14 @@ public class GroupController {
           @PathVariable UUID groupId,
           @AuthenticationPrincipal CustomUserDetails userDetails){
 
-    groupService.disableSharing(groupId, userDetails.getUserId());
+    UserEntity user = userService.getUserById(userDetails.getUserId());
+    GroupEntity group = groupService.getGroupById(groupId);
+
+    if (groupService.isUserNotInGroup(group, user)) {
+      throw new UserNotEligible("User is not in group");
+    }
+
+    groupService.disableSharing(group);
     return ResponseEntity.noContent().build();
   }
 
