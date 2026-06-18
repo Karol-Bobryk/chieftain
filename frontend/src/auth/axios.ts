@@ -1,9 +1,11 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { useAuthStore } from "@/store/auth.store";
+import type { SystemRole } from "@/enums/SystemRoles";
 
 interface RefreshResponse {
   accessToken: string;
   refreshToken: string;
+  systemRole: SystemRole;
 }
 
 const api = axios.create({
