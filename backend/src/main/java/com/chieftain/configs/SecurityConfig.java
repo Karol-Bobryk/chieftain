@@ -21,7 +21,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
   // TODO: ADD ROLES ENUM
   private final String[] publicPaths = {
-    "/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html"
+    "/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html" , "/api/public/**"
   };
 
   private final CustomUserDetailsService customUserDetailsService;

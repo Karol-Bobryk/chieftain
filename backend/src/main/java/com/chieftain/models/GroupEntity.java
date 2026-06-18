@@ -51,4 +51,7 @@ public class GroupEntity {
 
   @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<TaskEntity> tasks = new ArrayList<>();
+
+  @Column(name = "share_token", unique = true)
+  private String shareToken;
 }

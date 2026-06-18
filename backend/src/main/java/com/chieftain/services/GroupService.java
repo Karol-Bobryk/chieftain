@@ -230,4 +230,43 @@ public class GroupService {
         LocalDateTime.ofInstant(periodStart, ZoneId.systemDefault()),
         LocalDateTime.ofInstant(periodEnd, ZoneId.systemDefault()));
   }
+
+
+  public String enableSharing(UUID groupId, UUID requesterId){
+
+    GroupEntity group =
+            groupRepository
+                    .findById(groupId)
+                    .orElseThrow(() -> new GroupNotFoundException("No group with id " + groupId));
+
+
+    List<UserEntity> members = group.getMembers();
+    boolean isMember = members.stream().anyMatch(user ->user.getPkUserId().equals(requesterId));
+    if(!isMember){
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not in group");
+    }
+
+    String shareToken = Base64.getUrlEncoder().encodeToString(UUID.randomUUID().toString().getBytes());
+    group.setShareToken(shareToken);
+    groupRepository.save(group);
+    return shareToken;
+  }
+
+
+  public void disableSharing(UUID groupId, UUID requesterId){
+
+    GroupEntity group =
+            groupRepository
+                    .findById(groupId)
+                    .orElseThrow(() -> new GroupNotFoundException("No group with id " + groupId));
+
+    List<UserEntity> members = group.getMembers();
+    boolean isMember = members.stream().anyMatch(user ->user.getPkUserId().equals(requesterId));
+    if(!isMember){
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is not in group");
+    }
+
+    group.setShareToken(null);
+    groupRepository.save(group);
+  }
 }

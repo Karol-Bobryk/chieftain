@@ -203,4 +203,28 @@ public class GroupController {
 
     return ResponseEntity.ok(new GetTasksInGroupResponseDTO(taskDTOs));
   }
+
+
+  @PostMapping("/{groupId}/share")
+  @Transactional
+  public ResponseEntity<GroupShareTokenResponseDTO> enableSharing(
+          @PathVariable UUID groupId,
+          @AuthenticationPrincipal CustomUserDetails userDetails){
+
+    String shareToken = groupService.enableSharing(groupId,userDetails.getUserId());
+    return ResponseEntity.ok(new GroupShareTokenResponseDTO(shareToken));
+  }
+
+
+  @DeleteMapping("/{groupId}/share")
+  @Transactional
+  public ResponseEntity<Void> disableSharing(
+          @PathVariable UUID groupId,
+          @AuthenticationPrincipal CustomUserDetails userDetails){
+
+    groupService.disableSharing(groupId, userDetails.getUserId());
+    return ResponseEntity.noContent().build();
+  }
+
+
 }

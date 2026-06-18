@@ -1,0 +1,2 @@
+ALTER TABLE groups
+ADD COLUMN share_token VARCHAR(255) UNIQUE;
