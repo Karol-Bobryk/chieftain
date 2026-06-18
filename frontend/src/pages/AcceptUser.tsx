@@ -3,12 +3,7 @@ import ErrorMessageLabel from "@/components/ErrorMessageLabel";
 import UserAcceptListRow from "@/components/UserAcceptListRow";
 import { SystemRole } from "@/enums/SystemRoles";
 import { useState, useEffect } from "react";
-
-interface UserDisplayDTO {
-  userId: string;
-  name: string;
-  surname: string;
-}
+import type { UserDisplayDTO } from "@/interfaces/UserDisplayDTO";
 
 interface UserAcceptResponse {
   content: UserDisplayDTO[];

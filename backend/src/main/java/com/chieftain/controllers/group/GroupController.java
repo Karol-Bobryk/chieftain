@@ -4,12 +4,14 @@ import com.chieftain.adapters.CustomUserDetails;
 import com.chieftain.controllers.group.dto.AddGroupMemberRequestDTO;
 import com.chieftain.controllers.group.dto.GroupCreateRequestDTO;
 import com.chieftain.controllers.group.dto.GroupCreateResponseDTO;
-import com.chieftain.controllers.group.dto.GroupTaskResponseDTO;
+import com.chieftain.controllers.group.dto.*;
 import com.chieftain.enums.GroupUserPermission;
 import com.chieftain.enums.LogSeverity;
 import com.chieftain.events.GroupLogEvent;
 import com.chieftain.events.GroupPrivilegeLogEvent;
+import com.chieftain.exceptions.UserNotEligible;
 import com.chieftain.models.GroupEntity;
+import com.chieftain.models.TaskEntity;
 import com.chieftain.models.UserEntity;
 import com.chieftain.services.GroupService;
 import com.chieftain.services.TaskService;
@@ -17,16 +19,12 @@ import com.chieftain.services.UserService;
 import com.chieftain.services.UsersAwaitingAcceptanceService;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -42,19 +40,17 @@ public class GroupController {
   private final UserService userService;
   private final ApplicationEventPublisher applicationEventPublisher;
   private final UsersAwaitingAcceptanceService usersAwaitingAcceptanceService;
-  private final TaskService taskService;
 
   public GroupController(
       GroupService groupService,
       UserService userService,
       ApplicationEventPublisher applicationEventPublisher,
-      UsersAwaitingAcceptanceService usersAwaitingAcceptanceService,
-      TaskService taskService) {
+      UsersAwaitingAcceptanceService usersAwaitingAcceptanceService
+      ) {
     this.groupService = groupService;
     this.userService = userService;
     this.applicationEventPublisher = applicationEventPublisher;
     this.usersAwaitingAcceptanceService = usersAwaitingAcceptanceService;
-    this.taskService = taskService;
   }
 
   @PutMapping("/create")
@@ -94,7 +90,7 @@ public class GroupController {
     // Adding all capabilities for the rest of the group
     groupService.addPrivilegesForMultipleUsers(
         groupEntity,
-        members.stream().filter(e -> !e.equals(groupOwner)).toList(),
+        members.stream().filter(e -> e.getPkUserId() != groupOwner.getPkUserId()).toList(),
         request.getRoles());
 
     applicationEventPublisher.publishEvent(
@@ -190,22 +186,21 @@ public class GroupController {
 
   @GetMapping("/{groupId}/tasks")
   @Transactional
-  public ResponseEntity<PagedModel<GroupTaskResponseDTO>> getGroupTasks(
+  public ResponseEntity<GetTasksInGroupResponseDTO> getTasks(
       @PathVariable UUID groupId,
-      @RequestParam(defaultValue = "deadline") String sortBy,
-      @RequestParam(defaultValue = "asc") String direction,
-      @RequestParam(defaultValue = "0") int page,
-      @RequestParam(defaultValue = "10") int size,
+      @RequestParam Instant periodStart,
+      @RequestParam Instant periodEnd,
       @AuthenticationPrincipal CustomUserDetails userDetails) {
+    UserEntity user = userService.getUserById(userDetails.getUserId());
+    GroupEntity group = groupService.getGroupById(groupId);
 
-    groupService.getByIdAndOrganization(groupId, userDetails.getOrganization());
+    if (groupService.isUserNotInGroup(group, user)) {
+      throw new UserNotEligible("User is not in group");
+    }
 
-    Sort sort = Sort.by(Sort.Direction.fromString(direction), sortBy);
-    Pageable pageable = PageRequest.of(page, size, sort);
+    List<TaskEntity> tasks = groupService.getGroupTasksFromPeriod(group, periodStart, periodEnd);
+    List<RootTaskDisplayDTO> taskDTOs = tasks.stream().map(RootTaskDisplayDTO::ofEntity).toList();
 
-    Page<GroupTaskResponseDTO> tasksPage =
-        taskService.getTasksByGroupId(groupId, pageable).map(GroupTaskResponseDTO::fromTaskEntity);
-
-    return ResponseEntity.ok(new PagedModel<>(tasksPage));
+    return ResponseEntity.ok(new GetTasksInGroupResponseDTO(taskDTOs));
   }
 }

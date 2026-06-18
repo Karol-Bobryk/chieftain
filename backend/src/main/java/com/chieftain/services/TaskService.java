@@ -5,6 +5,7 @@ import com.chieftain.enums.TaskStatus;
 import com.chieftain.events.TaskLogEvent;
 import com.chieftain.exceptions.SubtaskNotEligible;
 import com.chieftain.exceptions.TaskNotFoundException;
+import com.chieftain.models.GroupEntity;
 import com.chieftain.models.TaskEntity;
 import com.chieftain.models.TaskStatusEntity;
 import com.chieftain.models.UserEntity;
@@ -12,11 +13,10 @@ import com.chieftain.repositories.TaskRepository;
 import com.chieftain.repositories.TaskStatusRepository;
 import jakarta.annotation.Nonnull;
 import jakarta.transaction.Transactional;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.config.Task;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -103,8 +103,12 @@ public class TaskService {
     taskRepository.delete(task);
   }
 
-  public Page<TaskEntity> getTasksByGroupId(UUID groupId, Pageable pageable) {
-    return taskRepository.findByGroupId(groupId, pageable);
+  List<TaskEntity> getParentTasksInGroupWithinTimePeriod(
+      @Nonnull GroupEntity group,
+      @Nonnull LocalDateTime timePeriodStart,
+      @Nonnull LocalDateTime timePeriodEnd) {
+    return taskRepository.findAllByGroupAndParentTaskIsNullAndStartedAtBetween(
+        group, timePeriodStart, timePeriodEnd);
   }
 
   @Transactional
