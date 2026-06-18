@@ -171,9 +171,10 @@ public class TaskController {
   @PatchMapping("/{taskId}/status")
   @Transactional
   public ResponseEntity<Void> updateTaskStatus(
-      @PathVariable UUID taskId,
-      @RequestBody UpdateTaskStatusRequestDTO request,
-      @AuthenticationPrincipal CustomUserDetails userDetails) {
+          @PathVariable UUID taskId,
+          @Valid @RequestBody UpdateTaskStatusRequestDTO request,
+          @AuthenticationPrincipal CustomUserDetails userDetails
+  ) {
     TaskEntity task = taskService.getTaskById(taskId);
     UserEntity requester = userService.getUserById(userDetails.getUserId());
 
