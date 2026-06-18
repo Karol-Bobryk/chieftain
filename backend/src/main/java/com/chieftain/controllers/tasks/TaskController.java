@@ -1,9 +1,12 @@
 package com.chieftain.controllers.tasks;
 
 import com.chieftain.adapters.CustomUserDetails;
+import com.chieftain.controllers.group.dto.GetMembersResponseDTO;
+import com.chieftain.controllers.tasks.dto.TaskUpdateRequestDTO;
 import com.chieftain.controllers.tasks.dto.CreateTaskRequestDTO;
 import com.chieftain.controllers.tasks.dto.CreateTaskResponseDTO;
 import com.chieftain.controllers.tasks.dto.UpdateTaskStatusRequestDTO;
+import com.chieftain.controllers.user.dto.UserDisplayDTO;
 import com.chieftain.enums.GroupUserPermission;
 import com.chieftain.enums.LogSeverity;
 import com.chieftain.enums.TaskStatus;
@@ -13,6 +16,8 @@ import com.chieftain.exceptions.UserNotEligible;
 import com.chieftain.models.GroupEntity;
 import com.chieftain.models.TaskEntity;
 import com.chieftain.models.UserEntity;
+import com.chieftain.repositories.GroupPrivilegeRepository;
+import com.chieftain.repositories.TaskRepository;
 import com.chieftain.services.GroupService;
 import com.chieftain.services.TaskService;
 import com.chieftain.services.UserService;
@@ -26,6 +31,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import static com.chieftain.enums.GroupUserPermission.EDIT_TASK;
+
 @RestController
 @RequestMapping("/api/tasks")
 public class TaskController {
@@ -35,16 +42,20 @@ public class TaskController {
   private final UserService userService;
   private final GroupService groupService;
   private final ApplicationEventPublisher applicationEventPublisher;
+  private final TaskRepository taskRepository;
+  private final GroupPrivilegeRepository groupPrivilegeRepository;
 
   public TaskController(
-      TaskService taskService,
-      UserService userService,
-      GroupService groupService,
-      ApplicationEventPublisher applicationEventPublisher) {
+          TaskService taskService,
+          UserService userService,
+          GroupService groupService,
+          ApplicationEventPublisher applicationEventPublisher, TaskRepository taskRepository, GroupPrivilegeRepository groupPrivilegeRepository) {
     this.taskService = taskService;
     this.userService = userService;
     this.groupService = groupService;
     this.applicationEventPublisher = applicationEventPublisher;
+    this.taskRepository = taskRepository;
+    this.groupPrivilegeRepository = groupPrivilegeRepository;
   }
 
   @PutMapping("/create")
@@ -167,7 +178,7 @@ public class TaskController {
 
     boolean isAssignee = task.getAssignees().contains(requester);
     boolean hasPermission =
-        groupService.isUserEligible(requester, task.getGroup(), GroupUserPermission.EDIT_TASK);
+        groupService.isUserEligible(requester, task.getGroup(), EDIT_TASK);
 
     if (!isAssignee && !hasPermission) {
       throw new UserNotEligible(
@@ -175,5 +186,29 @@ public class TaskController {
     }
     taskService.updateStatus(task, request.getStatus());
     return ResponseEntity.noContent().build();
+  }
+
+  @PatchMapping("/{taskId}")
+  @Transactional
+  public ResponseEntity<Void> updateTask(
+          @PathVariable UUID taskId,
+          @Valid @RequestBody TaskUpdateRequestDTO request,
+          @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    UserEntity issuer = userService.getUserById(userDetails.getUserId());
+    GroupEntity group = groupService.getByIdAndOrganization(taskService.getTaskById(taskId).getGroup().getId(), userDetails.getOrganization());
+
+    if(groupService.isUserNotInGroup(group, issuer)) {
+      throw new UserNotEligible("User is not in group");
+    }
+
+    if(!groupService.isUserEligible(issuer, group, EDIT_TASK)) {
+      throw new UserNotEligible("User cannot edit tasks in group");
+    }
+
+    taskService.updateTaskById(taskId, request);
+
+    return ResponseEntity.noContent().build();
+
   }
 }

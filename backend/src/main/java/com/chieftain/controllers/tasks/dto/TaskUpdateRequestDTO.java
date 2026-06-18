@@ -1,5 +1,6 @@
-package com.chieftain.controllers.group.dto;
+package com.chieftain.controllers.tasks.dto;
 
+import com.chieftain.enums.TaskStatus;
 import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,5 +25,5 @@ public class TaskUpdateRequestDTO {
     @Nullable
     LocalDateTime doneAt;
     @Nullable
-    String statusId;
+    TaskStatus statusId;
 }
