@@ -159,23 +159,21 @@ public class TaskController {
   @PatchMapping("/{taskId}/status")
   @Transactional
   public ResponseEntity<Void> updateTaskStatus(
-          @PathVariable UUID taskId,
-          @RequestBody UpdateTaskStatusRequestDTO request,
-          @AuthenticationPrincipal CustomUserDetails userDetails
-  ) {
+      @PathVariable UUID taskId,
+      @RequestBody UpdateTaskStatusRequestDTO request,
+      @AuthenticationPrincipal CustomUserDetails userDetails) {
     TaskEntity task = taskService.getTaskById(taskId);
     UserEntity requester = userService.getUserById(userDetails.getUserId());
 
     boolean isAssignee = task.getAssignees().contains(requester);
-    boolean hasPermission  = groupService.isUserEligible(requester, task.getGroup(), GroupUserPermission.EDIT_TASK);
+    boolean hasPermission =
+        groupService.isUserEligible(requester, task.getGroup(), GroupUserPermission.EDIT_TASK);
 
-    if(!isAssignee && !hasPermission) {
+    if (!isAssignee && !hasPermission) {
       throw new UserNotEligible(
-              "User must be an assignee or have edit task permission to change task status"
-      );
+          "User must be an assignee or have edit task permission to change task status");
     }
     taskService.updateStatus(task, request.getStatus());
     return ResponseEntity.noContent().build();
-
   }
 }

@@ -15,6 +15,7 @@ import getCurrentWeekRange from "@/helpers/getWeekPaginate";
 import { TaskEventCard } from "./TaskEventCard";
 import { TaskEventMenu } from "./TaskEventMenu";
 import deleteTask from "@/helpers/deleteTask";
+import EditTaskForm from "./EditTaskForm";
 
 const localizer = momentLocalizer(moment);
 
@@ -25,6 +26,9 @@ export interface GetTasksInGroupResponse {
 const WeekSchedule = () => {
   const { groupId } = useParams();
   if (!groupId) return <div>Invalid group</div>;
+
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [editEvent, setEditEvent] = useState<TaskEvent | null>(null);
 
   const [tasks, setTasks] = useState<RootTaskDisplayDTO[]>([]);
   const [events, setEvents] = useState<TaskEvent[]>([]);
@@ -115,9 +119,33 @@ const WeekSchedule = () => {
             setSelectedEvent(null);
             setMenuPosition(null);
           }}
-          onEdit={(event) => console.log("edit", event)}
+          onEdit={(event) => {
+            setEditEvent(event);
+            setIsEditOpen(true);
+          }}
           onDelete={(event) => handleDeleteTask(event)}
         />
+      )}
+      {isEditOpen && editEvent && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+          <div className="bg-white w-[420px] rounded-xl shadow-lg p-4">
+            <h2 className="text-lg font-semibold mb-3">Edit task</h2>
+
+            <EditTaskForm
+              event={editEvent}
+              onClose={() => {
+                setIsEditOpen(false);
+                setEditEvent(null);
+              }}
+              onSave={(updated) => {
+                console.log("save updated task", updated);
+                setIsEditOpen(false);
+                setEditEvent(null);
+                fetchTasks(); // refresh calendar
+              }}
+            />
+          </div>
+        </div>
       )}
     </div>
   );

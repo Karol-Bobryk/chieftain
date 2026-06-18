@@ -33,8 +33,7 @@ public class AdminLogController {
 
     Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
 
-    Page<SystemLogDTO> logsPage =
-        adminLogService.getSystemLogs(domain, severity, pageable);
+    Page<SystemLogDTO> logsPage = adminLogService.getSystemLogs(domain, severity, pageable);
 
     return ResponseEntity.ok(logsPage);
   }

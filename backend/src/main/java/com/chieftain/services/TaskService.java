@@ -112,17 +112,15 @@ public class TaskService {
   }
 
   @Transactional
-  public TaskEntity updateStatus(TaskEntity task, TaskStatus newStatus){
+  public TaskEntity updateStatus(TaskEntity task, TaskStatus newStatus) {
     task.setStatus(getTaskStatusEntity(newStatus));
     task = taskRepository.save(task);
     applicationEventPublisher.publishEvent(
-            new TaskLogEvent(
-                    task.getId(),
-                    LogSeverity.INFO,
-                    "TASK_STATUS_UPDATED",
-                    "Status changed to: " + newStatus.name()
-                    )
-    );
+        new TaskLogEvent(
+            task.getId(),
+            LogSeverity.INFO,
+            "TASK_STATUS_UPDATED",
+            "Status changed to: " + newStatus.name()));
     return task;
   }
 }

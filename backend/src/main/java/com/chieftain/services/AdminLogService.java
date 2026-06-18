@@ -15,7 +15,7 @@ public class AdminLogService {
     this.adminLogJdbcRepository = adminLogJdbcRepository;
   }
 
-  public Page<SystemLogDTO> getSystemLogs(String domain, String severity, Pageable pageable){
+  public Page<SystemLogDTO> getSystemLogs(String domain, String severity, Pageable pageable) {
 
     return adminLogJdbcRepository.findFilteredLogs(domain, severity, pageable);
   }

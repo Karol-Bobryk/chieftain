@@ -1,10 +1,11 @@
 package com.chieftain.controllers.group;
 
 import com.chieftain.adapters.CustomUserDetails;
+import com.chieftain.controllers.group.dto.*;
 import com.chieftain.controllers.group.dto.AddGroupMemberRequestDTO;
 import com.chieftain.controllers.group.dto.GroupCreateRequestDTO;
 import com.chieftain.controllers.group.dto.GroupCreateResponseDTO;
-import com.chieftain.controllers.group.dto.*;
+import com.chieftain.controllers.user.dto.UserDisplayDTO;
 import com.chieftain.enums.GroupUserPermission;
 import com.chieftain.enums.LogSeverity;
 import com.chieftain.events.GroupLogEvent;
@@ -14,7 +15,6 @@ import com.chieftain.models.GroupEntity;
 import com.chieftain.models.TaskEntity;
 import com.chieftain.models.UserEntity;
 import com.chieftain.services.GroupService;
-import com.chieftain.services.TaskService;
 import com.chieftain.services.UserService;
 import com.chieftain.services.UsersAwaitingAcceptanceService;
 import jakarta.transaction.Transactional;
@@ -45,8 +45,7 @@ public class GroupController {
       GroupService groupService,
       UserService userService,
       ApplicationEventPublisher applicationEventPublisher,
-      UsersAwaitingAcceptanceService usersAwaitingAcceptanceService
-      ) {
+      UsersAwaitingAcceptanceService usersAwaitingAcceptanceService) {
     this.groupService = groupService;
     this.userService = userService;
     this.applicationEventPublisher = applicationEventPublisher;
@@ -202,5 +201,23 @@ public class GroupController {
     List<RootTaskDisplayDTO> taskDTOs = tasks.stream().map(RootTaskDisplayDTO::ofEntity).toList();
 
     return ResponseEntity.ok(new GetTasksInGroupResponseDTO(taskDTOs));
+  }
+
+  @GetMapping("/{groupId}/members")
+  @Transactional
+  public ResponseEntity<GetMembersResponseDTO> addGroupMembers(
+      @PathVariable UUID groupId, @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    UserEntity user = userService.getUserById(userDetails.getUserId());
+
+    GroupEntity group = groupService.getByIdAndOrganization(groupId, userDetails.getOrganization());
+
+    if(groupService.isUserNotInGroup(group, user)) {
+      throw new UserNotEligible("User is not in group");
+    }
+
+    return ResponseEntity.ok(
+        new GetMembersResponseDTO(
+            group.getMembers().stream().map(UserDisplayDTO::ofEntity).toList()));
   }
 }
