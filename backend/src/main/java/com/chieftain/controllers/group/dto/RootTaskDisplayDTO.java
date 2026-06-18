@@ -4,7 +4,6 @@ import com.chieftain.controllers.user.dto.GroupDisplayDTO;
 import com.chieftain.controllers.user.dto.UserDisplayDTO;
 import com.chieftain.enums.TaskStatus;
 import com.chieftain.models.TaskEntity;
-import com.chieftain.models.TaskStatusEntity;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
 import java.time.LocalDateTime;

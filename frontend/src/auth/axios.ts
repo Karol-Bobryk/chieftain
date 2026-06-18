@@ -89,7 +89,12 @@ api.interceptors.response.use(
       processQueue(err, null);
       useAuthStore.getState().clearTokens();
       window.location.href = "/home";
-      return Promise.reject(err);
+      if (
+        (error.response?.status !== 401 && error.response?.status !== 403) ||
+        originalRequest._retry
+      ) {
+        return Promise.reject(error);
+      }
     } finally {
       isRefreshing = false;
     }

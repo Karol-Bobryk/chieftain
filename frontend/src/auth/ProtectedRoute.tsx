@@ -12,7 +12,7 @@ export default function ProtectedRoute() {
   return (
     <div className="min-h-screen">
       <Navbar />
-      <main className="mx-auto max-w-6xl px-6 py-8">
+      <main className="mx-auto px-6 py-8">
         <Outlet />
       </main>
     </div>

@@ -1,0 +1,33 @@
+package com.chieftain.controllers.tasks.dto;
+
+import com.chieftain.enums.TaskStatus;
+import jakarta.annotation.Nullable;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.UUID;
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class TaskUpdateRequestDTO {
+    @Nullable
+    String name;
+    @Nullable
+    String description;
+    @Nullable
+    LocalDateTime startedAt;
+    @Nullable
+    LocalDateTime deadline;
+    @Nullable
+    LocalDateTime doneAt;
+    @Nullable
+    TaskStatus statusId;
+    @Nullable
+    List<UUID> assignees;
+}

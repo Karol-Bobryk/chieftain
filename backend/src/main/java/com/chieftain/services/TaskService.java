@@ -1,5 +1,6 @@
 package com.chieftain.services;
 
+import com.chieftain.controllers.tasks.dto.TaskUpdateRequestDTO;
 import com.chieftain.enums.LogSeverity;
 import com.chieftain.enums.TaskStatus;
 import com.chieftain.events.TaskLogEvent;
@@ -12,6 +13,7 @@ import com.chieftain.models.UserEntity;
 import com.chieftain.repositories.TaskRepository;
 import com.chieftain.repositories.TaskStatusRepository;
 import jakarta.annotation.Nonnull;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -112,17 +114,53 @@ public class TaskService {
   }
 
   @Transactional
-  public TaskEntity updateStatus(TaskEntity task, TaskStatus newStatus){
+  public TaskEntity updateStatus(TaskEntity task, TaskStatus newStatus) {
     task.setStatus(getTaskStatusEntity(newStatus));
     task = taskRepository.save(task);
     applicationEventPublisher.publishEvent(
-            new TaskLogEvent(
-                    task.getId(),
-                    LogSeverity.INFO,
-                    "TASK_STATUS_UPDATED",
-                    "Status changed to: " + newStatus.name()
-                    )
-    );
+        new TaskLogEvent(
+            task.getId(),
+            LogSeverity.INFO,
+            "TASK_STATUS_UPDATED",
+            "Status changed to: " + newStatus.name()));
     return task;
+  }
+
+  @Transactional
+  public TaskEntity updateTaskById(UUID taskId, TaskUpdateRequestDTO request, List<UserEntity> assignees){
+    TaskEntity task = taskRepository.getReferenceById(taskId);
+
+    if (request.getName() != null) {
+      task.setName(request.getName());
+    }
+
+    if (request.getDescription() != null) {
+      task.setDescription(request.getDescription());
+    }
+
+    if (request.getStartedAt() != null) {
+      task.setStartedAt(request.getStartedAt());
+    }
+
+    if (request.getDeadline() != null) {
+      task.setDeadline(request.getDeadline());
+    }
+
+    if (request.getDoneAt() != null) {
+      task.setDoneAt(request.getDoneAt());
+    }
+
+    if (request.getStatusId() != null) {
+      TaskStatusEntity status = taskStatusRepository
+              .findByStatusName(request.getStatusId());
+
+      task.setStatus(status);
+    }
+
+    if(assignees != null){
+      task.setAssignees(assignees);
+    }
+
+    return taskRepository.save(task);
   }
 }
