@@ -1,6 +1,7 @@
 package com.chieftain.services;
 
 import com.chieftain.controllers.auth.dto.CreateUserWithOrganizationRequestDTO;
+import com.chieftain.controllers.user.dto.UserDisplayDTO;
 import com.chieftain.enums.LogSeverity;
 import com.chieftain.enums.SystemRole;
 import com.chieftain.events.UserLogEvent;
@@ -175,5 +176,16 @@ public class UserService {
     UserEntity user = getUserById(userId);
     user.setBlocked(false);
     return userRepository.save(user);
+  public List<UserDisplayDTO> searchUsersInOrganization(OrganizationEntity organization, String query) {
+    return userRepository.findTop10ByOrganizationAndNameContainingIgnoreCaseOrOrganizationAndSurnameContainingIgnoreCase(
+                    organization, query,
+                    organization, query
+            ).stream()
+            .map(user -> new UserDisplayDTO(
+                    user.getPkUserId(),
+                    user.getName(),
+                    user.getSurname()
+            ))
+            .toList();
   }
 }

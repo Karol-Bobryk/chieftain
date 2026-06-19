@@ -31,4 +31,8 @@ public interface UserRepository extends JpaRepository<UserEntity, UUID> {
         "LOWER(CONCAT(u.name, ' ', u.surname)) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
         "LOWER(CONCAT(u.surname, ' ', u.name)) LIKE LOWER(CONCAT('%', :search, '%'))")
     List<UserEntity> searchByFullName(@Param("search") String search, Pageable pageable);
+    List<UserEntity> findTop10ByOrganizationAndNameContainingIgnoreCaseOrOrganizationAndSurnameContainingIgnoreCase(
+        OrganizationEntity organization1, String nameQuery,
+        OrganizationEntity organization2, String surnameQuery
+    );
 }
