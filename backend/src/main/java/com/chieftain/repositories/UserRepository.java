@@ -24,4 +24,9 @@ public interface UserRepository extends JpaRepository<UserEntity, UUID> {
     SecretHashOnly findSecretHashByEmailAddress(String emailAddress);
 
     Page<UserEntity> findByOrganization(OrganizationEntity organization, Pageable pageable);
+
+    List<UserEntity> findTop10ByOrganizationAndNameContainingIgnoreCaseOrOrganizationAndSurnameContainingIgnoreCase(
+        OrganizationEntity organization1, String nameQuery,
+        OrganizationEntity organization2, String surnameQuery
+    );
 }

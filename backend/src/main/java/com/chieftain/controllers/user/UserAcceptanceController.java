@@ -93,6 +93,15 @@ public class UserAcceptanceController {
     return ResponseEntity.ok(new PagedModel<>(usersPage));
   }
 
+  @GetMapping("/search")
+  public ResponseEntity<List<UserDisplayDTO>> searchUsers(
+          @RequestParam("q") String query,
+          @AuthenticationPrincipal CustomUserDetails userDetails) {
+
+    List<UserDisplayDTO> users = userService.searchUsersInOrganization(userDetails.getOrganization(), query);
+    return ResponseEntity.ok(users);
+  }
+
   @GetMapping("/{userId}/block")
   @PreAuthorize("hasAnyAuthority('OWNER', 'TASK_MASTER','SITE_ADMIN')")
   @Transactional
