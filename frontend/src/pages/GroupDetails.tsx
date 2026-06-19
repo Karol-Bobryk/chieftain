@@ -14,6 +14,13 @@ const GroupDetails = () => {
         </div>
 
         <WeekSchedule />
+        <div className="space-y-6">
+          {groupId && (
+            <AddGroupMemberForm
+              groupId={groupId}
+            />
+          )}
+        </div>
       </div>
     </div>
   );
