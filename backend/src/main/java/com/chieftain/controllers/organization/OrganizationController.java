@@ -1,6 +1,7 @@
 package com.chieftain.controllers.organization;
 
 import com.chieftain.adapters.CustomUserDetails;
+import com.chieftain.controllers.organization.dto.GetOrganizationTokenDTO;
 import com.chieftain.controllers.organization.dto.OrganizationDetailsResponseDTO;
 import com.chieftain.controllers.organization.dto.OrganizationUserResponseDTO;
 import com.chieftain.models.OrganizationEntity;
@@ -13,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
@@ -73,5 +75,13 @@ public class OrganizationController {
 
     organizationService.deleteOrganization(organizationId, userDetails.getUserId());
     return ResponseEntity.noContent().build();
+  }
+  @GetMapping("/join-token")
+  @Transactional
+  @PreAuthorize("hasAnyAuthority('OWNER', 'TASK_MASTER')")
+  public ResponseEntity<GetOrganizationTokenDTO> getJoinToken(
+  @AuthenticationPrincipal CustomUserDetails userDetails) {
+    OrganizationEntity org = organizationService.getOrganizationById(userDetails.getOrganization().getPkOrganizationId());
+    return ResponseEntity.ok(new GetOrganizationTokenDTO(org.getJoinToken()));
   }
 }
