@@ -112,7 +112,7 @@ public class UserController {
       throw new UserIsBarredException("User is barred");
     }
 
-    if (usersAwaitingAcceptanceService.isUserAwaiting(userEntity.getOrganization(),userEntity)){
+    if (usersAwaitingAcceptanceService.isUserAwaiting(userEntity.getOrganization(),userEntity) || userEntity.getBlocked()){
 
       applicationEventPublisher.publishEvent(
               new UserLogEvent(
