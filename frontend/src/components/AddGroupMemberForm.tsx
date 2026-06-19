@@ -76,9 +76,6 @@ const GroupDetails = () => {
           </p>
         </div>
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <WeekSchedule />
-          </div>
           <div className="space-y-6">
             <form onSubmit={handleAddMembersSubmit} className="rounded-3xl border border-zinc-200 bg-white p-6">
               <h2 className="text-xl font-semibold text-zinc-900 mb-4">Add New Members</h2>

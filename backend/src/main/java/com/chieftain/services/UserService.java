@@ -189,5 +189,5 @@ public class UserService {
             user.getSurname()
         ))
         .toList();
+    }
   }
-}

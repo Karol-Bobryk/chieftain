@@ -72,7 +72,7 @@ contains sensitive data.
 
     docker compose build
 
-   it may take a while so don't panic if looks stuck.
+   it may take a while so don't panic if it looks stuck.
 
 4. Once docker is finished mining bitcoin on your computer run:
     
