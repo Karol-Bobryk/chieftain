@@ -6,6 +6,7 @@ import {
   type RootTaskDisplayDTO,
   type TaskEvent,
 } from "@/interfaces/RootTaskDisplayDTO";
+import CreateTaskForm from "./CreateTaskForm";
 
 import { Calendar, momentLocalizer } from "react-big-calendar";
 
@@ -33,6 +34,9 @@ const WeekSchedule = () => {
 
   const [tasks, setTasks] = useState<RootTaskDisplayDTO[]>([]);
   const [events, setEvents] = useState<TaskEvent[]>([]);
+
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [createSlot, setCreateSlot] = useState<{ start: Date; end: Date } | null>(null);
 
   const [availableUsers, setAvailableUsers] = useState<
     { userId: string; name: string }[]
@@ -63,6 +67,11 @@ const WeekSchedule = () => {
       x: nativeEvent.clientX,
       y: nativeEvent.clientY,
     });
+  };
+
+  const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
+    setCreateSlot({ start: slotInfo.start, end: slotInfo.end });
+    setIsCreateOpen(true);
   };
 
   const fetchGroupMembers = async () => {
@@ -112,12 +121,27 @@ const WeekSchedule = () => {
     await api.patch(`/api/tasks/${updated.taskId}`, {
       name: updated.title || undefined,
       description: updated.description || undefined,
-      started: updated.start || undefined,
+      startedAt: updated.start || undefined,
       deadline: updated.end || undefined,
       doneAt: updated.doneAt || undefined,
       status: updated.status || undefined,
       assignees: updated.assignees?.map((a) => a.userId) || undefined,
     });
+  };
+
+  const createTask = async (taskData: { title: string; start: Date; end: Date; description: string; assignees: { userId: string }[] }) => {
+    try {
+      await api.put("/api/tasks/create", {
+        name: taskData.title,
+        description: taskData.description,
+        startedAt: taskData.start.toISOString(),
+        deadline: taskData.end.toISOString(),
+        groupId: groupId,
+        assignees: taskData.assignees.map((a) => a.userId),
+      });
+    } catch (error) {
+      console.error("Failed to create task", error);
+    }
   };
 
   return (
@@ -140,6 +164,8 @@ const WeekSchedule = () => {
             timeGutterFormat: (date, culture, localizer) =>
               localizer?.format(date, "HH:mm", culture) ?? "",
           }}
+          selectable={true}
+          onSelectSlot={handleSelectSlot}
         />
       </div>
 
@@ -154,8 +180,14 @@ const WeekSchedule = () => {
           onEdit={(event) => {
             setEditEvent(event);
             setIsEditOpen(true);
+            setSelectedEvent(null);
+            setMenuPosition(null);
           }}
-          onDelete={(event) => handleDeleteTask(event)}
+          onDelete={(event) => {
+            handleDeleteTask(event)
+            setSelectedEvent(null);
+            setMenuPosition(null);
+          }}
         />
       )}
       {isEditOpen && editEvent && (
@@ -174,6 +206,29 @@ const WeekSchedule = () => {
                 setIsEditOpen(false);
                 setEditEvent(null);
                 await updateTask(updated);
+                await fetchTasks();
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {isCreateOpen && createSlot && (
+        <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">
+          <div className="bg-white w-[420px] rounded-xl shadow-lg p-4">
+            <h2 className="text-lg font-semibold mb-3">Create New Task</h2>
+            <CreateTaskForm
+              start={createSlot.start}
+              end={createSlot.end}
+              availableUsers={availableUsers}
+              onClose={() => {
+                setIsCreateOpen(false);
+                setCreateSlot(null);
+              }}
+              onSave={async (taskData) => {
+                setIsCreateOpen(false);
+                setCreateSlot(null);
+                await createTask(taskData);
                 await fetchTasks();
               }}
             />
