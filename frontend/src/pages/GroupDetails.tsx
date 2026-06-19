@@ -1,6 +1,9 @@
+import { useParams } from "react-router-dom";
 import WeekSchedule from "@/components/WeekSchedule";
+import AddGroupMemberForm from "@/components/AddGroupMemberForm";
 
 const GroupDetails = () => {
+  const { groupId } = useParams<{ groupId: string }>();
   return (
     <div className="min-h-screen bg-zinc-50 px-6 py-10">
       <div className="mx-auto space-y-6">
