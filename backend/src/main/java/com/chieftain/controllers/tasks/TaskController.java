@@ -200,6 +200,13 @@ public class TaskController {
     UserEntity issuer = userService.getUserById(userDetails.getUserId());
     GroupEntity group = groupService.getByIdAndOrganization(taskService.getTaskById(taskId).getGroup().getId(), userDetails.getOrganization());
 
+    if (!groupService.isUserEligible(
+            userService.getUserById(userDetails.getUserId()),
+            taskService.getTaskById(taskId).getGroup(),
+            EDIT_TASK)) {
+      throw new UserNotEligible("user doesn't meet the requirements to edit tasks in this group");
+    }
+
     if(groupService.isUserNotInGroup(group, issuer)) {
       throw new UserNotEligible("User is not in group");
     }
