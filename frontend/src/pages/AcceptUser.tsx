@@ -17,6 +17,7 @@ interface UserAcceptResponse {
 
 const AcceptUser = () => {
   const [reload, setReload] = useState(false);
+  const [joinToken, setJoinToken] = useState("");
   const [users, setUsers] = useState<
     {
       content: UserDisplayDTO;
@@ -37,11 +38,19 @@ const AcceptUser = () => {
       }));
 
       setUsers(user_data);
-    } catch (error) {}
+    } catch (error) { }
   };
+  const fetchToken = async () => {
+    try {
+      const { data } = await api.get<{ joinToken: string }>("/api/organizations/join-token",
+      );
 
+      setJoinToken(data.joinToken);
+    } catch (error) { }
+  };
   useEffect(() => {
     fetchUsers();
+    fetchToken();
   }, [reload]);
 
   const acceptUser = async (userId: string, role: SystemRole) => {
@@ -77,6 +86,7 @@ const AcceptUser = () => {
   return (
     <div className="mx-auto max-w-4xl space-y-3 p-6">
       <p className="mb-4 text-sm font-medium text-slate-500">Accept Users</p>
+      <p className="mb-4 text-sm font-medium text-slate-500">Organization join token: {joinToken}</p>
       {users.length === 0 ? (
         <div className="rounded-xl border border-dashed border-slate-200 bg-white py-10 text-center text-sm text-slate-500">
           No users found
@@ -90,7 +100,7 @@ const AcceptUser = () => {
             surname={content.surname}
             role={role}
             onAccept={acceptUser}
-            onReject={() => {}}
+            onReject={() => { }}
             onRoleChange={(newRole) => handleRoleChange(content.userId, newRole)}
           />
         ))
