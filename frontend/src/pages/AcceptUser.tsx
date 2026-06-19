@@ -3,12 +3,7 @@ import ErrorMessageLabel from "@/components/ErrorMessageLabel";
 import UserAcceptListRow from "@/components/UserAcceptListRow";
 import { SystemRole } from "@/enums/SystemRoles";
 import { useState, useEffect } from "react";
-
-interface UserDisplayDTO {
-  userId: string;
-  name: string;
-  surname: string;
-}
+import type { UserDisplayDTO } from "@/interfaces/UserDisplayDTO";
 
 interface UserAcceptResponse {
   content: UserDisplayDTO[];
@@ -71,6 +66,14 @@ const AcceptUser = () => {
     }
   };
 
+  const handleRoleChange = (userId: string, newRole: SystemRole) => {
+    setUsers((prevUsers) =>
+      prevUsers.map((u) =>
+        u.content.userId === userId ? { ...u, role: newRole } : u
+      )
+    );
+  };
+
   return (
     <div className="mx-auto max-w-4xl space-y-3 p-6">
       <p className="mb-4 text-sm font-medium text-slate-500">Accept Users</p>
@@ -88,6 +91,7 @@ const AcceptUser = () => {
             role={role}
             onAccept={acceptUser}
             onReject={() => {}}
+            onRoleChange={(newRole) => handleRoleChange(content.userId, newRole)}
           />
         ))
       )}

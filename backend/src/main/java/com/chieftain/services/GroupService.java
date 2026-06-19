@@ -7,6 +7,9 @@ import com.chieftain.exceptions.GroupNotFoundException;
 import com.chieftain.models.*;
 import com.chieftain.repositories.*;
 import jakarta.transaction.Transactional;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.HttpStatus;
@@ -217,5 +220,14 @@ public class GroupService {
     }
     groupPrivilegeRepository.deleteAllByGroupId(groupId);
     groupRepository.deleteById(groupId);
+  }
+
+  public List<TaskEntity> getGroupTasksFromPeriod(
+      GroupEntity group, Instant periodStart, Instant periodEnd) {
+
+    return taskService.getParentTasksInGroupWithinTimePeriod(
+        group,
+        LocalDateTime.ofInstant(periodStart, ZoneId.systemDefault()),
+        LocalDateTime.ofInstant(periodEnd, ZoneId.systemDefault()));
   }
 }

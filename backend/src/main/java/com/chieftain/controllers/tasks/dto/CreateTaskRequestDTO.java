@@ -7,6 +7,8 @@ import jakarta.validation.constraints.NotBlank;
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
+
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -18,16 +20,17 @@ import lombok.experimental.FieldDefaults;
 public class CreateTaskRequestDTO {
   @Nullable UUID parentTaskId;
 
-  @Nonnull UUID groupId;
+  @NotNull
+  UUID groupId;
 
   @NotBlank(message = "Task name cannot be null")
   String name;
 
   @Nullable String description;
 
-  @Nonnull Instant startedAt;
+  @NotNull Instant startedAt;
 
-  @Nonnull @Future Instant deadline;
+  @NotNull @Future Instant deadline;
 
   @Nullable List<UUID> assignees;
 }

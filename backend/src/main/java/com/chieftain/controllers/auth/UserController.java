@@ -10,10 +10,13 @@ import com.chieftain.enums.SystemRole;
 import com.chieftain.events.UserLogEvent;
 import com.chieftain.exceptions.InvalidUserSecretProvidedException;
 import com.chieftain.exceptions.UserIsBarredException;
+import com.chieftain.exceptions.UserIsNotAcceptedException;
+import com.chieftain.exceptions.UserNotEligible;
 import com.chieftain.models.OrganizationEntity;
 import com.chieftain.models.RoleEntity;
 import com.chieftain.models.UserEntity;
 import com.chieftain.repositories.RoleRepository;
+import com.chieftain.repositories.UserRepository;
 import com.chieftain.services.*;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -32,19 +35,21 @@ public class UserController {
   private final UsersAwaitingAcceptanceService usersAwaitingAcceptanceService;
   private final RoleRepository roleRepository;
   private final ApplicationEventPublisher applicationEventPublisher;
+  private final UserRepository userRepository;
 
   @Autowired
   public UserController(
-      UserService userService,
-      OrganizationService organizationService,
-      UsersAwaitingAcceptanceService usersAwaitingAcceptanceService,
-      RoleRepository roleRepository,
-      ApplicationEventPublisher applicationEventPublisher) {
+          UserService userService,
+          OrganizationService organizationService,
+          UsersAwaitingAcceptanceService usersAwaitingAcceptanceService,
+          RoleRepository roleRepository,
+          ApplicationEventPublisher applicationEventPublisher, UserRepository userRepository) {
     this.userService = userService;
     this.organizationService = organizationService;
     this.usersAwaitingAcceptanceService = usersAwaitingAcceptanceService;
     this.roleRepository = roleRepository;
     this.applicationEventPublisher = applicationEventPublisher;
+    this.userRepository = userRepository;
   }
 
   @PostMapping("/create")
@@ -105,6 +110,17 @@ public class UserController {
 
     if (userEntity.getBlocked()) {
       throw new UserIsBarredException("User is barred");
+    }
+
+    if (usersAwaitingAcceptanceService.isUserAwaiting(userEntity.getOrganization(),userEntity)){
+
+      applicationEventPublisher.publishEvent(
+              new UserLogEvent(
+                      userEntity.getPkUserId(),
+                      LogSeverity.WARNING,
+                      "USER_LOGGED_IN",
+                      "User user login blocked: user is still awaiting acceptance"));
+      throw new UserIsNotAcceptedException("User is not accepted");
     }
 
     CustomUserDetails customUserDetails = new CustomUserDetails(userEntity);

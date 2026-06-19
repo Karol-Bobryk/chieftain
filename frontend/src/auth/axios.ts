@@ -1,9 +1,11 @@
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { useAuthStore } from "@/store/auth.store";
+import type { SystemRole } from "@/enums/SystemRoles";
 
 interface RefreshResponse {
   accessToken: string;
   refreshToken: string;
+  systemRole: SystemRole;
 }
 
 const api = axios.create({
@@ -87,7 +89,12 @@ api.interceptors.response.use(
       processQueue(err, null);
       useAuthStore.getState().clearTokens();
       window.location.href = "/home";
-      return Promise.reject(err);
+      if (
+        (error.response?.status !== 401 && error.response?.status !== 403) ||
+        originalRequest._retry
+      ) {
+        return Promise.reject(error);
+      }
     } finally {
       isRefreshing = false;
     }
