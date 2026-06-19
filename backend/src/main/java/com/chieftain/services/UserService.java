@@ -176,6 +176,8 @@ public class UserService {
     UserEntity user = getUserById(userId);
     user.setBlocked(false);
     return userRepository.save(user);
+  }
+
   public List<UserDisplayDTO> searchUsersInOrganization(OrganizationEntity organization, String query) {
     return userRepository.findTop10ByOrganizationAndNameContainingIgnoreCaseOrOrganizationAndSurnameContainingIgnoreCase(
                     organization, query,
@@ -187,5 +189,5 @@ public class UserService {
                     user.getSurname()
             ))
             .toList();
+    }
   }
-}
