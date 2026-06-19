@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { api } from "@/auth/axios";
 import { GroupPrivileges } from "@/enums/GroupPrivilege";
@@ -6,12 +6,31 @@ import WeekSchedule from "@/components/WeekSchedule";
 
 const GroupDetails = () => {
   const { groupId } = useParams<{ groupId: string }>();
-  const [memberIdsInput, setMemberIdsInput] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<UserDisplayDTO[]>([]);
+  const [selectedUser, setSelectedUser] = useState<UserDisplayDTO | null>(null);
   const [selectedPermissions, setSelectedPermissions] = useState<GroupPrivileges[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const availablePermissions = Object.values(GroupPrivileges);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      if (searchQuery.length < 2) {
+        setSearchResults([]);
+        return;
+      }
+      try {
+        const res = await api.get<UserDisplayDTO[]>(`/api/users/search?q=${searchQuery}`);
+        setSearchResults(res.data);
+      } catch (err) {
+        console.error("Failed to search users", err);
+      }
+    };
+    const delay = setTimeout(fetchUsers, 300);
+    return () => clearTimeout(delay);
+  }, [searchQuery]);
 
   const handleTogglePermission = (permission: GroupPrivileges) => {
     setSelectedPermissions((prev) =>
@@ -27,19 +46,16 @@ const GroupDetails = () => {
     setIsLoading(true);
 
     try {
-      const memberIds = memberIdsInput
-        .split(",")
-        .map((id) => id.trim())
-        .filter((id) => id.length > 0);
-
-      if (memberIds.length === 0) {
-        throw new Error("Please provide at least one valid user ID.");
+      if (!selectedUser) {
+        throw new Error("Please select a user.");
       }
+      const memberIds = [selectedUser.userId];
       await api.put(`/api/groups/${groupId}/members`, {
         memberIds,
         permissions: selectedPermissions,
       });
-      setMemberIdsInput("");
+      setSelectedUser(null);
+      setSearchQuery("");
       setSelectedPermissions([]);
       alert("Members successfully added!");
     } catch (err: any) {
@@ -69,17 +85,53 @@ const GroupDetails = () => {
 
               {error && <div className="mb-4 text-sm text-red-600">{error}</div>}
 
-              <div className="mb-4">
+              <div className="mb-4 relative space-y-2">
                 <label className="block text-sm font-medium text-zinc-700 mb-1">
-                  User IDs (comma-separated UUIDs)
+                  Search User
                 </label>
-                <input
-                  type="text"
-                  value={memberIdsInput}
-                  onChange={(e) => setMemberIdsInput(e.target.value)}
-                  placeholder="e.g. 8fa12b..., 3bc89a..."
-                  className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-2 text-sm focus:border-zinc-400 focus:outline-none"
-                />
+                {!selectedUser ? (
+                  <>
+                    <input
+                      type="text"
+                      placeholder="Search user by name..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full rounded-xl border border-zinc-200 bg-zinc-50 px-4 py-2 text-sm focus:border-zinc-400 focus:outline-none"
+                    />
+                    {searchResults.length > 0 && (
+                      <ul className="absolute z-10 w-full mt-1 max-h-48 overflow-y-auto rounded-md border border-slate-200 bg-white shadow-lg">
+                        {searchResults.map((user) => (
+                          <li
+                            key={user.userId}
+                            className="cursor-pointer px-4 py-2 hover:bg-slate-50 border-b border-slate-100 last:border-0"
+                            onClick={() => {
+                              setSelectedUser(user);
+                              setSearchQuery("");
+                              setSearchResults([]);
+                            }}
+                          >
+                            <div className="font-medium text-sm text-slate-800">
+                              {user.name} {user.surname}
+                            </div>
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </>
+                ) : (
+                  <div className="flex items-center justify-between rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2">
+                    <div className="text-sm font-medium text-emerald-800">
+                      {selectedUser.name} {selectedUser.surname}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setSelectedUser(null)}
+                      className="text-sm font-medium text-emerald-700 hover:text-emerald-900"
+                    >
+                      Clear
+                    </button>
+                  </div>
+                )}
               </div>
               <div className="mb-6">
                 <span className="block text-sm font-medium text-zinc-700 mb-2">
