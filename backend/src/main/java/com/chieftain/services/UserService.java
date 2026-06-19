@@ -172,6 +172,10 @@ public class UserService {
     return userRepository.save(user);
   }
 
+  public UserEntity unblockUserById(UUID userId) {
+    UserEntity user = getUserById(userId);
+    user.setBlocked(false);
+    return userRepository.save(user);
   public List<UserDisplayDTO> searchUsersInOrganization(OrganizationEntity organization, String query) {
     return userRepository.findTop10ByOrganizationAndNameContainingIgnoreCaseOrOrganizationAndSurnameContainingIgnoreCase(
                     organization, query,

@@ -44,6 +44,14 @@ const Navbar = () => {
               User Requests
             </Link>
           )}
+          {role === SystemRole.SITE_ADMIN && (
+            <Link
+              to="/admin"
+              className="rounded-lg px-3 py-2 text-sm font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
+            >
+              Admin Panel
+            </Link>
+          )}
         </div>
 
         <div className="ml-auto flex items-center gap-3">
